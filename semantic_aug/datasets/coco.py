@@ -12,7 +12,7 @@ from PIL import Image
 from collections import defaultdict
 
 
-COCO_DIR = "/projects/rsalakhugroup/datasets/coco/coco_2017"
+COCO_DIR = r"D:\Uni\DLCV\coco2017"  # put ur own path here
 
 TRAIN_IMAGE_DIR = os.path.join(COCO_DIR, "train2017")
 VAL_IMAGE_DIR = os.path.join(COCO_DIR, "val2017")

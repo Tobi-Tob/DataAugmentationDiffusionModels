@@ -671,9 +671,12 @@ def main(args):
                 noisy_latents = noise_scheduler.add_noise(latents, noise, timesteps)
 
                 # Get the text embedding for conditioning
+                # TL:encoder_hidden_states = c_theta (containing infos about the new pseudo word?)
                 encoder_hidden_states = text_encoder(batch["input_ids"])[0].to(dtype=weight_dtype)
 
                 # Predict the noise residual
+                # TL: Predict the noise added to the batch of training images (in latent space)
+                # based on the noisy latents and the text encodings c_theta
                 model_pred = unet(noisy_latents, timesteps, encoder_hidden_states).sample
 
                 # Get the target for loss depending on the prediction type
@@ -689,6 +692,8 @@ def main(args):
                 accelerator.backward(loss)
 
                 optimizer.step()
+                # TL: Update all values (that are not fixed) in the direction that minimizes the currently calculated loss of the batch
+
                 lr_scheduler.step()
                 optimizer.zero_grad()
 
@@ -732,6 +737,8 @@ def main(args):
 
 
 if __name__ == "__main__":
+    # TL: call from terminal:
+    # python fine_tune.py --dataset=coco --output_dir=./ --pretrained_model_name_or_path="CompVis/stable-diffusion-v1-4" --resolution=512 --train_batch_size=4 --lr_warmup_steps=0 --gradient_accumulation_steps=1 --max_train_steps=1000 --learning_rate=5.0e-04 --scale_lr --lr_scheduler="constant" --mixed_precision=fp16 --revision=fp16 --gradient_checkpointing --only_save_embeds --num-trials 8 --examples-per-class 2
 
     args = parse_args()
     output_dir = args.output_dir
@@ -739,7 +746,7 @@ if __name__ == "__main__":
     rank = int(os.environ.pop("RANK", 0))
     world_size = int(os.environ.pop("WORLD_SIZE", 1))
 
-    device_id = rank % torch.cuda.device_count()
+    device_id = rank % torch.cuda.device_count()  # TL: torch.cuda.device_count() is 0 on my lokal machine
     torch.cuda.set_device(rank % torch.cuda.device_count())
 
     print(f'Initialized process {rank} / {world_size}')
