@@ -735,11 +735,11 @@ def main(args):
     gc.collect()
     torch.cuda.empty_cache()
 
+# TL: test comment
 
 if __name__ == "__main__":
     # TL: call from terminal:
     # python fine_tune.py --dataset=coco --output_dir=./ --pretrained_model_name_or_path="CompVis/stable-diffusion-v1-4" --resolution=512 --train_batch_size=4 --lr_warmup_steps=0 --gradient_accumulation_steps=1 --max_train_steps=1000 --learning_rate=5.0e-04 --scale_lr --lr_scheduler="constant" --mixed_precision=fp16 --revision=fp16 --gradient_checkpointing --only_save_embeds --num-trials 8 --examples-per-class 2
-
     args = parse_args()
     output_dir = args.output_dir
 
