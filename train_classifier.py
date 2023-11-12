@@ -368,6 +368,8 @@ class ClassificationModel(nn.Module):
 
 
 if __name__ == "__main__":
+    # TL: Skript to train the classifier (classifier-backbone: resnet50) based on augmented data
+    # python train_classifier.py --synthetic-dir "textual-inversion" --iterations-per-epoch 3 --num-epochs 2 --batch-size 4 --num-trials 1 --examples-per-class 2 --embed-path "coco-tokens/coco-0-2.pt" --dataset coco --aug "textual-inversion"
 
     parser = argparse.ArgumentParser("Few-Shot Baseline")
 

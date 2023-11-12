@@ -19,6 +19,8 @@ DEFAULT_ERASURE_CKPT = (
 
 
 if __name__ == "__main__":
+    # TL: Skript to manually generate images of the classes using a prompt with '<class_name>' as pseudo word
+    # python generate_images.py --embed-path "coco-tokens/coco-0-2.pt" --num-generate 5 --prompt "A photo of a huge <bear>" --out images
 
     parser = argparse.ArgumentParser("Stable Diffusion inference script")
 
@@ -33,7 +35,7 @@ if __name__ == "__main__":
     parser.add_argument("--out", type=str, default="erasure-tokens/fine-tuned/pascal-0-8/airplane/")
 
     parser.add_argument("--guidance-scale", type=float, default=7.5)
-    parser.add_argument("--erasure-ckpt-name", type=str, default=DEFAULT_ERASURE_CKPT)
+    parser.add_argument("--erasure-ckpt-name", type=str, default=None)  # TL: changed to default=None
 
     args = parser.parse_args()
 
