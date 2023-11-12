@@ -41,6 +41,7 @@ if __name__ == "__main__":
     # TL: Step 3
     # generate the augmentations using either real-guidance (baseline methode used for comparison in the paper?) or textual-inversion.
     # TL: need to login to huggingface to run this skript, execute: huggingface-cli login
+    # If I want to save them in the data directory I get: PermissionError: [Errno 13] Permission denied: '/data/dlcv2023_groupA/augmentations_1'
     # python generate_augmentations.py --out "textual-inversion/" --embed-path "coco-tokens/coco-0-2.pt" --dataset "coco" --num-synthetic 2 --aug "textual-inversion"
 
     parser = argparse.ArgumentParser("Inference script")

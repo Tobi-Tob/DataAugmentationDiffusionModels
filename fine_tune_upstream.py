@@ -988,6 +988,7 @@ def main(args):
 
 
 if __name__ == "__main__":
+    #  TL: Similar to fine_tune.py - both are doing the Textual Inversion part, which one to use?
 
     args = parse_args()
     output_dir = args.output_dir
