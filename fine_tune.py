@@ -745,6 +745,7 @@ if __name__ == "__main__":
     args = parse_args()
     output_dir = args.output_dir
 
+    # MR: rank is the current process ID and world size is the number of all active processes
     rank = int(os.environ.pop("RANK", 0))
     world_size = int(os.environ.pop("WORLD_SIZE", 1))
 
