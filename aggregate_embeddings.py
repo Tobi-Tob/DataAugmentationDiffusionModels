@@ -10,6 +10,10 @@ DEFAULT_EMBED_PATH = "{dataset}-tokens/{dataset}-{seed}-{examples_per_class}.pt"
 
 
 if __name__ == "__main__":
+    # TL: Step 2:
+    # Combines all learned embeddings and writes them in directory coco-tokens
+    # TL: call from terminal:
+    # python aggregate_embeddings.py --examples-per-class 2 --dataset coco
 
     parser = argparse.ArgumentParser("Merge token files")
 

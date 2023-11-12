@@ -38,6 +38,8 @@ AUGMENT = {
 
 
 if __name__ == "__main__":
+    # TL: Step 3 or 4?
+    # generate the augmentations using real-guidance (methode used to compare with in the paper?) or textual-inversion.
 
     parser = argparse.ArgumentParser("Inference script")
     

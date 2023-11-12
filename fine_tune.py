@@ -40,14 +40,12 @@ from torchvision import transforms
 from tqdm.auto import tqdm
 from transformers import CLIPTextModel, CLIPTokenizer
 
-
 DATASETS = {
-    "spurge": SpurgeDataset, 
-    "coco": COCODataset, 
+    "spurge": SpurgeDataset,
+    "coco": COCODataset,
     "pascal": PASCALDataset,
     "imagenet": ImageNetDataset
 }
-
 
 if version.parse(version.parse(PIL.__version__).base_version) >= version.parse("9.1.0"):
     PIL_INTERPOLATION = {
@@ -70,7 +68,6 @@ else:
 
 # Will error if the minimal version of diffusers is not installed. Remove at your own risks.
 check_min_version("0.10.0.dev0")
-
 
 logger = get_logger(__name__)
 
@@ -256,13 +253,13 @@ def parse_args():
 
     parser.add_argument("--num-trials", type=int, default=8)
     parser.add_argument("--examples-per-class", nargs='+', type=int, default=[1, 2, 4, 8, 16])
-    
-    parser.add_argument("--dataset", type=str, default="coco", 
+
+    parser.add_argument("--dataset", type=str, default="coco",
                         choices=["spurge", "imagenet", "coco", "pascal"])
 
     parser.add_argument("--unet-ckpt", type=str, default=None)
 
-    parser.add_argument("--erase-concepts", action="store_true", 
+    parser.add_argument("--erase-concepts", action="store_true",
                         help="erase text inversion concepts first")
 
     args = parser.parse_args()
@@ -328,17 +325,17 @@ imagenet_style_templates_small = [
 
 class TextualInversionDataset(Dataset):
     def __init__(
-        self,
-        data_root,
-        tokenizer,
-        learnable_property="object",  # [object, style]
-        size=512,
-        repeats=100,
-        interpolation="bicubic",
-        flip_p=0.5,
-        set="train",
-        placeholder_token="*",
-        center_crop=False,
+            self,
+            data_root,
+            tokenizer,
+            learnable_property="object",  # [object, style]
+            size=512,
+            repeats=100,
+            interpolation="bicubic",
+            flip_p=0.5,
+            set="train",
+            placeholder_token="*",
+            center_crop=False,
     ):
         self.data_root = data_root
         self.tokenizer = tokenizer
@@ -396,7 +393,7 @@ class TextualInversionDataset(Dataset):
                 img.shape[0],
                 img.shape[1],
             )
-            img = img[(h - crop) // 2 : (h + crop) // 2, (w - crop) // 2 : (w + crop) // 2]
+            img = img[(h - crop) // 2: (h + crop) // 2, (w - crop) // 2: (w + crop) // 2]
 
         image = Image.fromarray(img)
         image = image.resize((self.size, self.size), resample=self.interpolation)
@@ -420,7 +417,6 @@ def get_full_repo_name(model_id: str, organization: Optional[str] = None, token:
 
 
 def main(args):
-
     logging_dir = os.path.join(args.output_dir, args.logging_dir)
 
     accelerator = Accelerator(
@@ -539,7 +535,7 @@ def main(args):
 
     if args.scale_lr:
         args.learning_rate = (
-            args.learning_rate * args.gradient_accumulation_steps * args.train_batch_size * accelerator.num_processes
+                args.learning_rate * args.gradient_accumulation_steps * args.train_batch_size * accelerator.num_processes
         )
 
     # Initialize the optimizer
@@ -724,7 +720,7 @@ def main(args):
     if accelerator.is_main_process:
         # Save the newly trained embeddings
         save_path = os.path.join(args.output_dir, "learned_embeds.bin")
-        save_progress(text_encoder, placeholder_token_id, 
+        save_progress(text_encoder, placeholder_token_id,
                       accelerator, args, save_path)
 
     accelerator.end_training()
@@ -735,11 +731,17 @@ def main(args):
     gc.collect()
     torch.cuda.empty_cache()
 
+
 # TL: test comment
 
 if __name__ == "__main__":
-    # TL: call from terminal:
+    # TL: Step 1:
+    # Perform textual inversion to adapt Stable Diffusion to the classes present in our few-shot datasets.
+    # This implementation is adapted from
+    # (https://github.com/huggingface/diffusers/blob/main/examples/textual_inversion/textual_inversion.py)
+    # call from terminal:
     # python fine_tune.py --dataset=coco --output_dir=./ --pretrained_model_name_or_path="CompVis/stable-diffusion-v1-4" --resolution=512 --train_batch_size=4 --lr_warmup_steps=0 --gradient_accumulation_steps=1 --max_train_steps=1000 --learning_rate=5.0e-04 --scale_lr --lr_scheduler="constant" --mixed_precision=fp16 --revision=fp16 --gradient_checkpointing --only_save_embeds --num-trials 8 --examples-per-class 2
+
     args = parse_args()
     output_dir = args.output_dir
 
@@ -760,11 +762,10 @@ if __name__ == "__main__":
         os.makedirs(os.path.join(output_dir, "extracted"), exist_ok=True)
 
         train_dataset = DATASETS[
-            args.dataset](split="train", seed=seed, 
+            args.dataset](split="train", seed=seed,
                           examples_per_class=examples_per_class)
 
         for idx in range(len(train_dataset)):
-
             image = train_dataset.get_image_by_idx(idx)
             metadata = train_dataset.get_metadata_by_idx(idx)
 
@@ -782,7 +783,7 @@ if __name__ == "__main__":
             dirname = f"{args.dataset}-{seed}-{examples_per_class}/{formatted_name}"
 
             args = parse_args()
-            
+
             args.seed = seed
 
             args.placeholder_token = f"<{formatted_name}>"
@@ -796,9 +797,9 @@ if __name__ == "__main__":
             word_name = class_name.replace(" ", "")
 
             if args.erase_concepts: args.unet_ckpt = (
-                "/projects/rsalakhugroup/btrabucc/esd-models/" + 
-                f"compvis-word_{word_name}-method_full-sg_3-ng_1-iter_1000-lr_1e-05/" + 
-                f"diffusers-word_{word_name}-method_full-sg_3-ng_1-iter_1000-lr_1e-05.pt")
+                    "/projects/rsalakhugroup/btrabucc/esd-models/" +
+                    f"compvis-word_{word_name}-method_full-sg_3-ng_1-iter_1000-lr_1e-05/" +
+                    f"diffusers-word_{word_name}-method_full-sg_3-ng_1-iter_1000-lr_1e-05.pt")
 
             main(args)
 
