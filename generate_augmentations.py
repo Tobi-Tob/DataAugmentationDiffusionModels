@@ -38,8 +38,10 @@ AUGMENT = {
 
 
 if __name__ == "__main__":
-    # TL: Step 3 or 4?
-    # generate the augmentations using real-guidance (methode used to compare with in the paper?) or textual-inversion.
+    # TL: Step 3
+    # generate the augmentations using either real-guidance (baseline methode used for comparison in the paper?) or textual-inversion.
+    # TL: need to login to huggingface to run this skript, execute: huggingface-cli login
+    # python generate_augmentations.py --out "textual-inversion/" --embed-path "coco-tokens/coco-0-2.pt" --dataset "coco" --num-synthetic 2 --aug "textual-inversion"
 
     parser = argparse.ArgumentParser("Inference script")
     
