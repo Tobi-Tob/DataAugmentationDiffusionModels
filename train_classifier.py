@@ -98,7 +98,7 @@ def run_experiment(examples_per_class: int = 0,
 
         aug = COMPOSERS[compose]([
             
-            AUGMENTATIONS[aug](
+            AUGMENTATIONS[aug](  # MR: renamed to augment from aug!!
                 embed_path=embed_path, 
                 model_path=model_path, 
                 prompt=prompt, 
@@ -110,12 +110,15 @@ def run_experiment(examples_per_class: int = 0,
                 tokens_per_class=tokens_per_class
             )
 
-            for (aug, guidance_scale, 
+            # for augment in aug  # MR guidance_scale, strength, mask, inverted are all None -> so default value!!
+
+            # MR: commented out the following code and replaced it with the above (hardcoded)
+            for (aug, guidance_scale,
                  strength, mask, inverted) in zip(
-                aug, guidance_scale, 
-                strength,
-                mask,
-                inverted  # MR: this line throws an error -> it is not iterable, but must be...
+                  aug, guidance_scale,
+                  strength,
+                  mask,
+                  inverted  # MR: this line throws an error -> it is not iterable, but must be...
             )
 
         ], probs=probs)
@@ -404,13 +407,12 @@ if __name__ == "__main__":
                         choices=["real-guidance", "textual-inversion",
                                  "multi-token-inversion"])
 
-    # MR: I think --strength is the equivalent to t_0 in the paper -> when the real guidance is applied
     parser.add_argument("--strength", nargs="+", type=float, default=None)
     parser.add_argument("--guidance-scale", nargs="+", type=float, default=None)
 
-    # MR: --mask used to choose between image-2-image stable diff. (not = 0) and test-2-image stable diff (=0)
+    # MR: --mask used to choose between image-2-image stable diff (not = 0) and text-guided img. crea. stable diff (=0)
     parser.add_argument("--mask", nargs="+", type=int, default=None, choices=[0, 1])
-    parser.add_argument("--inverted", nargs="+", type=int, default=[], choices=[0, 1])  # MR: changed from None to []
+    parser.add_argument("--inverted", nargs="+", type=int, default=None, choices=[0, 1])
     
     parser.add_argument("--probs", nargs="+", type=float, default=None)
     
