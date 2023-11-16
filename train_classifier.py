@@ -38,8 +38,8 @@ except:
 DEFAULT_MODEL_PATH = "CompVis/stable-diffusion-v1-4"
 DEFAULT_PROMPT = "a photo of a {name}"
 
-DEFAULT_SYNTHETIC_DIR = "/projects/rsalakhugroup/\
-btrabucc/aug/{dataset}-{aug}-{seed}-{examples_per_class}"
+DEFAULT_SYNTHETIC_DIR = "/data/dlcv2023_groupA/augmentations/{dataset}-{aug}-{seed}-{examples_per_class}"
+#  TL: Permission denied when using DEFAULT_SYNTHETIC_DIR, no read/write permission?
 
 DEFAULT_EMBED_PATH = "{dataset}-tokens/{dataset}-{seed}-{examples_per_class}.pt"
 
@@ -368,57 +368,105 @@ class ClassificationModel(nn.Module):
 
 
 if __name__ == "__main__":
-    # TL: Skript to train the classifier (classifier-backbone: resnet50) based on augmented data
-    # python train_classifier.py --synthetic-dir "textual-inversion" --iterations-per-epoch 3 --num-epochs 2 --batch-size 4 --num-trials 1 --examples-per-class 2 --embed-path "coco-tokens/coco-0-2.pt" --dataset coco --aug "textual-inversion"
+    '''
+    TL: This script executes step 3 and 4 of the pipeline (generating synthetic images and training the classifier).
+    To run this skript the fine-tuned embeddings are needed in directory coco-tokens (execute step 1 and 2).
+    The classifier will be a fine-tuned version of classifier-backbone (resnet50) trained on a combination of real
+    and synthetic data.
+    
+    Run in terminal:
+    python train_classifier.py --synthetic-dir "synthetics_test" --iterations-per-epoch 10 --num-epochs 2 --batch-size 32 --num-synthetic 2 --examples-per-class 1 --embed-path "coco-tokens/coco-0-2.pt" --aug "textual-inversion" --strength 0.8 --guidance-scale 7.5 --mask 0 --inverted 0
+    '''
 
     parser = argparse.ArgumentParser("Few-Shot Baseline")
 
-    parser.add_argument("--logdir", type=str, default="few_shot_combined")
+    parser.add_argument("--logdir", type=str, default="logs_test")
+    # Directory used for logging and results
     parser.add_argument("--model-path", type=str, default="CompVis/stable-diffusion-v1-4")
+    # Path to the Diffusion Model
 
     parser.add_argument("--prompt", type=str, default="a photo of a {name}")
-
+    # A Textual Inversion parameter:
+    # Augmentations are generated conditioned on the prompt ({name} is replaced with the particular class pseudo word)
     parser.add_argument("--synthetic-probability", type=float, default=0.5)
+    # Probability to pick an image from the synthetic dataset while training the downstream model
     parser.add_argument("--synthetic-dir", type=str, default=DEFAULT_SYNTHETIC_DIR)
-    
+    # Directory to save the generated synthetic images
+
     parser.add_argument("--image-size", type=int, default=256)
+    # Define the desired image size to convert all images to: [`image_size`, `image_size`]
     parser.add_argument("--classifier-backbone", type=str, 
                         default="resnet50", choices=["resnet50", "deit"])
-
+    # The pre-trained model to use
     parser.add_argument("--iterations-per-epoch", type=int, default=200)
+    # Define how many different batches the classifier is trained on to complete an epoch
     parser.add_argument("--num-epochs", type=int, default=50)
+    # Define how many epochs the training is running
     parser.add_argument("--batch-size", type=int, default=32)
+    # Define how many images (real or synthetic) are in one batch
 
     parser.add_argument("--num-synthetic", type=int, default=15)
-    parser.add_argument("--num-trials", type=int, default=8)
+    # Define how many synthetic images should be generated per class
+    # Total number of synthetic images: num-synthetic * examples-per-class * 80
+    parser.add_argument("--num-trials", type=int, default=1)
+    # Define how often the entire experiment should be run with different seeds
     parser.add_argument("--examples-per-class", nargs='+', type=int, default=[1, 2, 4, 8, 16])
-    
+    # Define how many different images per class from the train data are used as guiding image
+    # in the image generating process
+    # Total number of synthetic images: num-synthetic * examples-per-class * 80
+
     parser.add_argument("--embed-path", type=str, default=DEFAULT_EMBED_PATH)
+    # Path to the trained embeddings of the pseudo words
     
-    parser.add_argument("--dataset", type=str, default="pascal", 
+    parser.add_argument("--dataset", type=str, default="coco",
                         choices=["spurge", "imagenet", "coco", "pascal", "flowers", "caltech"])
+    # Select which dataset to use (we only use coco)
     
-    parser.add_argument("--aug", nargs="+", type=str, default=None, 
+    parser.add_argument("--aug", nargs="+", type=str, default="textual-inversion",
                         choices=["real-guidance", "textual-inversion",
                                  "multi-token-inversion"])
+    # Select which augmentation strategy to use (we only use textual-inversion or multi-token-inversion?)
 
     parser.add_argument("--strength", nargs="+", type=float, default=None)
+    # A StableDiffusionImg2ImgPipeline and StableDiffusionInpaintPipeline Parameter:
+    # strength (`float`, *optional*, defaults to 0.8):
+    #   Indicates extent to transform the reference image. Must be between 0 and 1. Image is used as a
+    #   starting point and more noise is added the higher the `strength`. The number of denoising steps depends
+    #   on the amount of noise initially added. A value of 1 essentially ignores the reference image.
     parser.add_argument("--guidance-scale", nargs="+", type=float, default=None)
-
-    parser.add_argument("--mask", nargs="+", type=int, default=None, choices=[0, 1])
-    parser.add_argument("--inverted", nargs="+", type=int, default=None, choices=[0, 1])
-    
+    # A StableDiffusionImg2ImgPipeline and StableDiffusionInpaintPipeline Parameter:
+    # guidance_scale (`float`, *optional*, defaults to 7.5):
+    #   A higher guidance scale value encourages the model to generate images closely linked to the text prompt
+    #   at the expense of lower image quality. Guidance scale is enabled when `guidance_scale > 1`.
+    parser.add_argument("--mask", nargs="+", type=int, default=0, choices=[0, 1])
+    # A StableDiffusionInpaintPipeline Parameter:
+    # mask_image (`torch.FloatTensor`):
+    #   `mask_image` is representing an image batch to mask `image`. White pixels in the mask are repainted
+    #   while black pixels are preserved. Mask determines which pixels the model is allowed to change.
+    parser.add_argument("--inverted", nargs="+", type=int, default=0, choices=[0, 1])
+    # A Textual Inversion Parameter:
+    #   Allows to invert the mask
     parser.add_argument("--probs", nargs="+", type=float, default=None)
+    # Has something to do with ComposeParallel or ComposeSequential
     
     parser.add_argument("--compose", type=str, default="parallel", 
                         choices=["parallel", "sequential"])
+    # How to process the pipeline?
     
     parser.add_argument("--erasure-ckpt-path", type=str, default=None)
-
+    # A Textual Inversion Parameter:
+    #   Allows to erasure model knowledge to prevent data leakage as described in the paper
     parser.add_argument("--use-randaugment", action="store_true")
+    # Whether to use RandAugment or normal augmentation (rotation and flip)
+    # RandAugment: Practical automated data augmentation with a reduced search space <https://arxiv.org/abs/1909.13719>
     parser.add_argument("--use-cutmix", action="store_true")
+    # Whether to use CutMix or not
+    # CutMix is an augmentation strategy for image data. Instead of removing pixels as in Cutout,
+    # CutMix replaces the removed regions with a patch from another image.
 
     parser.add_argument("--tokens-per-class", type=int, default=4)
+    # A Textual Inversion Parameter
+    #   Only used when --aug "multi-token-inversion" selected
     
     args = parser.parse_args()
 
