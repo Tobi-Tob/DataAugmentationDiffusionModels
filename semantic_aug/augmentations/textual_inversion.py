@@ -144,7 +144,7 @@ class TextualInversion(GenerativeAugmentation):
 
         kwargs = dict(
             image=canvas,
-            prompt=[prompt], 
+            prompt=[prompt],  # MR: parameter with multipler prompts as list
             strength=self.strength, 
             guidance_scale=self.guidance_scale
         )
