@@ -23,7 +23,7 @@ if __name__ == "__main__":
     TL: Skript to manually generate images of the classes using a prompt with '<class_name>' as pseudo word
     
     Call from Terminal:
-    python generate_images.py --embed-path "coco-tokens/coco-0-2.pt" --num-generate 5 --prompt "A photo of a huge <bear>" --out images
+    python generate_images.py --embed-path "coco-tokens/coco-0-8.pt" --num-generate 5 --prompt "A photo of a huge <bear>" --out images
     '''
 
     parser = argparse.ArgumentParser("Stable Diffusion inference script")
