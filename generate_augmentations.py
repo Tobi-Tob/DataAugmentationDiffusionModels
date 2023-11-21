@@ -49,29 +49,42 @@ if __name__ == "__main__":
     If I want to save them in the data directory I get:
     PermissionError: [Errno 13] Permission denied: '/data/dlcv2023_groupA/augmentations_1'
     
-    Call from terminal:
-    python generate_augmentations.py --out "textual-inversion/" --embed-path "coco-tokens/coco-0-2.pt" --dataset "coco" --num-synthetic 2 --aug "textual-inversion"
+    TL: I get good semantically diverse results if I relax the strength to 0.6, but increase the guidance-scale for class dependency to 10:
+    python generate_augmentations.py --examples-per-class 4 --num-synthetic 3 --prompt "a photo of a {name}" --guidance-scale 10 --strength 0.6
+    
+    TL: To see how well the class concepts are embedded, generate the images without dependency to the guiding image by setting strength to 1
+    python generate_augmentations.py --out "synthetic_class_concepts" --examples-per-class 1 --num-synthetic 5 --prompt "a photo of a {name}" --guidance-scale 10 --strength 1
+
     '''
 
     parser = argparse.ArgumentParser("Inference script")
     
-    parser.add_argument("--out", type=str, default="real-guidance/")
+    parser.add_argument("--out", type=str, default="synthetics_test")
 
     parser.add_argument("--model-path", type=str, default="CompVis/stable-diffusion-v1-4")
-    parser.add_argument("--embed-path", type=str, default="erasure-tokens/pascal-tokens/pascal-0-8.pt")
+    parser.add_argument("--embed-path", type=str, default="coco-tokens/coco-0-8.pt")
     
-    parser.add_argument("--dataset", type=str, default="pascal")
+    parser.add_argument("--dataset", type=str, default="coco")
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--examples-per-class", type=int, default=1)
-    parser.add_argument("--num-synthetic", type=int, default=10)
+    parser.add_argument("--num-synthetic", type=int, default=5)
 
     parser.add_argument("--prompt", type=str, default="a photo of a {name}")
     
-    parser.add_argument("--aug", nargs="+", type=str, default=["real-guidance"], 
+    parser.add_argument("--aug", nargs="+", type=str, default=["textual-inversion"],
                         choices=["real-guidance", "textual-inversion"])
 
     parser.add_argument("--guidance-scale", nargs="+", type=float, default=[7.5])
+    # A StableDiffusionImg2ImgPipeline and StableDiffusionInpaintPipeline Parameter:
+    # guidance_scale (`float`, *optional*, defaults to 7.5):
+    #   A higher guidance scale value encourages the model to generate images closely linked to the text prompt
+    #   at the expense of lower image quality. Guidance scale is enabled when `guidance_scale > 1`.
     parser.add_argument("--strength", nargs="+", type=float, default=[0.5])
+    # A StableDiffusionImg2ImgPipeline and StableDiffusionInpaintPipeline Parameter:
+    # strength (`float`, *optional*, defaults to 0.8):
+    #   Indicates extent to transform the reference image. Must be between 0 and 1. Image is used as a
+    #   starting point and more noise is added the higher the `strength`. The number of denoising steps depends
+    #   on the amount of noise initially added. A value of 1 essentially ignores the reference image.
 
     parser.add_argument("--mask", nargs="+", type=int, default=[0], choices=[0, 1])
     parser.add_argument("--inverted", nargs="+", type=int, default=[0], choices=[0, 1])
@@ -82,6 +95,7 @@ if __name__ == "__main__":
                         choices=["parallel", "sequential"])
 
     parser.add_argument("--class-name", type=str, default=None)
+    #  Generate synthetics for specific class?
     
     parser.add_argument("--erasure-ckpt-path", type=str, default=None)
 
