@@ -375,12 +375,15 @@ if __name__ == "__main__":
     and synthetic data.
     
     Run in terminal:
+    (test)
     python train_classifier.py --synthetic-dir "synthetics_test" --iterations-per-epoch 10 --num-epochs 2 --batch-size 32 --num-synthetic 2 --examples-per-class 1 --embed-path "coco-tokens/coco-0-2.pt" --aug "textual-inversion" --strength 0.8 --guidance-scale 7.5 --mask 0 --inverted 0
+    (values of paper)
+    python train_classifier.py --synthetic-dir "synthetics" --iterations-per-epoch 200 --num-epochs 50 --batch-size 32 --num-synthetic 10 --num-trials 2 --examples-per-class 8 --embed-path "coco-tokens/coco-0-8.pt" --aug "textual-inversion" --strength 0.5 --guidance-scale 7.5 --mask 0 --inverted 0
     '''
 
     parser = argparse.ArgumentParser("Few-Shot Baseline")
 
-    parser.add_argument("--logdir", type=str, default="logs_test")
+    parser.add_argument("--logdir", type=str, default="logs")
     # Directory used for logging and results
     parser.add_argument("--model-path", type=str, default="CompVis/stable-diffusion-v1-4")
     # Path to the Diffusion Model

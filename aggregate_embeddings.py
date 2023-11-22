@@ -15,7 +15,7 @@ if __name__ == "__main__":
     Combines all learned embeddings and writes them in directory coco-tokens
     
     call from terminal:
-    python aggregate_embeddings.py --examples-per-class 2 --dataset coco
+    python aggregate_embeddings.py --num-trials 1 --examples-per-class 2 --dataset coco
     '''
 
     parser = argparse.ArgumentParser("Merge token files")

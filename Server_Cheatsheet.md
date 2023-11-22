@@ -77,17 +77,19 @@ To Send files between local machine and server using SSH you can use the **scp**
 	The *ip_adress* is something like *lab22.visinf.informatik.tu-darmstadt.de*. To copy the file to your user home directory the path is */visinf/home/username*
 2. Send a whole directory from local machine to the server:
 	```
-	scp -r <dir_name> <user_name>@<ip_adress>:<target_directory_on_server>
+	scp -r <local_path/dir_name> <user_name>@<ip_adress>:<target_directory_on_server>
+ 	scp -r D:\Uni\DLCV vilab07@lab22.visinf.informatik.tu-darmstadt.de:/visinf/home/vilab07/DataAugmentationDiffusionModels/synthetics
 	```
 3. Send a file from the server to the local machine:
 	Open a Bash / Powershell **on your local machine** and navigate to the target directory and type:
 	```
-	scp <user_name>@<ip_adress>:<path_to_file_on_server/file_name> .
+	scp <user_name>@<ip_adress>:<path_to_file_on_server/file_name>
 	```
 	The point at the end indicates that the current directory is the target directory on your local machine. Since you have navigated to the target directory before the filetransfer this works correctly.
 4. Send a whole directory from the server to the local machine:
 	Open a Bash / Powershell **on your local machine** and navigate to the target directory and type:
 	```
-	scp -r <user_name>@<ip_adress>:<path_to_file_on_server/file_name> .
+	scp -r <user_name>@<ip_adress>:<path_to_file_on_server> <local_path_to_store>
+ 	scp -r vilab07@lab22.visinf.informatik.tu-darmstadt.de:/visinf/home/vilab07/DataAugmentationDiffusionModels/synthetics D:\Uni\DLCV
 	```
 	This works aquivalent to the above case.
