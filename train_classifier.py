@@ -113,7 +113,9 @@ def run_experiment(examples_per_class: int = 0,
             for (aug, guidance_scale, 
                  strength, mask, inverted) in zip(
                 aug, guidance_scale, 
-                strength, mask, inverted
+                strength,
+                mask,
+                inverted  # MR: this line throws an error -> it is not iterable, but must be...
             )
 
         ], probs=probs)
@@ -430,6 +432,7 @@ if __name__ == "__main__":
                                  "multi-token-inversion"])
     # Select which augmentation strategy to use (we only use textual-inversion or multi-token-inversion?)
 
+    # MR: I think --strength is the equivalent to t_0 in the paper -> when the real guidance is applied
     parser.add_argument("--strength", nargs="+", type=float, default=None)
     # A StableDiffusionImg2ImgPipeline and StableDiffusionInpaintPipeline Parameter:
     # strength (`float`, *optional*, defaults to 0.8):
@@ -437,6 +440,7 @@ if __name__ == "__main__":
     #   starting point and more noise is added the higher the `strength`. The number of denoising steps depends
     #   on the amount of noise initially added. A value of 1 essentially ignores the reference image.
     parser.add_argument("--guidance-scale", nargs="+", type=float, default=None)
+<<<<<<< HEAD
     # A StableDiffusionImg2ImgPipeline and StableDiffusionInpaintPipeline Parameter:
     # guidance_scale (`float`, *optional*, defaults to 7.5):
     #   A higher guidance scale value encourages the model to generate images closely linked to the text prompt
@@ -449,6 +453,13 @@ if __name__ == "__main__":
     parser.add_argument("--inverted", nargs="+", type=int, default=0, choices=[0, 1])
     # A Textual Inversion Parameter:
     #   Allows to invert the mask
+=======
+
+    # MR: --mask used to choose between image-2-image stable diff. (not = 0) and test-2-image stable diff (=0)
+    parser.add_argument("--mask", nargs="+", type=int, default=None, choices=[0, 1])
+    parser.add_argument("--inverted", nargs="+", type=int, default=[], choices=[0, 1])  # MR: changed from None to []
+    
+>>>>>>> added comments in train classifier process
     parser.add_argument("--probs", nargs="+", type=float, default=None)
     # Has something to do with ComposeParallel or ComposeSequential
     
