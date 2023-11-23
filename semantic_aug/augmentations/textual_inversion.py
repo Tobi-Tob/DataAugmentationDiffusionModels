@@ -79,6 +79,10 @@ class TextualInversion(GenerativeAugmentation):
 
         super(TextualInversion, self).__init__()
 
+        # MR: prompts were strings earlier -> to make it backwards compatible the following is done
+        if isinstance(prompt, str):
+            prompt = [prompt]
+
         if TextualInversion.pipe is None:
 
             PipelineClass = (StableDiffusionInpaintPipeline 
@@ -120,7 +124,8 @@ class TextualInversion(GenerativeAugmentation):
 
         canvas = image.resize((512, 512), Image.BILINEAR)
         name = self.format_name(metadata.get("name", ""))
-        prompt = self.prompt.format(name=name)
+        # prompt = self.prompt.format(name=name)  -> when prompt was string (now: list of strings)
+        prompt = [prmt.format(name=name) for prmt in self.prompt]
 
         if self.mask: assert "mask" in metadata, \
             "mask=True but no mask present in metadata"
@@ -144,7 +149,7 @@ class TextualInversion(GenerativeAugmentation):
 
         kwargs = dict(
             image=canvas,
-            prompt=[prompt], 
+            prompt=prompt,  # MR: was [prompt] earlier
             strength=self.strength, 
             guidance_scale=self.guidance_scale
         )

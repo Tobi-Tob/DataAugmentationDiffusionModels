@@ -69,7 +69,7 @@ if __name__ == "__main__":
     parser.add_argument("--examples-per-class", type=int, default=1)
     parser.add_argument("--num-synthetic", type=int, default=5)
 
-    parser.add_argument("--prompt", type=str, default="a photo of a {name}")
+    parser.add_argument("--prompt", type=str, default=["a photo of a {name}"])
     
     parser.add_argument("--aug", nargs="+", type=str, default=["textual-inversion"],
                         choices=["real-guidance", "textual-inversion"])
