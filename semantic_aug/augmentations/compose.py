@@ -42,7 +42,7 @@ class ComposeParallel(GenerativeAugmentation):
 
         super(ComposeParallel, self).__init__()
 
-        self.augs = augs
+        self.augs = augs  # MR: comprises TextualInverstion()
         self.probs = probs if probs is not None \
             else [1.0 / len(augs) for _ in augs]
 

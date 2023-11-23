@@ -9,7 +9,7 @@ from transformers import (
 from diffusers.utils import logging
 from PIL import Image, ImageOps
 
-from typing import Any, Tuple, Callable
+from typing import Any, Tuple, Callable, List
 from torch import autocast
 from scipy.ndimage import maximum_filter
 
@@ -79,10 +79,6 @@ class TextualInversion(GenerativeAugmentation):
 
         super(TextualInversion, self).__init__()
 
-        # MR: prompts were strings earlier -> to make it backwards compatible the following is done
-        if isinstance(prompt, str):
-            prompt = [prompt]
-
         if TextualInversion.pipe is None:
 
             PipelineClass = (StableDiffusionInpaintPipeline 
@@ -120,7 +116,7 @@ class TextualInversion(GenerativeAugmentation):
         self.erasure_word_name = None
 
     def forward(self, image: Image.Image, label: int, 
-                metadata: dict) -> Tuple[Image.Image, int]:
+                metadata: dict) -> Tuple[List[Image.Image], int]:
 
         canvas = image.resize((512, 512), Image.BILINEAR)
         name = self.format_name(metadata.get("name", ""))
@@ -181,7 +177,9 @@ class TextualInversion(GenerativeAugmentation):
                 and outputs.nsfw_content_detected[0]
             )
 
-        canvas = outputs.images[0].resize(
-            image.size, Image.BILINEAR)
+        # MR: create new list of images for result because original canvas is only one image.
+        result_canvas = []
+        for i in range(len(outputs.images)):
+            result_canvas.append(outputs.images[i].resize(image.size, Image.BILINEAR))
 
-        return canvas, label
+        return result_canvas, label
