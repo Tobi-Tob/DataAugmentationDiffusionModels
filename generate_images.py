@@ -23,7 +23,7 @@ if __name__ == "__main__":
     TL: Skript to manually generate images of the classes using a prompt with '<class_name>' as pseudo word
     
     Call from Terminal:
-    python generate_images.py --embed-path "coco-tokens/coco-0-8.pt" --num-generate 5 --prompt "A photo of a huge <bear>" --out images
+    python generate_images.py --embed-path "coco-tokens/coco-0-8.pt" --num-generate 5 --prompt "A photo of a huge <airplane>" --out images
     '''
 
     parser = argparse.ArgumentParser("Stable Diffusion inference script")
@@ -35,13 +35,15 @@ if __name__ == "__main__":
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--num-generate", type=int, default=10)
 
-    parser.add_argument("--prompt", type=str, default="a photo of a <airplane>")
+    parser.add_argument("--prompt", nargs='+', type=str, default="a photo of a <airplane>")  # MR: added nargs='+' to enable multiple prmopts
     parser.add_argument("--out", type=str, default="erasure-tokens/fine-tuned/pascal-0-8/airplane/")
 
     parser.add_argument("--guidance-scale", type=float, default=7.5)
     parser.add_argument("--erasure-ckpt-name", type=str, default=None)  # TL: changed to default=None
 
     args = parser.parse_args()
+
+    print("# MR: promps init: ", args.prompt)
 
     os.makedirs(args.out, exist_ok=True)
 
@@ -71,9 +73,17 @@ if __name__ == "__main__":
 
         with autocast('cuda'):
 
-            image = pipe(
-                args.prompt, 
-                guidance_scale=args.guidance_scale
-            ).images[0]
+            if len(args.prompt) > 1:  # MR: multiple prompts
+                image = pipe(
+                    args.prompt,
+                    guidance_scale=args.guidance_scale
+                ).images
+            else:
+                image = pipe(
+                    args.prompt,
+                    guidance_scale=args.guidance_scale
+                ).images[0]
 
-        image.save(os.path.join(args.out, f"{idx}.png"))
+        print("# MR: numb results per img: ", len(image))
+        for i in range(len(image)):  # MR: added this to handle multiple prompts per image
+            image[i].save(os.path.join(args.out, f"{idx}_{i}.png"))
