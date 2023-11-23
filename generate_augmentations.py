@@ -137,20 +137,22 @@ if __name__ == "__main__":
     for idx, num in tqdm(list(
             options), desc="Generating Augmentations"):
 
-        image = train_dataset.get_image_by_idx(idx)
-        label = train_dataset.get_label_by_idx(idx)
+        # MR: give as many images/lables/metadata as prompts to the model
+        image = [train_dataset.get_image_by_idx(idx)] * len(args.prompt)
+        label = [train_dataset.get_label_by_idx(idx)] * len(args.prompt)
+        metadata = [train_dataset.get_metadata_by_idx(idx)] * len(args.prompt)
 
-        metadata = train_dataset.get_metadata_by_idx(idx)
-
-        if args.class_name is not None: 
-            if metadata["name"] != args.class_name: continue
+        for meta in metadata:
+            if args.class_name is not None:
+                if meta["name"] != args.class_name: continue
 
         image, label = aug(
             image, label, metadata)
 
-        name = metadata['name'].replace(" ", "_")
+        name = metadata[0]['name'].replace(" ", "_")
 
-        pil_image, image = image, os.path.join(
-            args.out, f"{name}-{idx}-{num}.png")
+        for i in range(len(image)):
+            pil_image, image = image[i], os.path.join(
+                args.out, f"{name}-{idx}-{num}-p{i}.png")
 
-        pil_image.save(image)
+            pil_image.save(image)

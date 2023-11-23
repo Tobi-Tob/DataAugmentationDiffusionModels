@@ -76,17 +76,11 @@ if __name__ == "__main__":
 
         with autocast('cuda'):
 
-            if len(args.prompt) > 1:  # MR: multiple prompts
-                image = pipe(
-                    args.prompt,
-                    guidance_scale=args.guidance_scale
-                ).images
-            else:
-                image = pipe(
-                    args.prompt,
-                    guidance_scale=args.guidance_scale
-                ).images[0]
+            image = pipe(
+                args.prompt,
+                guidance_scale=args.guidance_scale
+            ).images
 
         print("# MR: numb results per img: ", len(image))
         for i in range(len(image)):  # MR: added this to handle multiple prompts per image
-            image[i].save(os.path.join(args.out, f"{idx}_{i}.png"))
+            image[i].save(os.path.join(args.out, f"{idx}_p{i}.png"))
