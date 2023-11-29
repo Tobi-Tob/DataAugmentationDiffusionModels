@@ -22,7 +22,8 @@ class FewShotDataset(Dataset):
     def __init__(self, examples_per_class: int = None, 
                  generative_aug: GenerativeAugmentation = None, 
                  synthetic_probability: float = 0.5,
-                 synthetic_dir: str = None):
+                 synthetic_dir: str = None,
+                 synthetics_filter_threshold: float = None):
 
         self.examples_per_class = examples_per_class
         self.generative_aug = generative_aug
@@ -30,6 +31,8 @@ class FewShotDataset(Dataset):
         self.synthetic_probability = synthetic_probability
         self.synthetic_dir = synthetic_dir
         self.synthetic_examples = defaultdict(list)
+
+        self.synthetics_filter_threshold = synthetics_filter_threshold
 
         self.transform = transforms.Compose([
             transforms.ToTensor(),
@@ -40,6 +43,13 @@ class FewShotDataset(Dataset):
         
         if synthetic_dir is not None:
             os.makedirs(synthetic_dir, exist_ok=True)
+            if synthetics_filter_threshold is not None:
+                # Extract the path_to_dir and dir_name, change to new_dir_name and combine to discarded_dir
+                path_to_dir, dir_name = os.path.split(synthetic_dir)
+                new_dir_name = dir_name + "_discarded"
+                self.discarded_dir = os.path.join(path_to_dir, new_dir_name)
+
+                os.makedirs(self.discarded_dir, exist_ok=True)
     
     @abc.abstractmethod
     def get_image_by_idx(self, idx: int) -> Image.Image:
@@ -71,13 +81,16 @@ class FewShotDataset(Dataset):
                 image, label, self.get_metadata_by_idx(idx))
 
             if self.synthetic_dir is not None:
+                pil_image = image
+                if (self.synthetics_filter_threshold is not None and
+                        np.random.uniform() < self.synthetics_filter_threshold):
+                    # TL: Save discarded images in self.discarded_dir instead of self.synthetic_dir
+                    image_path = os.path.join(self.discarded_dir, f"aug-{idx}-{num}.png")
+                else:
+                    image_path = os.path.join(self.synthetic_dir, f"aug-{idx}-{num}.png")
+                    self.synthetic_examples[idx].append((image_path, label))
 
-                pil_image, image = image, os.path.join(
-                    self.synthetic_dir, f"aug-{idx}-{num}.png")
-
-                pil_image.save(image)
-
-            self.synthetic_examples[idx].append((image, label))
+                pil_image.save(image_path)
 
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, int]:
 

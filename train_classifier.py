@@ -88,7 +88,8 @@ def run_experiment(examples_per_class: int = 0,
                    use_cutmix: bool = False,
                    erasure_ckpt_path: str = None,
                    image_size: int = 256,
-                   classifier_backbone: str = "resnet50"):
+                   classifier_backbone: str = "resnet50",
+                   synthetics_filter_threshold: float = None):
 
     torch.manual_seed(seed)
     np.random.seed(seed)
@@ -124,7 +125,8 @@ def run_experiment(examples_per_class: int = 0,
         synthetic_dir=synthetic_dir,
         use_randaugment=use_randaugment,
         generative_aug=aug, seed=seed,
-        image_size=(image_size, image_size))
+        image_size=(image_size, image_size),
+        synthetics_filter_threshold=synthetics_filter_threshold)
 
     if num_synthetic > 0 and aug is not None:
         train_dataset.generate_augmentations(num_synthetic)
@@ -470,6 +472,12 @@ if __name__ == "__main__":
     parser.add_argument("--tokens-per-class", type=int, default=4)
     # A Textual Inversion Parameter
     #   Only used when --aug "multi-token-inversion" selected
+
+    parser.add_argument("--synthetics-filter", type=float, default=None)
+    # Use a classifier on the dataset to determine the presence of the labelled class in the synthetically
+    # generated images. The filter threshold, set to 0.2, acts as a criterion for image inclusion.
+    # Images with a class score of the label below 0.2 are discarded. A filter threshold of None or 0
+    # implies no filtering, allowing all images to be used in training the downstream model.
     
     args = parser.parse_args()
 
@@ -516,7 +524,8 @@ if __name__ == "__main__":
             use_cutmix=args.use_cutmix,
             erasure_ckpt_path=args.erasure_ckpt_path,
             image_size=args.image_size,
-            classifier_backbone=args.classifier_backbone)
+            classifier_backbone=args.classifier_backbone,
+            synthetics_filter_threshold=args.synthetics_filter)
 
         synthetic_dir = args.synthetic_dir.format(**hyperparameters)
         embed_path = args.embed_path.format(**hyperparameters)
