@@ -13,6 +13,9 @@ import abc
 import random
 import os
 
+import torch.nn as nn
+import torch.nn.functional as F
+
 
 class FewShotDataset(Dataset):
 
@@ -23,6 +26,7 @@ class FewShotDataset(Dataset):
                  generative_aug: GenerativeAugmentation = None, 
                  synthetic_probability: float = 0.5,
                  synthetic_dir: str = None,
+                 filter_model: nn.Module = None,
                  synthetics_filter_threshold: float = None):
 
         self.examples_per_class = examples_per_class
@@ -31,8 +35,6 @@ class FewShotDataset(Dataset):
         self.synthetic_probability = synthetic_probability
         self.synthetic_dir = synthetic_dir
         self.synthetic_examples = defaultdict(list)
-
-        self.synthetics_filter_threshold = synthetics_filter_threshold
 
         self.transform = transforms.Compose([
             transforms.ToTensor(),
@@ -44,6 +46,9 @@ class FewShotDataset(Dataset):
         if synthetic_dir is not None:
             os.makedirs(synthetic_dir, exist_ok=True)
             if synthetics_filter_threshold is not None:
+                self.filter_model = filter_model
+                self.filter_model.eval()
+                self.synthetics_filter_threshold = synthetics_filter_threshold
                 # Extract the path_to_dir and dir_name, change to new_dir_name and combine to discarded_dir
                 path_to_dir, dir_name = os.path.split(synthetic_dir)
                 new_dir_name = dir_name + "_discarded"
@@ -81,13 +86,32 @@ class FewShotDataset(Dataset):
                 image, label, self.get_metadata_by_idx(idx))
 
             if self.synthetic_dir is not None:
-                pil_image = image
-                if (self.synthetics_filter_threshold is not None and
-                        np.random.uniform() < self.synthetics_filter_threshold):
+                pil_image = image  # type: PIL.Image.Image
+                discard_image = False
+
+                if self.synthetics_filter_threshold is not None:
+                    # Add an extra batch dimension as the model expects a batch of images
+                    # and change device type of the input tensor to GPU
+                    transformed_image = self.transform(image).unsqueeze(0).cuda()
+                    # Run through model
+                    logits = self.filter_model(transformed_image)
+                    # Apply softmax activation to convert logits into probabilities
+                    probabilities = F.softmax(logits, dim=1)
+                    probabilities_array = probabilities.cpu().detach().numpy()[0]
+
+                    # print(probabilities_array)
+                    # print('label', label)
+
+                    if probabilities_array[label] < self.synthetics_filter_threshold:
+                        discard_image = True
+
+                if discard_image:
                     # TL: Save discarded images in self.discarded_dir instead of self.synthetic_dir
                     image_path = os.path.join(self.discarded_dir, f"aug-{idx}-{num}.png")
+                    # print('image discarded')
                 else:
                     image_path = os.path.join(self.synthetic_dir, f"aug-{idx}-{num}.png")
+                    # print('image accepted')
                     self.synthetic_examples[idx].append((image_path, label))
 
                 pil_image.save(image_path)
