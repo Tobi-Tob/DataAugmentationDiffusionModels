@@ -88,7 +88,8 @@ def run_experiment(examples_per_class: int = 0,
                    use_cutmix: bool = False,
                    erasure_ckpt_path: str = None,
                    image_size: int = 256,
-                   classifier_backbone: str = "resnet50"):
+                   classifier_backbone: str = "resnet50",
+                   filter_mask_area: int = 0):
 
     torch.manual_seed(seed)
     np.random.seed(seed)
@@ -98,7 +99,7 @@ def run_experiment(examples_per_class: int = 0,
 
         aug = COMPOSERS[compose]([
             
-            AUGMENTATIONS[aug](  # MR: renamed to augment from aug!!
+            AUGMENTATIONS[aug](
                 embed_path=embed_path, 
                 model_path=model_path, 
                 prompt=prompt, 
@@ -110,15 +111,10 @@ def run_experiment(examples_per_class: int = 0,
                 tokens_per_class=tokens_per_class
             )
 
-            # for augment in aug  # MR guidance_scale, strength, mask, inverted are all None -> so default value!!
-
-            # MR: commented out the following code and replaced it with the above (hardcoded)
-            for (aug, guidance_scale,
+            for (aug, guidance_scale, 
                  strength, mask, inverted) in zip(
-                  aug, guidance_scale,
-                  strength,
-                  mask,
-                  inverted  # MR: this line throws an error -> it is not iterable, but must be...
+                aug, guidance_scale, 
+                strength, mask, inverted
             )
 
         ], probs=probs)
@@ -129,7 +125,8 @@ def run_experiment(examples_per_class: int = 0,
         synthetic_dir=synthetic_dir,
         use_randaugment=use_randaugment,
         generative_aug=aug, seed=seed,
-        image_size=(image_size, image_size))
+        image_size=(image_size, image_size),
+        filter_mask_area=filter_mask_area)
 
     if num_synthetic > 0 and aug is not None:
         train_dataset.generate_augmentations(num_synthetic)
@@ -152,7 +149,8 @@ def run_experiment(examples_per_class: int = 0,
 
     val_dataset = DATASETS[dataset](
         split="val", seed=seed,
-        image_size=(image_size, image_size))
+        image_size=(image_size, image_size),
+        filter_mask_area=filter_mask_area)
 
     val_sampler = torch.utils.data.RandomSampler(
         val_dataset, replacement=True, 
@@ -442,7 +440,6 @@ if __name__ == "__main__":
     #   starting point and more noise is added the higher the `strength`. The number of denoising steps depends
     #   on the amount of noise initially added. A value of 1 essentially ignores the reference image.
     parser.add_argument("--guidance-scale", nargs="+", type=float, default=None)
-
     # A StableDiffusionImg2ImgPipeline and StableDiffusionInpaintPipeline Parameter:
     # guidance_scale (`float`, *optional*, defaults to 7.5):
     #   A higher guidance scale value encourages the model to generate images closely linked to the text prompt
@@ -455,7 +452,6 @@ if __name__ == "__main__":
     parser.add_argument("--inverted", nargs="+", type=int, default=0, choices=[0, 1])
     # A Textual Inversion Parameter:
     #   Allows to invert the mask
-
     parser.add_argument("--probs", nargs="+", type=float, default=None)
     # Has something to do with ComposeParallel or ComposeSequential
     
@@ -477,6 +473,11 @@ if __name__ == "__main__":
     parser.add_argument("--tokens-per-class", type=int, default=4)
     # A Textual Inversion Parameter
     #   Only used when --aug "multi-token-inversion" selected
+
+    parser.add_argument("--filter_mask_area", type=int, default=0)
+    # Determines how much images per class to filter out by area size of largest bounding box for pseudo word generation
+    # If no filtering at all, set to zero
+    # 'Good' value is 50000 and everything in the range of 30000 - 70000 works pretty well
     
     args = parser.parse_args()
 
@@ -523,7 +524,8 @@ if __name__ == "__main__":
             use_cutmix=args.use_cutmix,
             erasure_ckpt_path=args.erasure_ckpt_path,
             image_size=args.image_size,
-            classifier_backbone=args.classifier_backbone)
+            classifier_backbone=args.classifier_backbone,
+            filter_mask_area=args.filter_mask_area)
 
         synthetic_dir = args.synthetic_dir.format(**hyperparameters)
         embed_path = args.embed_path.format(**hyperparameters)
