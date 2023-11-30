@@ -103,7 +103,7 @@ def run_experiment(examples_per_class: int = 0,
         filter_model = train_filter(seed=seed,
                                     dataset=dataset,
                                     iterations_per_epoch=200,
-                                    num_epochs=5,
+                                    num_epochs=50,
                                     batch_size=32,
                                     image_size=image_size,
                                     classifier_backbone=classifier_backbone)
@@ -395,6 +395,9 @@ if __name__ == "__main__":
     python train_classifier.py --synthetic-dir "synthetics_test" --iterations-per-epoch 10 --num-epochs 2 --batch-size 32 --num-synthetic 2 --examples-per-class 1 --embed-path "coco-tokens/coco-0-2.pt" --aug "textual-inversion" --strength 0.8 --guidance-scale 7.5 --mask 0 --inverted 0
     (values of paper)
     python train_classifier.py --synthetic-dir "synthetics" --iterations-per-epoch 200 --num-epochs 50 --batch-size 32 --num-synthetic 10 --num-trials 2 --examples-per-class 8 --embed-path "coco-tokens/coco-0-8.pt" --aug "textual-inversion" --strength 0.5 --guidance-scale 7.5 --mask 0 --inverted 0
+    
+    30.11 tried filter run:
+    python train_classifier.py --synthetic-dir "synthetics" --iterations-per-epoch 200 --num-epochs 50 --batch-size 32 --num-synthetic 10 --num-trials 2 --examples-per-class 8 --embed-path "coco-tokens/coco-0-8.pt" --aug "textual-inversion" --strength 0.6 --guidance-scale 10 --mask 0 --inverted 0 --synthetics-filter 0.2
     '''
 
     parser = argparse.ArgumentParser("Few-Shot Baseline")
