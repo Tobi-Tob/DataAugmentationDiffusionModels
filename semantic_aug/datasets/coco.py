@@ -51,7 +51,8 @@ class COCODataset(FewShotDataset):
                  generative_aug: GenerativeAugmentation = None, 
                  synthetic_probability: float = 0.5,
                  use_randaugment: bool = False,
-                 image_size: Tuple[int] = (256, 256), **kwargs):
+                 image_size: Tuple[int] = (256, 256),
+                 filter_mask_area: int = 0, **kwargs):
 
         super(COCODataset, self).__init__(
             *args, examples_per_class=examples_per_class,
@@ -72,6 +73,13 @@ class COCODataset(FewShotDataset):
 
             maximal_ann = max(annotations, key=lambda x: x["area"])
             class_name = self.cocoapi.cats[maximal_ann["category_id"]]["name"]
+            if maximal_ann["area"] <= filter_mask_area:
+                threshold = filter_mask_area
+                exception_list = ["skis", "sports ball", "baseball bat", "fork", "knife", "spoon", "hair drier", "toothbrush"]
+                if class_name in exception_list:
+                    threshold = threshold / 4
+                if maximal_ann["area"] <= threshold:
+                    continue
 
             class_to_images[class_name].append(
                 os.path.join(image_dir, x["file_name"]))
