@@ -116,12 +116,11 @@ class TextualInversion(GenerativeAugmentation):
         self.erasure_word_name = None
 
     def forward(self, image: Image.Image, label: int, 
-                metadata: dict) -> Tuple[List[Image.Image], int]:
+                metadata: dict) -> Tuple[Image.Image, int]:
 
         canvas = image.resize((512, 512), Image.BILINEAR)
         name = self.format_name(metadata.get("name", ""))
-        # prompt = self.prompt.format(name=name)  -> when prompt was string (now: list of strings)
-        prompt = [prmt.format(name=name) for prmt in self.prompt]
+        prompt = self.prompt.format(name=name)
 
         if self.mask: assert "mask" in metadata, \
             "mask=True but no mask present in metadata"
@@ -145,7 +144,7 @@ class TextualInversion(GenerativeAugmentation):
 
         kwargs = dict(
             image=canvas,
-            prompt=prompt,  # MR: was [prompt] earlier
+            prompt=[prompt],
             strength=self.strength, 
             guidance_scale=self.guidance_scale
         )
@@ -177,9 +176,7 @@ class TextualInversion(GenerativeAugmentation):
                 and outputs.nsfw_content_detected[0]
             )
 
-        # MR: create new list of images for result because original canvas is only one image.
-        result_canvas = []
-        for i in range(len(outputs.images)):
-            result_canvas.append(outputs.images[i].resize(image.size, Image.BILINEAR))
+        canvas = outputs.images[0].resize(
+            image.size, Image.BILINEAR)
 
-        return result_canvas, label
+        return canvas, label

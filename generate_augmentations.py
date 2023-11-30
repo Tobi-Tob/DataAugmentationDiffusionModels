@@ -53,7 +53,7 @@ if __name__ == "__main__":
     python generate_augmentations.py --examples-per-class 4 --num-synthetic 3 --prompt "a photo of a {name}" --guidance-scale 10 --strength 0.6
     
     TL: To see how well the class concepts are embedded, generate the images without dependency to the guiding image by setting strength to 1
-    python generate_augmentations.py --out "synthetic_class_concepts" --examples-per-class 1 --num-synthetic 5 --prompt "a photo of a {name}" --guidance-scale 10 --strength 1
+    python generate_augmentations.py --out "synthetic_class_concepts_2" --examples-per-class 8 --num-synthetic 5 --prompt "a photo of a {name}" --guidance-scale 10 --strength 1
 
     '''
 
@@ -69,8 +69,11 @@ if __name__ == "__main__":
     parser.add_argument("--examples-per-class", type=int, default=1)
     parser.add_argument("--num-synthetic", type=int, default=5)
 
-    parser.add_argument("--prompt", nargs="+", type=str, default=["a photo of a {name}"])  # MR: added nargs='+' to enable multiple prmopts
-    
+    parser.add_argument("--prompt", nargs="+", type=str, default=["a photo of a {name}"])
+    # MR: added nargs='+' to enable multiple prompts.
+    # If multiple prompts are given, one of them is chosen to create the image with. Hence, how many promps are used
+    # depends on the --num_synthetic parameter. To make it reproducable, we iterate through the list of prompts.
+
     parser.add_argument("--aug", nargs="+", type=str, default=["textual-inversion"],
                         choices=["real-guidance", "textual-inversion"])
 
@@ -112,7 +115,7 @@ if __name__ == "__main__":
         AUGMENT[aug](
             embed_path=args.embed_path, 
             model_path=args.model_path, 
-            prompt=args.prompt, 
+            prompt=prompt,
             strength=strength, 
             guidance_scale=guidance_scale,
             mask=mask, 
@@ -120,9 +123,9 @@ if __name__ == "__main__":
             erasure_ckpt_path=args.erasure_ckpt_path
         )
 
-        for (aug, guidance_scale, 
+        for (aug, prompt, guidance_scale,
              strength, mask, inverted) in zip(
-            args.aug, args.guidance_scale, 
+            args.aug, args.prompt, args.guidance_scale,
             args.strength, args.mask, args.inverted
         )
 
@@ -149,8 +152,7 @@ if __name__ == "__main__":
 
         name = metadata['name'].replace(" ", "_")
 
-        for i in range(len(image)):
-            pil_image, image_path = image[i], os.path.join(
-                args.out, f"{name}-{idx}-{num}-p{i}.png")
+        pil_image, image = image, os.path.join(
+            args.out, f"{name}-{idx}-{num}.png")
 
-            pil_image.save(image_path)
+        pil_image.save(image)

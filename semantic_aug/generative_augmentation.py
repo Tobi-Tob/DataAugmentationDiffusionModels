@@ -11,6 +11,6 @@ class GenerativeAugmentation(nn.Module, abc.ABC):
 
     @abc.abstractmethod
     def forward(self, image: Image.Image, label: int, 
-                metadata: dict) -> Tuple[List[Image.Image], int]: # MR: changed output from Tuple[] to List[Tuple[]]
+                metadata: dict) -> Tuple[Image.Image, int]:
 
         return NotImplemented

@@ -24,9 +24,7 @@ if __name__ == "__main__":
     
     Call from Terminal:
     MR: to use multiple prompts:
-    python generate_images.py --embed-path "coco-tokens/coco-0-8.pt" --num-generate 5 --prompt ["A photo of a huge <airplane>", "A photo of a huge <bear>"] --out images
-    else:
-    python generate_images.py --embed-path "coco-tokens/coco-0-8.pt" --num-generate 5 --prompt "A photo of a huge <airplane>" --out images
+    python generate_images.py --embed-path "coco-tokens/coco-0-8.pt" --num-generate 5 --prompt "A photo of a <airplane>" "A painting of a <airplane>" --out images
     '''
 
     parser = argparse.ArgumentParser("Stable Diffusion inference script")
@@ -38,7 +36,9 @@ if __name__ == "__main__":
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--num-generate", type=int, default=10)
 
-    parser.add_argument("--prompt", nargs='+', type=str, default="a photo of a <airplane>")  # MR: added nargs='+' to enable multiple prmopts
+    parser.add_argument("--prompt", nargs='+', type=str, default="a photo of a <airplane>")
+    # MR: added nargs='+' to enable multiple prompts
+
     parser.add_argument("--out", type=str, default="erasure-tokens/fine-tuned/pascal-0-8/airplane/")
 
     parser.add_argument("--guidance-scale", type=float, default=7.5)
@@ -71,16 +71,18 @@ if __name__ == "__main__":
         pipe.unet.load_state_dict(torch.load(
             args.erasure_ckpt_name, map_location='cuda'))
 
+    prompt_idx = 0
     for idx in trange(args.num_generate, 
                       desc="Generating Images"):
 
         with autocast('cuda'):
 
-            image = pipe(
-                args.prompt,
-                guidance_scale=args.guidance_scale
-            ).images
+            # Calculate the index for the current prompt (cycle through list)
+            prompt_idx = idx % len(args.prompt)
 
-        print("# MR: numb results per img: ", len(image))
-        for i in range(len(image)):  # MR: added this to handle multiple prompts per image
-            image[i].save(os.path.join(args.out, f"{idx}_p{i}.png"))
+            image = pipe(
+                args.prompt[prompt_idx],
+                guidance_scale=args.guidance_scale
+            ).images[0]
+
+        image.save(os.path.join(args.out, f"{idx}.png"))
