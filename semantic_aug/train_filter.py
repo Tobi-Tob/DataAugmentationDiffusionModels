@@ -1,3 +1,7 @@
+import os
+
+import pandas as pd
+
 from semantic_aug.datasets.coco import COCODataset
 from semantic_aug.datasets.spurge import SpurgeDataset
 from semantic_aug.datasets.imagenet import ImageNetDataset
@@ -27,8 +31,8 @@ DATASETS = {
 
 def train_filter(seed: int = 0,
                  dataset: str = "coco",
-                 iterations_per_epoch: int = 200,
-                 num_epochs: int = 50,
+                 iterations_per_epoch: int = 20,
+                 max_epochs: int = 50,
                  batch_size: int = 32,
                  image_size: int = 256,
                  classifier_backbone: str = "resnet50"):
@@ -68,17 +72,27 @@ def train_filter(seed: int = 0,
         val_dataset, batch_size=batch_size,
         sampler=val_sampler, num_workers=4)
 
-    filter_model = ClassificationModel(
+    filter_model = ClassificationFilterModel(
         train_dataset.num_classes,
         backbone=classifier_backbone
     ).cuda()
 
     optim = torch.optim.Adam(filter_model.parameters(), lr=0.0001)
 
-    for epoch in trange(num_epochs, desc="Training Filter"):
+    best_validation_accuracy = 0.0
+    best_filter_model = None
+    no_improvement_counter = 0
+    early_stopping_threshold = 5  # Number of consecutive epochs without improvement to trigger early stopping
+
+    records = []
+
+    for epoch in trange(max_epochs, desc="Training Filter"):
 
         filter_model.train()
 
+        epoch_loss = torch.zeros(
+            train_dataset.num_classes,
+            dtype=torch.float32, device='cuda')
         epoch_accuracy = torch.zeros(
             train_dataset.num_classes,
             dtype=torch.float32, device='cuda')
@@ -92,7 +106,7 @@ def train_filter(seed: int = 0,
             logits = filter_model(image)
             prediction = logits.argmax(dim=1)
 
-            loss = F.cross_entropy(logits, label, reduction="none")
+            loss = F.cross_entropy(logits, label, reduction="none")  # Maybe add regularisation term
             if len(label.shape) > 1:
                 label = label.argmax(dim=1)
 
@@ -105,13 +119,20 @@ def train_filter(seed: int = 0,
             with torch.no_grad():
 
                 epoch_size.scatter_add_(0, label, torch.ones_like(loss))
+                epoch_loss.scatter_add_(0, label, loss)
                 epoch_accuracy.scatter_add_(0, label, accuracy)
 
+        training_loss = epoch_loss / epoch_size.clamp(min=1)
         training_accuracy = epoch_accuracy / epoch_size.clamp(min=1)
+
+        training_loss = training_loss.cpu().numpy()
         training_accuracy = training_accuracy.cpu().numpy()
 
         filter_model.eval()
 
+        epoch_loss = torch.zeros(
+            train_dataset.num_classes,
+            dtype=torch.float32, device='cuda')
         epoch_accuracy = torch.zeros(
             train_dataset.num_classes,
             dtype=torch.float32, device='cuda')
@@ -130,22 +151,82 @@ def train_filter(seed: int = 0,
 
             with torch.no_grad():
                 epoch_size.scatter_add_(0, label, torch.ones_like(loss))
+                epoch_loss.scatter_add_(0, label, loss)
                 epoch_accuracy.scatter_add_(0, label, accuracy)
 
+        validation_loss = epoch_loss / epoch_size.clamp(min=1)
         validation_accuracy = epoch_accuracy / epoch_size.clamp(min=1)
+
+        validation_loss = validation_loss.cpu().numpy()
         validation_accuracy = validation_accuracy.cpu().numpy()
 
-    print('training accuracy of filter', training_accuracy.mean())
-    print('validation accuracy of filter', validation_accuracy.mean())
+        records.append(dict(
+            seed=seed,
+            examples_per_class=0,
+            epoch=epoch,
+            value=training_loss.mean(),
+            metric="Loss",
+            split="Training"
+        ))
 
-    return filter_model
+        records.append(dict(
+            seed=seed,
+            examples_per_class=0,
+            epoch=epoch,
+            value=validation_loss.mean(),
+            metric="Loss",
+            split="Validation"
+        ))
+
+        records.append(dict(
+            seed=seed,
+            examples_per_class=0,
+            epoch=epoch,
+            value=training_accuracy.mean(),
+            metric="Accuracy",
+            split="Training"
+        ))
+
+        records.append(dict(
+            seed=seed,
+            examples_per_class=0,
+            epoch=epoch,
+            value=validation_accuracy.mean(),
+            metric="Accuracy",
+            split="Validation"
+        ))
+
+        # Check if the current epoch has the best validation accuracy
+        if validation_accuracy.mean() > best_validation_accuracy:
+            best_validation_accuracy = validation_accuracy.mean()
+            best_filter_model = filter_model.state_dict()
+            no_improvement_counter = 0
+        else:
+            no_improvement_counter += 1
+        print(best_validation_accuracy)
+
+        # Check for early stopping
+        if no_improvement_counter >= early_stopping_threshold:
+            print(
+                f"No improvement in validation accuracy for {early_stopping_threshold} epochs. Stopping training.")
+            break
+
+    model_dir = "models"
+    os.makedirs(model_dir, exist_ok=True)
+    log_path = f"logs/train_filter_{seed}_{epoch}x{iterations_per_epoch}.csv"
+    model_path = f"{model_dir}/classifier_filter_model.pth"
+
+    pd.DataFrame.from_records(records).to_csv(log_path)
+    torch.save(best_filter_model, model_path)
+
+    print(f"Model saved to {model_path} with validation accuracy {best_validation_accuracy}. Training results saved to {log_path}")
 
 
-class ClassificationModel(nn.Module):
+class ClassificationFilterModel(nn.Module):
 
     def __init__(self, num_classes: int, backbone: str = "resnet50"):
 
-        super(ClassificationModel, self).__init__()
+        super(ClassificationFilterModel, self).__init__()
 
         self.backbone = backbone
         self.image_processor = None

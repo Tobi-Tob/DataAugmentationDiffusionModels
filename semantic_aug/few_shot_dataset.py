@@ -1,5 +1,5 @@
 from semantic_aug.generative_augmentation import GenerativeAugmentation
-from typing import Any, Tuple
+from typing import Tuple
 from torch.utils.data import Dataset
 from collections import defaultdict
 from itertools import product
@@ -13,8 +13,8 @@ import abc
 import random
 import os
 
-import torch.nn as nn
 import torch.nn.functional as F
+from semantic_aug.train_filter import ClassificationFilterModel
 
 
 class FewShotDataset(Dataset):
@@ -26,7 +26,6 @@ class FewShotDataset(Dataset):
                  generative_aug: GenerativeAugmentation = None, 
                  synthetic_probability: float = 0.5,
                  synthetic_dir: str = None,
-                 filter_model: nn.Module = None,
                  synthetics_filter_threshold: float = None):
 
         self.examples_per_class = examples_per_class
@@ -46,8 +45,11 @@ class FewShotDataset(Dataset):
         if synthetic_dir is not None:
             os.makedirs(synthetic_dir, exist_ok=True)
             if synthetics_filter_threshold is not None:
-                self.filter_model = filter_model
+
+                self.filter_model = ClassificationFilterModel(num_classes=80, backbone="resnet50")
+                self.filter_model.load_state_dict(torch.load("models/classifier_filter_model.pth"))
                 self.filter_model.eval()
+
                 self.synthetics_filter_threshold = synthetics_filter_threshold
                 # Extract the path_to_dir and dir_name, change to new_dir_name and combine to discarded_dir
                 path_to_dir, dir_name = os.path.split(synthetic_dir)
@@ -90,20 +92,20 @@ class FewShotDataset(Dataset):
                 discard_image = False
 
                 if self.synthetics_filter_threshold is not None:
-                    # Add an extra batch dimension as the model expects a batch of images
-                    # and change device type of the input tensor to GPU
-                    transformed_image = self.transform(image).unsqueeze(0).cuda()
-                    # Run through model
-                    logits = self.filter_model(transformed_image)
-                    # Apply softmax activation to convert logits into probabilities
-                    probabilities = F.softmax(logits, dim=1)
-                    probabilities_array = probabilities.cpu().detach().numpy()[0]
+                    with torch.no_grad():
+                        # Add an extra batch dimension as the model expects a batch of images
+                        # and change device type of the input tensor to GPU
+                        transformed_image = self.transform(image).unsqueeze(0).cuda()
+                        # Run through model
+                        logits = self.filter_model(transformed_image)
+                        # Apply softmax activation to convert logits into probabilities
+                        probabilities = F.softmax(logits, dim=1)
+                        probabilities_array = probabilities.cpu().detach().numpy()[0]
+                        # print(probabilities_array)
+                        # print('label', label)
 
-                    # print(probabilities_array)
-                    # print('label', label)
-
-                    if probabilities_array[label] < self.synthetics_filter_threshold:
-                        discard_image = True
+                        if probabilities_array[label] < self.synthetics_filter_threshold:
+                            discard_image = True
 
                 if discard_image:
                     # TL: Save discarded images in self.discarded_dir instead of self.synthetic_dir

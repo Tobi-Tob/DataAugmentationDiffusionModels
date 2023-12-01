@@ -12,7 +12,7 @@ from semantic_aug.augmentations.textual_inversion_upstream \
     import TextualInversion as MultiTokenTextualInversion
 from torch.utils.data import DataLoader
 from torchvision.models import resnet50, ResNet50_Weights
-from transformers import AutoImageProcessor, DeiTModel
+from transformers import DeiTModel
 from itertools import product
 from tqdm import trange
 from typing import List
@@ -20,7 +20,6 @@ from typing import List
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torch.distributed as distributed
 
 import argparse
 import pandas as pd
@@ -28,7 +27,7 @@ import numpy as np
 import random
 import os
 
-from train_filter import train_filter
+from semantic_aug.train_filter import train_filter
 
 try:
     from cutmix.cutmix import CutMix
@@ -97,16 +96,13 @@ def run_experiment(examples_per_class: int = 0,
     np.random.seed(seed)
     random.seed(seed)
 
-    filter_model = None
     if synthetics_filter_threshold is not None:
         # Initialize and train the filter model here
-        filter_model = train_filter(seed=seed,
-                                    dataset=dataset,
-                                    iterations_per_epoch=200,
-                                    num_epochs=50,
-                                    batch_size=32,
-                                    image_size=image_size,
-                                    classifier_backbone=classifier_backbone)
+        train_filter(seed=seed,
+                     dataset=dataset,
+                     batch_size=batch_size,
+                     image_size=image_size,
+                     classifier_backbone=classifier_backbone)
 
     if aug is not None:
 
@@ -139,7 +135,6 @@ def run_experiment(examples_per_class: int = 0,
         use_randaugment=use_randaugment,
         generative_aug=aug, seed=seed,
         image_size=(image_size, image_size),
-        filter_model=filter_model,
         synthetics_filter_threshold=synthetics_filter_threshold)
 
     if num_synthetic > 0 and aug is not None:
