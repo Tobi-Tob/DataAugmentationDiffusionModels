@@ -23,9 +23,8 @@ def write_prompts_to_csv(prmpts: Dict):
             row = {'class_name': class_name, 'class_idx': idx, 'prompt': prompt}
             rows.append(row)
             
-    # Writing to CSVout_path = 
-    os.path.join(
-        args.out, f"{name}-{idx}-{num}.png
+    # Writing to CSV
+    out_path = os.path.join(args.out, f"{name}-{idx}-{num}.png")
     with open('output.csv', 'w', newline='', encoding='utf-8') as file:
         writer = csv.DictWriter(file, fieldnames=['class_name', 'class_idx', 'prompt'])
         writer.writeheader()
