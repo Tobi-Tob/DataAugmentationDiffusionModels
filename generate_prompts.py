@@ -4,6 +4,8 @@ import transformers
 import torch
 from semantic_aug.datasets.coco import COCODataset
 from typing import Dict
+import os
+import csv
 
 DEFAULT_MODEL_PROMPT = "Generate {num_prompts} text prompts that start with:\n" \
                        "A photo of a {class}\n" \
@@ -18,17 +20,18 @@ def clean_response(res: str):
 def write_prompts_to_csv(prmpts: Dict):
     # prmpts contains a key for each class and the value are a list containing all prompts
     rows = []
-    for class_name, prompts in data.items():
+    for class_name, prompts in prmpts.items():
         for idx, prompt in enumerate(prompts, start=1):
             row = {'class_name': class_name, 'class_idx': idx, 'prompt': prompt}
             rows.append(row)
             
     # Writing to CSV
-    out_path = os.path.join(args.out, f"{name}-{idx}-{num}.png")
-    with open('output.csv', 'w', newline='', encoding='utf-8') as file:
+    out_path = os.path.join(args.out, f"prompts.png")
+    with open(out_path, 'w', newline='', encoding='utf-8') as file:
         writer = csv.DictWriter(file, fieldnames=['class_name', 'class_idx', 'prompt'])
         writer.writeheader()
         writer.writerows(rows)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser("LLM Prompt Generation")
