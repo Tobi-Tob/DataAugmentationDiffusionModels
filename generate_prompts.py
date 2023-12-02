@@ -17,9 +17,12 @@ def clean_response(res: str, orig_prompt: str):
     if res.startswith(orig_prompt):
         res = res[len(orig_prompt):].strip()
 
-        # plit the string by new line characters
-        prompts_list = prompts_string.split('\n')
-        return prompts_list
+    # Each prompt starts in a new line
+    prompts_list = res.split('\n')
+    # in case something weird happened -> to avoid downstream errors
+    [str(elem) for elem in prompts_list if not isinstance(elem, str) or (isinstance(elem, str) and len(elem) > 0)]
+
+    return prompts_list
 
 
 
