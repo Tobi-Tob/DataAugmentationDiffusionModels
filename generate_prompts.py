@@ -7,14 +7,20 @@ from typing import Dict
 import os
 import csv
 
-DEFAULT_MODEL_PROMPT = "Generate {num_prompts} text prompts that start with:\n" \
-                       "A photo of a {class}\n" \
-                       "The prompts should add an realistic environment the example prompt.\n" \
-                       "The respone must only contain the prompts!"
+DEFAULT_MODEL_PROMPT = "<s>[INST] <<SYS>> You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. \
+You will be asked to generate short text prompts. Your answer should only contain the answer prompts. Each prompt should be in a new line. Each answer prompt must contain the key-word inside [] from the user prompt. \
+<</SYS>> Generate {num_prompts} prompt(s) that start with 'A photo of a [{name1}]'. Add an realistic environment to the [{name2}], to make it semantically more diverse. The word [{name3}] must be in the prompt. [/INST]"
 
 
-def clean_response(res: str):
-    return res
+def clean_response(res: str, orig_prompt: str):
+    # first cut off the initial prompt which is sometimes in the response
+    if res.startswith(orig_prompt):
+        res = res[len(orig_prompt):].strip()
+
+        # plit the string by new line characters
+        prompts_list = prompts_string.split('\n')
+        return prompts_list
+
 
 
 def write_prompts_to_csv(prmpts: Dict):
@@ -26,7 +32,11 @@ def write_prompts_to_csv(prmpts: Dict):
             rows.append(row)
             
     # Writing to CSV
-    out_path = os.path.join(args.out, f"prompts.png")
+    out_dir = args.outdir
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
+
+    out_path = os.path.join(out_dir, f"prompts.csv")
     with open(out_path, 'w', newline='', encoding='utf-8') as file:
         writer = csv.DictWriter(file, fieldnames=['class_name', 'class_idx', 'prompt'])
         writer.writeheader()
@@ -34,6 +44,12 @@ def write_prompts_to_csv(prmpts: Dict):
 
 
 if __name__ == '__main__':
+
+    '''
+    MR:
+    python generate_prompts.py --outdir "prompts" --prompts-per-class 1
+    '''
+
     parser = argparse.ArgumentParser("LLM Prompt Generation")
 
     parser.add_argument("--outdir", type=str, default="prompts")
@@ -41,7 +57,7 @@ if __name__ == '__main__':
     # MR: If the 7B model is too small (bad prompts), then try 13B or 70B models
 
     parser.add_argument("--prompts-per-class", type=int, default=1)
-    parser.add_argument("--dataset", type=str, default="coco")
+    parser.add_argument("--dataset", type=str, default="coco", choices=["coco"])
     parser.add_argument("--model-prompt", type=str, default=DEFAULT_MODEL_PROMPT)
 
     args = parser.parse_args()
@@ -54,12 +70,15 @@ if __name__ == '__main__':
         device_map="auto",
     )
 
-    class_names = COCODataset.class_names
+    class_names = COCODataset.class_names[:3]  # MR: slcie for thesting purposes
     prompts = {}
 
     for idx in range(len(class_names)):
         name = class_names[idx]
-        prompt = args.model_prompt.format(name=name)
+        print(args.prompts_per_class)
+        print(name)
+        prompt = args.model_prompt.format(num_prompts=str(args.prompts_per_class), name1=name, name2=name, name3=name)
+        print(prompt)
 
         response = pipe(
             prompt,
@@ -69,8 +88,10 @@ if __name__ == '__main__':
             eos_token_id=tokenizer.eos_token_id,
             max_length=256,
         )
+        
 
-        class_prompts = clean_response(response[0]['generated_text'])
+        print(f"Result: {response[0]['generated_text']}")
+        class_prompts = clean_response(response[0]['generated_text'], prompt)
         prompts[name] = class_prompts
 
     write_prompts_to_csv(prompts)
