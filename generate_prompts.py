@@ -6,24 +6,51 @@ from semantic_aug.datasets.coco import COCODataset
 from typing import Dict
 import os
 import csv
+import re
 
 DEFAULT_MODEL_PROMPT = "<s>[INST] <<SYS>> You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. \
-You will be asked to generate short text prompts. Your answer should only contain the answer prompts. Each prompt should be in a new line. Each answer prompt must contain the key-word inside [] from the user prompt. \
+You will be asked to generate short text prompts. Just respond with those text prompts, nothing else! Each prompt should have a ' at the start and at the end! Each answer prompt must contain the key-word inside [] from the user prompt. \
 <</SYS>> Generate {num_prompts} prompt(s) that start with 'A photo of a [{name1}]'. Add an realistic environment to the [{name2}], to make it semantically more diverse. The word [{name3}] must be in the prompt. [/INST]"
 
+SYS_PROMPT = "<s>[INST] <<SYS>> You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. \
+You will be asked to generate short text prompts. Just respond with those text prompts, nothing else! Enumerate the prompts! Each answer prompt must contain the key-word inside [] from the user prompt. The prompts can not exceed 10 words! \
+<</SYS>> "
 
-def clean_response(res: str, orig_prompt: str):
-    # first cut off the initial prompt which is sometimes in the response
-    if res.startswith(orig_prompt):
-        res = res[len(orig_prompt):].strip()
+USER_PROMPT = "Generate {num_prompts} prompt(s) that start with 'A photo of a [{name1}]'. Add an realistic environment to the [{name2}], to make it semantically more diverse. The word [{name3}] must be in the prompt and the length of each prompt should not be greater than 10. [/INST]"
 
-    # Each prompt starts in a new line
-    prompts_list = res.split('\n')
-    # in case something weird happened -> to avoid downstream errors
-    [str(elem) for elem in prompts_list if not isinstance(elem, str) or (isinstance(elem, str) and len(elem) > 0)]
+PROMPT_TEMPLATE = f"""[INST] <<SYS>>
+{SYS_PROMPT}
+<</SYS>>
 
-    return prompts_list
+{USER_PROMPT} [/INST]
+"""
 
+
+def clean_response(res: str, orig_prompt: str, num_prompts: int, class_name: str):
+    # Split the string into lines
+    lines = res.split('\n')
+
+    prompts = []
+    # Define a regex pattern for lines starting with a number, period, and space
+    pattern = r'^\d+\.\s*'
+
+    for line in lines:
+        # Check if the line matches the enumeration pattern
+        if re.match(pattern, line):
+            prompt = line.split('.')[1]
+            prompt = prompt[1:]  # remove the leading space
+            if prompt[0] == '"':
+                prompt = prompt[1:]  # remove leading " if necessary
+            prompt += '.'
+            prompts.append(str(prompt))
+
+    # Check if the response only contains the expected amount of prompts. Each prompt is within a '...'
+    if not len(prompts) == num_prompts:
+        print(f"Warning: The Llama 2 response didn't contain the expected amount of '\n"
+              f"-> The prompts might not work as expected.\nResponse was:\n {res}")
+
+    # Return the list of prompts
+    return prompts
 
 
 def write_prompts_to_csv(prmpts: Dict):
@@ -50,7 +77,7 @@ if __name__ == '__main__':
 
     '''
     MR:
-    python generate_prompts.py --outdir "prompts" --prompts-per-class 1
+    python generate_prompts.py --outdir "prompts" --prompts-per-class 5
     '''
 
     parser = argparse.ArgumentParser("LLM Prompt Generation")
@@ -73,7 +100,7 @@ if __name__ == '__main__':
         device_map="auto",
     )
 
-    class_names = COCODataset.class_names[:3]  # MR: slcie for thesting purposes
+    class_names = COCODataset.class_names
     prompts = {}
 
     for idx in range(len(class_names)):
@@ -94,7 +121,7 @@ if __name__ == '__main__':
         
 
         print(f"Result: {response[0]['generated_text']}")
-        class_prompts = clean_response(response[0]['generated_text'], prompt)
+        class_prompts = clean_response(response[0]['generated_text'], prompt, args.prompts_per_class, name)
         prompts[name] = class_prompts
 
     write_prompts_to_csv(prompts)
