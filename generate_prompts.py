@@ -108,7 +108,6 @@ if __name__ == '__main__':
         print(args.prompts_per_class)
         print(name)
         prompt = args.model_prompt.format(num_prompts=str(args.prompts_per_class), name1=name, name2=name, name3=name)
-        print(prompt)
 
         response = pipe(
             prompt,
