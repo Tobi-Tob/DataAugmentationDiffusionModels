@@ -27,7 +27,7 @@ import numpy as np
 import random
 import os
 
-from semantic_aug.train_filter import train_filter
+from train_filter import train_filter
 
 try:
     from cutmix.cutmix import CutMix
@@ -101,8 +101,7 @@ def run_experiment(examples_per_class: int = 0,
         train_filter(seed=seed,
                      dataset=dataset,
                      batch_size=batch_size,
-                     image_size=image_size,
-                     classifier_backbone=classifier_backbone)
+                     image_size=image_size)
 
     if aug is not None:
 

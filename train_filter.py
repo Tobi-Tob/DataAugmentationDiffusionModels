@@ -1,7 +1,3 @@
-import os
-
-import pandas as pd
-
 from semantic_aug.datasets.coco import COCODataset
 from semantic_aug.datasets.spurge import SpurgeDataset
 from semantic_aug.datasets.imagenet import ImageNetDataset
@@ -10,14 +6,17 @@ from semantic_aug.datasets.caltech101 import CalTech101Dataset
 from semantic_aug.datasets.flowers102 import Flowers102Dataset
 from torch.utils.data import DataLoader
 from torchvision.models import resnet50, ResNet50_Weights
-from transformers import AutoImageProcessor, DeiTModel
-from tqdm import trange
+from transformers import DeiTModel
 
+import os
+import numpy as np
+import random
+import pandas as pd
+from tqdm import trange
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import numpy as np
-import random
+
 
 DATASETS = {
     "spurge": SpurgeDataset,
@@ -31,11 +30,12 @@ DATASETS = {
 
 def train_filter(seed: int = 0,
                  dataset: str = "coco",
-                 iterations_per_epoch: int = 20,
+                 iterations_per_epoch: int = 200,
                  max_epochs: int = 50,
                  batch_size: int = 32,
                  image_size: int = 256,
-                 classifier_backbone: str = "resnet50"):
+                 model_dir: str = "models",
+                 early_stopping_threshold: int = 5):  # Number of epochs without improvement trigger early stopping
     """
     Trains a classifier on the train data and saves the version with the highest validation accuracy.
     This model can then be used to filter synthetic images later on.
@@ -74,7 +74,7 @@ def train_filter(seed: int = 0,
 
     filter_model = ClassificationFilterModel(
         train_dataset.num_classes,
-        backbone=classifier_backbone
+        backbone="resnet50"
     ).cuda()
 
     optim = torch.optim.Adam(filter_model.parameters(), lr=0.0001)
@@ -82,7 +82,6 @@ def train_filter(seed: int = 0,
     best_validation_accuracy = 0.0
     best_filter_model = None
     no_improvement_counter = 0
-    early_stopping_threshold = 5  # Number of consecutive epochs without improvement to trigger early stopping
 
     records = []
 
@@ -106,7 +105,7 @@ def train_filter(seed: int = 0,
             logits = filter_model(image)
             prediction = logits.argmax(dim=1)
 
-            loss = F.cross_entropy(logits, label, reduction="none")  # Maybe add regularisation term
+            loss = F.cross_entropy(logits, label, reduction="none")  # TODO Maybe add regularisation term
             if len(label.shape) > 1:
                 label = label.argmax(dim=1)
 
@@ -197,13 +196,12 @@ def train_filter(seed: int = 0,
         ))
 
         # Check if the current epoch has the best validation accuracy
-        if validation_accuracy.mean() > best_validation_accuracy:
+        if validation_accuracy.mean() > best_validation_accuracy:  # TODO Maybe save the model with best validation loss
             best_validation_accuracy = validation_accuracy.mean()
             best_filter_model = filter_model.state_dict()
             no_improvement_counter = 0
         else:
             no_improvement_counter += 1
-        print(best_validation_accuracy)
 
         # Check for early stopping
         if no_improvement_counter >= early_stopping_threshold:
@@ -211,15 +209,17 @@ def train_filter(seed: int = 0,
                 f"No improvement in validation accuracy for {early_stopping_threshold} epochs. Stopping training.")
             break
 
-    model_dir = "models"
+    filter_model.load_state_dict(best_filter_model)
+
     os.makedirs(model_dir, exist_ok=True)
     log_path = f"logs/train_filter_{seed}_{epoch}x{iterations_per_epoch}.csv"
-    model_path = f"{model_dir}/classifier_filter_model.pth"
+    model_path = f"{model_dir}/ClassificationFilterModel.pth"
 
     pd.DataFrame.from_records(records).to_csv(log_path)
-    torch.save(best_filter_model, model_path)
+    torch.save(filter_model, model_path)
 
-    print(f"Model saved to {model_path} with validation accuracy {best_validation_accuracy}. Training results saved to {log_path}")
+    print(f"Model saved to {model_path} with validation accuracy {best_validation_accuracy}"
+          f" - Training results saved to {log_path}")
 
 
 class ClassificationFilterModel(nn.Module):

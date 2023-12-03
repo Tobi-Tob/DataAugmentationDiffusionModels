@@ -14,7 +14,6 @@ import random
 import os
 
 import torch.nn.functional as F
-from semantic_aug.train_filter import ClassificationFilterModel
 
 
 class FewShotDataset(Dataset):
@@ -46,11 +45,11 @@ class FewShotDataset(Dataset):
             os.makedirs(synthetic_dir, exist_ok=True)
             if synthetics_filter_threshold is not None:
 
-                self.filter_model = ClassificationFilterModel(num_classes=80, backbone="resnet50")
-                self.filter_model.load_state_dict(torch.load("models/classifier_filter_model.pth"))
+                self.filter_model = torch.load("models/ClassificationFilterModel.pth")
                 self.filter_model.eval()
 
                 self.synthetics_filter_threshold = synthetics_filter_threshold
+
                 # Extract the path_to_dir and dir_name, change to new_dir_name and combine to discarded_dir
                 path_to_dir, dir_name = os.path.split(synthetic_dir)
                 new_dir_name = dir_name + "_discarded"
