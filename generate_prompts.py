@@ -116,7 +116,7 @@ if __name__ == '__main__':
             top_k=10,
             num_return_sequences=1,
             eos_token_id=tokenizer.eos_token_id,
-            max_length=256,
+            max_length=1024,
         )
         
 
