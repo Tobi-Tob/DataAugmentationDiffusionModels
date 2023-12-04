@@ -37,10 +37,9 @@ def train_filter(seed: int = 0,
                  model_dir: str = "models",
                  early_stopping_threshold: int = 5):  # Number of epochs without improvement trigger early stopping
     """
-    Trains a classifier on the train data and saves the version with the highest validation accuracy.
+    Trains a classifier on the train data and saves the version with the best validation loss.
     This model can then be used to filter synthetic images later on.
     """
-
     torch.manual_seed(seed)
     np.random.seed(seed)
     random.seed(seed)
@@ -48,7 +47,6 @@ def train_filter(seed: int = 0,
     train_dataset = DATASETS[dataset](
         split="train",
         synthetic_probability=0,
-        synthetic_dir=None,
         seed=seed,
         image_size=(image_size, image_size))
 
@@ -79,7 +77,8 @@ def train_filter(seed: int = 0,
 
     optim = torch.optim.Adam(filter_model.parameters(), lr=0.0001)
 
-    best_validation_accuracy = 0.0
+    best_validation_loss = np.inf
+    corresponding_validation_accuracy = 0
     best_filter_model = None
     no_improvement_counter = 0
 
@@ -106,8 +105,7 @@ def train_filter(seed: int = 0,
             prediction = logits.argmax(dim=1)
 
             loss = F.cross_entropy(logits, label, reduction="none")  # TODO Maybe add regularisation term
-            if len(label.shape) > 1:
-                label = label.argmax(dim=1)
+            if len(label.shape) > 1: label = label.argmax(dim=1)
 
             accuracy = (prediction == label).float()
 
@@ -195,9 +193,10 @@ def train_filter(seed: int = 0,
             split="Validation"
         ))
 
-        # Check if the current epoch has the best validation accuracy
-        if validation_accuracy.mean() > best_validation_accuracy:  # TODO Maybe save the model with best validation loss
-            best_validation_accuracy = validation_accuracy.mean()
+        # Check if the current epoch has the best validation loss
+        if validation_loss.mean() < best_validation_loss:
+            best_validation_loss = validation_loss.mean()
+            corresponding_validation_accuracy = validation_accuracy.mean()
             best_filter_model = filter_model.state_dict()
             no_improvement_counter = 0
         else:
@@ -212,14 +211,14 @@ def train_filter(seed: int = 0,
     filter_model.load_state_dict(best_filter_model)
 
     os.makedirs(model_dir, exist_ok=True)
-    log_path = f"logs/train_filter_{seed}_{epoch}x{iterations_per_epoch}.csv"
+    log_path = f"logs/train_filter_{seed}_{epoch+1}x{iterations_per_epoch}.csv"
     model_path = f"{model_dir}/ClassificationFilterModel.pth"
 
     pd.DataFrame.from_records(records).to_csv(log_path)
     torch.save(filter_model, model_path)
 
-    print(f"Model saved to {model_path} with validation accuracy {best_validation_accuracy}"
-          f" - Training results saved to {log_path}")
+    print(f"Model saved to {model_path} - Validation loss {best_validation_loss} - Validation accuracy "
+          f"{corresponding_validation_accuracy} - Training results saved to {log_path}")
 
 
 class ClassificationFilterModel(nn.Module):

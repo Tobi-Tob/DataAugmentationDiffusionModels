@@ -108,10 +108,10 @@ class FewShotDataset(Dataset):
 
                 if discard_image:
                     # TL: Save discarded images in self.discarded_dir instead of self.synthetic_dir
-                    image_path = os.path.join(self.discarded_dir, f"aug-{idx}-{num}.png")
+                    image_path = os.path.join(self.discarded_dir, f"label_{label}-{idx}-{num}.png")
                     # print('image discarded')
                 else:
-                    image_path = os.path.join(self.synthetic_dir, f"aug-{idx}-{num}.png")
+                    image_path = os.path.join(self.synthetic_dir, f"label_{label}-{idx}-{num}.png")
                     # print('image accepted')
                     self.synthetic_examples[idx].append((image_path, label))
 
