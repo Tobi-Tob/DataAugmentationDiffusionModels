@@ -73,6 +73,12 @@ if __name__ == "__main__":
     # MR: added nargs='+' to enable multiple prompts.
     # If multiple prompts are given, one of them is chosen to create the image with. Hence, how many promps are used
     # depends on the --num_synthetic parameter. To make it reproducable, we iterate through the list of prompts.
+    # Those prompts are only taken if --use-generated-prompts is 0 (=False)
+
+    parser.add_argument("--use-generated-prompts", type=int, default=[0], choices=[0, 1])
+    # MR: determines if prompts of LLM are used or the prompt from the --prompts argument in the command line
+
+    parser.add_argument("--prompt-path", type=str, default="prompts/prompts.csv")
 
     parser.add_argument("--aug", nargs="+", type=str, default=["textual-inversion"],
                         choices=["real-guidance", "textual-inversion"])

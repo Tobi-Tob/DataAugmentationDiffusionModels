@@ -7,6 +7,7 @@ from typing import Dict
 import os
 import csv
 import re
+from train_classifier import DEFAULT_PROMPT
 
 DEFAULT_MODEL_PROMPT = "<s>[INST] <<SYS>> You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. \
 You will be asked to generate short text prompts. Just respond with those text prompts, nothing else! Each prompt should have a ' at the start and at the end! Each answer prompt must contain the key-word inside [] from the user prompt. \
@@ -18,6 +19,9 @@ You will be asked to generate short text prompts. Just respond with those text p
 
 USER_PROMPT = "Generate {num_prompts} prompt(s) that start with 'A photo of a [{name1}]'. Add an realistic environment to the [{name2}], to make it semantically more diverse. The word [{name3}] must be in the prompt and the length of each prompt should not be greater than 10. [/INST]"
 
+# Ideas to improve prompts:
+# - generate one word environments (not a whole sentence) -> like [car]: street or motorway or ...
+
 PROMPT_TEMPLATE = f"""[INST] <<SYS>>
 {SYS_PROMPT}
 <</SYS>>
@@ -26,11 +30,25 @@ PROMPT_TEMPLATE = f"""[INST] <<SYS>>
 """
 
 
-def clean_response(res: str, orig_prompt: str, num_prompts: int, class_name: str):
+def clean_response(res: str, num_prompts: int, class_name: str):
+    def clean_single_prompt(prompt_item):
+        class_with_rect_brackets = f'[{class_name}]'
+        class_with_curl_brackets = f'{{{class_name}}}'
+        # only replace the first occurrence of class name with {}
+        prompt_item = prompt_item.replace(class_with_rect_brackets, class_with_curl_brackets, 1)
+        # remove duplicate class mentioning in the prompt
+        prompt_item = prompt_item.replace(class_with_rect_brackets, '')
+
+        # replace with default prompt if prompt is not as desired
+        if prompt_item.count(class_with_curl_brackets) == 1:
+            prompt_item = DEFAULT_PROMPT.format(name=class_name)
+
+        return prompt_item
+
     # Split the string into lines
     lines = res.split('\n')
 
-    prompts = []
+    cleaned_prompts = []
     # Define a regex pattern for lines starting with a number, period, and space
     pattern = r'^\d+\.\s*'
 
@@ -39,28 +57,27 @@ def clean_response(res: str, orig_prompt: str, num_prompts: int, class_name: str
         if re.match(pattern, line):
             prompt = line.split('.')[1]
             prompt = prompt[1:]  # remove the leading space
-            if prompt[0] == '"':
-                prompt = prompt[1:]  # remove leading " if necessary
             prompt += '.'
-            prompts.append(str(prompt))
+            prompt = clean_single_prompt(prompt)
+            cleaned_prompts.append(prompt)
 
-    # Check if the response only contains the expected amount of prompts. Each prompt is within a '...'
-    if not len(prompts) == num_prompts:
-        print(f"Warning: The Llama 2 response didn't contain the expected amount of '\n"
+    # Check if the response only contains the expected amount of prompts.
+    if not len(cleaned_prompts) == num_prompts:
+        print(f"Warning: The Llama 2 response didn't contain the expected amount of prompts."
               f"-> The prompts might not work as expected.\nResponse was:\n {res}")
 
     # Return the list of prompts
-    return prompts
+    return cleaned_prompts
 
 
-def write_prompts_to_csv(prmpts: Dict):
-    # prmpts contains a key for each class and the value are a list containing all prompts
+def write_prompts_to_csv(all_prompts: Dict):
+    # all_prompts contains a key for each class and the value are a list containing all prompts
     rows = []
-    for class_name, prompts in prmpts.items():
-        for idx, prompt in enumerate(prompts, start=1):
-            row = {'class_name': class_name, 'class_idx': idx, 'prompt': prompt}
+    for class_name, class_prompts in all_prompts.items():
+        for prompt_idx, single_prompt in enumerate(class_prompts, start=1):
+            row = {'class_name': class_name, 'class_idx': prompt_idx, 'prompt': single_prompt}
             rows.append(row)
-            
+
     # Writing to CSV
     out_dir = args.outdir
     if not os.path.exists(out_dir):
@@ -107,20 +124,19 @@ if __name__ == '__main__':
         name = class_names[idx]
         print(args.prompts_per_class)
         print(name)
-        prompt = args.model_prompt.format(num_prompts=str(args.prompts_per_class), name1=name, name2=name, name3=name)
+        model_prompt = args.model_prompt.format(num_prompts=str(args.prompts_per_class), name1=name, name2=name,
+                                                name3=name)
 
         response = pipe(
-            prompt,
+            model_prompt,
             do_sample=True,
             top_k=10,
             num_return_sequences=1,
             eos_token_id=tokenizer.eos_token_id,
             max_length=1024,
         )
-        
 
         print(f"Result: {response[0]['generated_text']}")
-        class_prompts = clean_response(response[0]['generated_text'], prompt, args.prompts_per_class, name)
-        prompts[name] = class_prompts
+        prompts[name] = clean_response(response[0]['generated_text'], args.prompts_per_class, name)
 
     write_prompts_to_csv(prompts)
