@@ -502,12 +502,6 @@ if __name__ == "__main__":
     print(f'Initialized process {rank} / {world_size}')
     os.makedirs(args.logdir, exist_ok=True)
 
-    prompts = []
-    if args.use_generated_prompts:
-        prompts = read_prompts_from_csv(args.prompt_path)
-    else:
-        prompts.extend(args.prompt)
-
     all_trials = []
 
     options = product(range(args.num_trials), args.examples_per_class)
@@ -526,7 +520,7 @@ if __name__ == "__main__":
             model_path=args.model_path,
             synthetic_probability=args.synthetic_probability, 
             num_synthetic=args.num_synthetic, 
-            prompt=prompts,
+            prompt=args.prompt,
             tokens_per_class=args.tokens_per_class,
             aug=args.aug,
             strength=args.strength, 

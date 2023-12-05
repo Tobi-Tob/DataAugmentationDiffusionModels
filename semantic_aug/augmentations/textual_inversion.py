@@ -180,3 +180,6 @@ class TextualInversion(GenerativeAugmentation):
             image.size, Image.BILINEAR)
 
         return canvas, label
+
+    def set_prompt(self, new_prompt):
+        self.prompt = new_prompt
