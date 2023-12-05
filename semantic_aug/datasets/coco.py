@@ -10,6 +10,7 @@ import os
 from pycocotools.coco import COCO
 from PIL import Image
 from collections import defaultdict
+from train_classifier import DEFAULT_PROMPT_PATH
 
 
 COCO_DIR = r"/data/dlcv2023_groupA/coco2017"  # put ur own path here
@@ -51,12 +52,16 @@ class COCODataset(FewShotDataset):
                  generative_aug: GenerativeAugmentation = None, 
                  synthetic_probability: float = 0.5,
                  use_randaugment: bool = False,
-                 image_size: Tuple[int] = (256, 256), **kwargs):
+                 image_size: Tuple[int] = (256, 256),
+                 use_llm_prompt: bool = False,
+                 prompt_path: str = DEFAULT_PROMPT_PATH, **kwargs):
 
         super(COCODataset, self).__init__(
             *args, examples_per_class=examples_per_class,
             synthetic_probability=synthetic_probability, 
-            generative_aug=generative_aug, **kwargs)
+            generative_aug=generative_aug,
+            use_llm_prompt=use_llm_prompt,
+            prompt_path=prompt_path, **kwargs)
 
         image_dir = {"train": train_image_dir, "val": val_image_dir}[split]
         instances_file = {"train": train_instances_file, "val": val_instances_file}[split]

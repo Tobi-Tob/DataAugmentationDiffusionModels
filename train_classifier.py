@@ -27,6 +27,7 @@ import pandas as pd
 import numpy as np
 import random
 import os
+from generate_prompts import read_prompts_from_csv
 
 try: 
     from cutmix.cutmix import CutMix
@@ -36,6 +37,7 @@ except:
 
 
 DEFAULT_MODEL_PATH = "CompVis/stable-diffusion-v1-4"
+DEFAULT_PROMPT_PATH = "prompts/prompts.csv"
 DEFAULT_PROMPT = "a photo of a {name}"
 
 DEFAULT_SYNTHETIC_DIR = "/data/dlcv2023_groupA/augmentations/{dataset}-{aug}-{seed}-{examples_per_class}"
@@ -88,11 +90,16 @@ def run_experiment(examples_per_class: int = 0,
                    use_cutmix: bool = False,
                    erasure_ckpt_path: str = None,
                    image_size: int = 256,
-                   classifier_backbone: str = "resnet50"):
+                   classifier_backbone: str = "resnet50",
+                   use_llm_prompt: bool = False,
+                   prompt_path: str = DEFAULT_PROMPT_PATH):
 
     torch.manual_seed(seed)
     np.random.seed(seed)
     random.seed(seed)
+
+    # TODO use correct prompt path
+    prompt_path = "prompts/prompts-v1.csv"
 
     if aug is not None:
 
@@ -101,7 +108,7 @@ def run_experiment(examples_per_class: int = 0,
             AUGMENTATIONS[aug](
                 embed_path=embed_path, 
                 model_path=model_path, 
-                prompt=prompt, 
+                prompt=prompt,  # MR: this is only the initialize with the default prompt
                 strength=strength, 
                 guidance_scale=guidance_scale,
                 mask=mask, 
@@ -124,7 +131,9 @@ def run_experiment(examples_per_class: int = 0,
         synthetic_dir=synthetic_dir,
         use_randaugment=use_randaugment,
         generative_aug=aug, seed=seed,
-        image_size=(image_size, image_size))
+        image_size=(image_size, image_size),
+        use_llm_prompt=use_llm_prompt,
+        prompt_path=prompt_path)
 
     if num_synthetic > 0 and aug is not None:
         train_dataset.generate_augmentations(num_synthetic)
@@ -388,9 +397,20 @@ if __name__ == "__main__":
     parser.add_argument("--model-path", type=str, default="CompVis/stable-diffusion-v1-4")
     # Path to the Diffusion Model
 
-    parser.add_argument("--prompt", type=str, default="a photo of a {name}")
+    parser.add_argument("--prompt", nargs="+", type=str, default=["a photo of a {name}"])
     # A Textual Inversion parameter:
     # Augmentations are generated conditioned on the prompt ({name} is replaced with the particular class pseudo word)
+    #
+    # MR: added nargs='+' to enable multiple prompts.
+    # If multiple prompts are given, one of them is chosen for each image creation Hence, how many prompts are used
+    # depends on the --num_synthetic parameter. To make it reproducible, we iterate through the list of prompts.
+    # Those prompts are only taken if --use-generated-prompts is 0 (=False)
+
+    parser.add_argument("--use-generated-prompts", type=int, default=[0], choices=[0, 1])
+    # MR: determines if prompts of LLM are used or the prompt(s) from the --prompts argument in the command line
+
+    parser.add_argument("--prompt-path", type=str, default="prompts/prompts.csv")
+
     parser.add_argument("--synthetic-probability", type=float, default=0.5)
     # Probability to pick an image from the synthetic dataset while training the downstream model
     parser.add_argument("--synthetic-dir", type=str, default=DEFAULT_SYNTHETIC_DIR)
@@ -485,6 +505,12 @@ if __name__ == "__main__":
     print(f'Initialized process {rank} / {world_size}')
     os.makedirs(args.logdir, exist_ok=True)
 
+    prompts = []
+    if args.use_generated_prompts:
+        prompts = read_prompts_from_csv(args.prompt_path)
+    else:
+        prompts.extend(args.prompt)
+
     all_trials = []
 
     options = product(range(args.num_trials), args.examples_per_class)
@@ -503,7 +529,7 @@ if __name__ == "__main__":
             model_path=args.model_path,
             synthetic_probability=args.synthetic_probability, 
             num_synthetic=args.num_synthetic, 
-            prompt=args.prompt, 
+            prompt=prompts,
             tokens_per_class=args.tokens_per_class,
             aug=args.aug,
             strength=args.strength, 
@@ -516,7 +542,9 @@ if __name__ == "__main__":
             use_cutmix=args.use_cutmix,
             erasure_ckpt_path=args.erasure_ckpt_path,
             image_size=args.image_size,
-            classifier_backbone=args.classifier_backbone)
+            classifier_backbone=args.classifier_backbone,
+            use_llm_prompt=args.use_generated_prompts,
+            prompt_path=args.prompt_path)
 
         synthetic_dir = args.synthetic_dir.format(**hyperparameters)
         embed_path = args.embed_path.format(**hyperparameters)

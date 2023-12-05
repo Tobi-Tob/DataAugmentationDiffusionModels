@@ -5,6 +5,8 @@ from collections import defaultdict
 from itertools import product
 from tqdm import tqdm
 from PIL import Image
+from train_classifier import DEFAULT_PROMPT_PATH, DEFAULT_PROMPT
+from generate_prompts import read_prompts_from_csv
 
 import torchvision.transforms as transforms
 import torch
@@ -22,7 +24,9 @@ class FewShotDataset(Dataset):
     def __init__(self, examples_per_class: int = None, 
                  generative_aug: GenerativeAugmentation = None, 
                  synthetic_probability: float = 0.5,
-                 synthetic_dir: str = None):
+                 synthetic_dir: str = None,
+                 use_llm_prompt: bool = False,
+                 prompt_path: str = DEFAULT_PROMPT_PATH):
 
         self.examples_per_class = examples_per_class
         self.generative_aug = generative_aug
@@ -30,6 +34,9 @@ class FewShotDataset(Dataset):
         self.synthetic_probability = synthetic_probability
         self.synthetic_dir = synthetic_dir
         self.synthetic_examples = defaultdict(list)
+
+        self.use_llm_prompt = use_llm_prompt
+        self.prompt_path = prompt_path
 
         self.transform = transforms.Compose([
             transforms.ToTensor(),
@@ -61,14 +68,33 @@ class FewShotDataset(Dataset):
         self.synthetic_examples.clear()
         options = product(range(len(self)), range(num_repeats))
 
+        prompts_dict = {}
+        if self.use_llm_prompt:
+            prompts_dict = read_prompts_from_csv(self.prompt_path)
+
+        class_occur = {}
+
         for idx, num in tqdm(list(
                 options), desc="Generating Augmentations"):
 
             image = self.get_image_by_idx(idx)
             label = self.get_label_by_idx(idx)
+            metadata = self.get_metadata_by_idx(idx)
+
+            class_name = metadata['name']
+            if class_name not in class_occur:
+                class_occur[class_name] = -1
+            class_occur[class_name] += 1
+
+            if self.use_llm_prompt:
+                # This chooses a prompt out of the list according to the occurrence of the class name
+                prompt_idx = class_occur[class_name] % len(prompts_dict[class_name])
+                self.generative_aug.set_prompt(prompts_dict[class_name][prompt_idx])
+            else:
+                self.generative_aug.set_prompt(DEFAULT_PROMPT)
 
             image, label = self.generative_aug(
-                image, label, self.get_metadata_by_idx(idx))
+                image, label, metadata)
 
             if self.synthetic_dir is not None:
 

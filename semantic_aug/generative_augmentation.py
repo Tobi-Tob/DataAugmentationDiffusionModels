@@ -14,3 +14,6 @@ class GenerativeAugmentation(nn.Module, abc.ABC):
                 metadata: dict) -> Tuple[Image.Image, int]:
 
         return NotImplemented
+
+    def set_prompt(self, new_prompt):
+        self.prompt = new_prompt
