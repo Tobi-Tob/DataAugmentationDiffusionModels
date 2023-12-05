@@ -98,9 +98,6 @@ def run_experiment(examples_per_class: int = 0,
     np.random.seed(seed)
     random.seed(seed)
 
-    # TODO use correct prompt path
-    prompt_path = "prompts/prompts-v1.csv"
-
     if aug is not None:
 
         aug = COMPOSERS[compose]([
