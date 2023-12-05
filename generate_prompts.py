@@ -90,20 +90,6 @@ def write_prompts_to_csv(all_prompts: Dict):
         writer.writerows(rows)
 
 
-def read_prompts_from_csv(path):
-    prompts_dict = {}
-
-    with open(path, mode='r', newline='', encoding='utf-8') as file:
-        next(file)  # Skip the header line
-        for line in file:
-            row = line.strip().split(';')
-            if row[0] not in prompts_dict:
-                prompts_dict[row[0]] = []
-            prompts_dict[row[0]].append(row[2])
-
-    return prompts_dict
-
-
 if __name__ == '__main__':
 
     '''

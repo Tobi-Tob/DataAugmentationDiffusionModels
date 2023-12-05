@@ -5,7 +5,6 @@ from collections import defaultdict
 from itertools import product
 from tqdm import tqdm
 from PIL import Image
-from generate_prompts import read_prompts_from_csv
 
 import torchvision.transforms as transforms
 import torch
@@ -66,6 +65,19 @@ class FewShotDataset(Dataset):
 
         return NotImplemented
 
+    def read_prompts_from_csv(self):
+        prompts_dict = {}
+
+        with open(self.prompt_path, mode='r', newline='', encoding='utf-8') as file:
+            next(file)  # Skip the header line
+            for line in file:
+                row = line.strip().split(';')
+                if row[0] not in prompts_dict:
+                    prompts_dict[row[0]] = []
+                prompts_dict[row[0]].append(row[2])
+
+        return prompts_dict
+
     def generate_augmentations(self, num_repeats: int):
 
         self.synthetic_examples.clear()
@@ -73,7 +85,7 @@ class FewShotDataset(Dataset):
 
         prompts_dict = {}
         if self.use_llm_prompt:
-            prompts_dict = read_prompts_from_csv(self.prompt_path)
+            prompts_dict = self.read_prompts_from_csv()
 
         class_occur = {}
 
