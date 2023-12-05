@@ -54,6 +54,7 @@ class FewShotDataset(Dataset):
                 path_to_dir, dir_name = os.path.split(synthetic_dir)
                 new_dir_name = dir_name + "_discarded"
                 self.discarded_dir = os.path.join(path_to_dir, new_dir_name)
+                self.number_of_discarded_images = {}
 
                 os.makedirs(self.discarded_dir, exist_ok=True)
     
@@ -106,13 +107,22 @@ class FewShotDataset(Dataset):
                         if probabilities_array[label] < self.synthetics_filter_threshold:
                             discard_image = True
 
+                    print(f'Image: label_{label}-{idx}-{num}.png')
+                    predicted_class = np.argmax(probabilities_array)
+                    print(f'Highest class: {predicted_class} with probability of: '
+                          f'{np.round(probabilities_array[predicted_class], 3)}')
+                    if not np.isclose(predicted_class, label):
+                        print(f'Wrong classified, probability of correct label {label}: '
+                              f'{np.round(probabilities_array[label], 3)}')
+                    print(f'Image accepted: {not discard_image}')
+                    # print(probabilities_array)
+
                 if discard_image:
                     # TL: Save discarded images in self.discarded_dir instead of self.synthetic_dir
                     image_path = os.path.join(self.discarded_dir, f"label_{label}-{idx}-{num}.png")
-                    # print('image discarded')
+                    self.number_of_discarded_images[label] = self.number_of_discarded_images.get(label, 0) + 1
                 else:
                     image_path = os.path.join(self.synthetic_dir, f"label_{label}-{idx}-{num}.png")
-                    # print('image accepted')
                     self.synthetic_examples[idx].append((image_path, label))
 
                 pil_image.save(image_path)

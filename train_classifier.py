@@ -96,8 +96,9 @@ def run_experiment(examples_per_class: int = 0,
     np.random.seed(seed)
     random.seed(seed)
 
-    if synthetics_filter_threshold is not None:
-        # Initialize and train the filter model here
+    train_new_filter = False
+    if synthetics_filter_threshold is not None and train_new_filter:
+        # Initialize and train the ClassificationFilterModel here and save it in models
         train_filter(seed=seed,
                      dataset=dataset,
                      batch_size=batch_size,
@@ -138,6 +139,8 @@ def run_experiment(examples_per_class: int = 0,
 
     if num_synthetic > 0 and aug is not None:
         train_dataset.generate_augmentations(num_synthetic)
+        if synthetics_filter_threshold is not None:
+            print(train_dataset.number_of_discarded_images)
 
     cutmix_dataset = None
     if use_cutmix and IS_CUTMIX_INSTALLED:

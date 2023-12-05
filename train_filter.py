@@ -31,11 +31,11 @@ DATASETS = {
 def train_filter(seed: int = 0,
                  dataset: str = "coco",
                  iterations_per_epoch: int = 200,
-                 max_epochs: int = 50,
+                 max_epochs: int = 100,
                  batch_size: int = 32,
                  image_size: int = 256,
                  model_dir: str = "models",
-                 early_stopping_threshold: int = 5):  # Number of epochs without improvement trigger early stopping
+                 early_stopping_threshold: int = 10):  # Number of epochs without improvement trigger early stopping
     """
     Trains a classifier on the train data and saves the version with the best validation loss.
     This model can then be used to filter synthetic images later on.
