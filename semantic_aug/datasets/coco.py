@@ -10,7 +10,9 @@ import os
 from pycocotools.coco import COCO
 from PIL import Image
 from collections import defaultdict
-from train_classifier import DEFAULT_PROMPT_PATH
+
+# TODO: find better solution to not define constants multiple times!
+DEFAULT_PROMPT_PATH = "prompts/prompts.csv"
 
 
 COCO_DIR = r"/data/dlcv2023_groupA/coco2017"  # put ur own path here
