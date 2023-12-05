@@ -5,7 +5,6 @@ from collections import defaultdict
 from itertools import product
 from tqdm import tqdm
 from PIL import Image
-from train_classifier import DEFAULT_PROMPT_PATH, DEFAULT_PROMPT
 from generate_prompts import read_prompts_from_csv
 
 import torchvision.transforms as transforms
@@ -14,6 +13,10 @@ import numpy as np
 import abc
 import random
 import os
+
+# TODO: Try to find better solution to not have the same constants defined multiple times
+DEFAULT_PROMPT_PATH = "prompts/prompts.csv"
+DEFAULT_PROMPT = "a photo of a {name}"
 
 
 class FewShotDataset(Dataset):
