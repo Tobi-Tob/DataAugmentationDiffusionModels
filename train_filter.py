@@ -6,7 +6,6 @@ from semantic_aug.datasets.caltech101 import CalTech101Dataset
 from semantic_aug.datasets.flowers102 import Flowers102Dataset
 from torch.utils.data import DataLoader, WeightedRandomSampler
 from torchvision.models import resnet50, ResNet50_Weights
-from transformers import DeiTModel
 
 import os
 import numpy as np
@@ -64,7 +63,7 @@ def train_filter(seed: int = 0,
         train_dataset, batch_size=batch_size,
         sampler=weighted_train_sampler, num_workers=4)
 
-    val_dataset = DATASETS[dataset](  # TODO use also WeightedRandomSampler?
+    val_dataset = DATASETS[dataset](  # use also WeightedRandomSampler?
         split="val", seed=seed,
         image_size=(image_size, image_size))
 
@@ -109,7 +108,7 @@ def train_filter(seed: int = 0,
             logits = filter_model(image)
             prediction = logits.argmax(dim=1)
 
-            loss = F.cross_entropy(logits, label, reduction="none")  # TODO Maybe add regularisation term
+            loss = F.cross_entropy(logits, label, reduction="none")  # Maybe add regularisation term
             if len(label.shape) > 1: label = label.argmax(dim=1)
 
             accuracy = (prediction == label).float()

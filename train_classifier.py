@@ -140,6 +140,7 @@ def run_experiment(examples_per_class: int = 0,
     if num_synthetic > 0 and aug is not None:
         train_dataset.generate_augmentations(num_synthetic)
         if synthetics_filter_threshold is not None:
+            print('Amount of discarded images of each class:')
             print(train_dataset.number_of_discarded_images)
 
     cutmix_dataset = None
@@ -395,6 +396,8 @@ if __name__ == "__main__":
     
     30.11 tried filter run:
     python train_classifier.py --synthetic-dir "synthetics" --iterations-per-epoch 200 --num-epochs 50 --batch-size 32 --num-synthetic 10 --num-trials 2 --examples-per-class 8 --embed-path "coco-tokens/coco-0-8.pt" --aug "textual-inversion" --strength 0.6 --guidance-scale 10 --mask 0 --inverted 0 --synthetics-filter 0.2
+    06.12 filter run without bias:
+    python train_classifier.py --synthetic-dir "synthetics" --iterations-per-epoch 200 --num-epochs 50 --batch-size 32 --num-synthetic 10 --num-trials 2 --examples-per-class 8 --embed-path "coco-tokens/coco-0-8.pt" --aug "textual-inversion" --strength 0.6 --guidance-scale 10 --mask 0 --inverted 0 --synthetics-filter 0.25
     '''
 
     parser = argparse.ArgumentParser("Few-Shot Baseline")
@@ -488,9 +491,9 @@ if __name__ == "__main__":
     #   Only used when --aug "multi-token-inversion" selected
 
     parser.add_argument("--synthetics-filter", type=float, default=None)
-    # Use a classifier on the dataset to determine the presence of the labelled class in the synthetically
+    # Use a classifier as filter to determine the presence of the labelled class in the synthetically
     # generated images. The filter threshold, set to 0.2, acts as a criterion for image inclusion.
-    # Images with a class score of the label below 0.2 are discarded. A filter threshold of None or 0
+    # Images with a class score of the label below 0.2 are discarded. A filter threshold of None
     # implies no filtering, allowing all images to be used in training the downstream model.
 
     args = parser.parse_args()

@@ -7,13 +7,13 @@ from tqdm import tqdm
 from PIL import Image
 
 import torchvision.transforms as transforms
+import torch.nn.functional as F
 import torch
 import numpy as np
 import abc
 import random
 import os
-
-import torch.nn.functional as F
+import shutil
 
 
 class FewShotDataset(Dataset):
@@ -42,7 +42,9 @@ class FewShotDataset(Dataset):
         ])
         
         if synthetic_dir is not None:
-            os.makedirs(synthetic_dir, exist_ok=True)
+            # Remove the directory and its contents and create a new one (important if trials > 1 and filter is used)
+            shutil.rmtree(synthetic_dir, ignore_errors=True)
+            os.makedirs(synthetic_dir)
             if synthetics_filter_threshold is not None:
 
                 self.filter_model = torch.load("models/ClassificationFilterModel.pth")
@@ -56,7 +58,8 @@ class FewShotDataset(Dataset):
                 self.discarded_dir = os.path.join(path_to_dir, new_dir_name)
                 self.number_of_discarded_images = {}
 
-                os.makedirs(self.discarded_dir, exist_ok=True)
+                shutil.rmtree(self.discarded_dir, ignore_errors=True)
+                os.makedirs(self.discarded_dir)
     
     @abc.abstractmethod
     def get_image_by_idx(self, idx: int) -> Image.Image:
@@ -105,7 +108,7 @@ class FewShotDataset(Dataset):
                         if probabilities_array[label] < self.synthetics_filter_threshold:
                             discard_image = True
 
-                    print_decision = True
+                    print_decision = False
                     if print_decision:
                         print(f'Image: label_{label}-{idx}-{num}.png')
                         predicted_class = np.argmax(probabilities_array)
