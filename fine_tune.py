@@ -265,6 +265,9 @@ def parse_args():
     parser.add_argument("--filter_mask_area", type=int, default=0,
                         help="Whether to use filtering by largest label mask area or not (filter_mask_area==0)")
 
+    parser.add_argument("--use_manual_list", type=bool, default=False,
+                        help="Whether to use the preselected images for extracting or the standard approach")
+
     args = parser.parse_args()
     env_local_rank = int(os.environ.get("LOCAL_RANK", -1))
     if env_local_rank != -1 and env_local_rank != args.local_rank:
@@ -772,7 +775,8 @@ if __name__ == "__main__":
         train_dataset = DATASETS[
             args.dataset](split="train", seed=seed,
                           examples_per_class=examples_per_class,
-                          filter_mask_area=args.filter_mask_area)
+                          filter_mask_area=args.filter_mask_area,
+                          use_manual_list=args.use_manual_list)
 
         for idx in range(len(train_dataset)):
             image = train_dataset.get_image_by_idx(idx)
