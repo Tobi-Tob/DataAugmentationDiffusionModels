@@ -4,7 +4,7 @@ from semantic_aug.datasets.imagenet import ImageNetDataset
 from semantic_aug.datasets.pascal import PASCALDataset
 from semantic_aug.datasets.caltech101 import CalTech101Dataset
 from semantic_aug.datasets.flowers102 import Flowers102Dataset
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, WeightedRandomSampler
 from torchvision.models import resnet50, ResNet50_Weights
 from transformers import DeiTModel
 
@@ -37,8 +37,9 @@ def train_filter(seed: int = 0,
                  model_dir: str = "models",
                  early_stopping_threshold: int = 10):  # Number of epochs without improvement trigger early stopping
     """
-    Trains a classifier on the train data and saves the version with the best validation loss.
-    This model can then be used to filter synthetic images later on.
+    Trains a classifier on the training data using a weighted sampler to address imbalances in class distribution
+    and saves the model version with the best validation loss.
+    This saved model is intended for later use in filtering synthetic images.
     """
     torch.manual_seed(seed)
     np.random.seed(seed)
@@ -50,15 +51,20 @@ def train_filter(seed: int = 0,
         seed=seed,
         image_size=(image_size, image_size))
 
-    train_sampler = torch.utils.data.RandomSampler(
-        train_dataset, replacement=True,
+    # Calculate class weights based on the inverse of class frequencies. Assign weight to each sample in the dataset
+    # based on the class distribution, so that each class has an equal contribution to the overall loss
+    class_weights = 1.0 / train_dataset.class_counts
+    weights = [class_weights[label] for label in train_dataset.all_labels]
+
+    weighted_train_sampler = WeightedRandomSampler(
+        weights, replacement=True,
         num_samples=batch_size * iterations_per_epoch)
 
     train_dataloader = DataLoader(
         train_dataset, batch_size=batch_size,
-        sampler=train_sampler, num_workers=4)
+        sampler=weighted_train_sampler, num_workers=4)
 
-    val_dataset = DATASETS[dataset](
+    val_dataset = DATASETS[dataset](  # TODO use also WeightedRandomSampler?
         split="val", seed=seed,
         image_size=(image_size, image_size))
 

@@ -93,32 +93,31 @@ class FewShotDataset(Dataset):
 
                 if self.synthetics_filter_threshold is not None:
                     with torch.no_grad():
-                        # Add an extra batch dimension as the model expects a batch of images
-                        # and change device type of the input tensor to GPU
+                        # Add an extra batch dimension as the model expects a batch of images and change device
                         transformed_image = self.transform(image).unsqueeze(0).cuda()
-                        # Run through model
+                        # Run image through model
                         logits = self.filter_model(transformed_image)
                         # Apply softmax activation to convert logits into probabilities
                         probabilities = F.softmax(logits, dim=1)
                         probabilities_array = probabilities.cpu().detach().numpy()[0]
-                        # print(probabilities_array)
-                        # print('label', label)
 
+                        # Filter criterion:
                         if probabilities_array[label] < self.synthetics_filter_threshold:
                             discard_image = True
 
-                    print(f'Image: label_{label}-{idx}-{num}.png')
-                    predicted_class = np.argmax(probabilities_array)
-                    print(f'Highest class: {predicted_class} with probability of: '
-                          f'{np.round(probabilities_array[predicted_class], 3)}')
-                    if not np.isclose(predicted_class, label):
-                        print(f'Wrong classified, probability of correct label {label}: '
-                              f'{np.round(probabilities_array[label], 3)}')
-                    print(f'Image accepted: {not discard_image}')
-                    # print(probabilities_array)
+                    print_decision = True
+                    if print_decision:
+                        print(f'Image: label_{label}-{idx}-{num}.png')
+                        predicted_class = np.argmax(probabilities_array)
+                        print(f'Highest class: {predicted_class} with probability of: '
+                              f'{np.round(probabilities_array[predicted_class], 3)}')
+                        if not np.isclose(predicted_class, label):
+                            print(f'Wrong classified, probability of correct label {label}: '
+                                  f'{np.round(probabilities_array[label], 3)}')
+                        print(f'Image accepted: {not discard_image}')
 
                 if discard_image:
-                    # TL: Save discarded images in self.discarded_dir instead of self.synthetic_dir
+                    # Save discarded images in self.discarded_dir instead of self.synthetic_dir
                     image_path = os.path.join(self.discarded_dir, f"label_{label}-{idx}-{num}.png")
                     self.number_of_discarded_images[label] = self.number_of_discarded_images.get(label, 0) + 1
                 else:

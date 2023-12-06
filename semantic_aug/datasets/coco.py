@@ -11,7 +11,6 @@ from pycocotools.coco import COCO
 from PIL import Image
 from collections import defaultdict
 
-
 COCO_DIR = r"/data/dlcv2023_groupA/coco2017"  # put ur own path here
 
 TRAIN_IMAGE_DIR = os.path.join(COCO_DIR, "train2017")
@@ -108,19 +107,19 @@ class COCODataset(FewShotDataset):
     """
 
     class_names = ['person', 'bicycle', 'car', 'motorcycle', 'airplane',
-        'bus', 'train', 'truck', 'boat', 'traffic light', 'fire hydrant',
-        'stop sign', 'parking meter', 'bench', 'bird', 'cat', 'dog',
-        'horse', 'sheep', 'cow', 'elephant', 'bear', 'zebra', 'giraffe',
-        'backpack', 'umbrella', 'handbag', 'tie', 'suitcase', 'frisbee',
-        'skis', 'snowboard', 'sports ball', 'kite', 'baseball bat',
-        'baseball glove', 'skateboard', 'surfboard', 'tennis racket',
-        'bottle', 'wine glass', 'cup', 'fork', 'knife', 'spoon', 'bowl',
-        'banana', 'apple', 'sandwich', 'orange', 'broccoli', 'carrot',
-        'hot dog', 'pizza', 'donut', 'cake', 'chair', 'couch',
-        'potted plant', 'bed', 'dining table', 'toilet', 'tv', 'laptop',
-        'mouse', 'remote', 'keyboard', 'cell phone', 'microwave', 'oven',
-        'toaster', 'sink', 'refrigerator', 'book', 'clock', 'vase',
-        'scissors', 'teddy bear', 'hair drier', 'toothbrush']
+                   'bus', 'train', 'truck', 'boat', 'traffic light', 'fire hydrant',
+                   'stop sign', 'parking meter', 'bench', 'bird', 'cat', 'dog',
+                   'horse', 'sheep', 'cow', 'elephant', 'bear', 'zebra', 'giraffe',
+                   'backpack', 'umbrella', 'handbag', 'tie', 'suitcase', 'frisbee',
+                   'skis', 'snowboard', 'sports ball', 'kite', 'baseball bat',
+                   'baseball glove', 'skateboard', 'surfboard', 'tennis racket',
+                   'bottle', 'wine glass', 'cup', 'fork', 'knife', 'spoon', 'bowl',
+                   'banana', 'apple', 'sandwich', 'orange', 'broccoli', 'carrot',
+                   'hot dog', 'pizza', 'donut', 'cake', 'chair', 'couch',
+                   'potted plant', 'bed', 'dining table', 'toilet', 'tv', 'laptop',
+                   'mouse', 'remote', 'keyboard', 'cell phone', 'microwave', 'oven',
+                   'toaster', 'sink', 'refrigerator', 'book', 'clock', 'vase',
+                   'scissors', 'teddy bear', 'hair drier', 'toothbrush']
 
     num_classes: int = len(class_names)
 
@@ -186,26 +185,31 @@ class COCODataset(FewShotDataset):
         self.all_labels = [i for i, key in enumerate(
             self.class_names) for _ in self.class_to_images[key]]
 
-        if use_randaugment: train_transform = transforms.Compose([
-            transforms.Resize(image_size),
-            transforms.RandAugment(),
-            transforms.ToTensor(),
-            transforms.ConvertImageDtype(torch.float),
-            transforms.Lambda(lambda x: x.expand(3, *image_size)),
-            transforms.Normalize(mean=[0.5, 0.5, 0.5],
-                                  std=[0.5, 0.5, 0.5])
-        ])
+        # Enumeration of the occurrences of each class in the data set
+        self.class_counts = np.bincount(self.all_labels)
 
-        else: train_transform = transforms.Compose([
-            transforms.Resize(image_size),
-            transforms.RandomHorizontalFlip(p=0.5),
-            transforms.RandomRotation(degrees=15.0),
-            transforms.ToTensor(),
-            transforms.ConvertImageDtype(torch.float),
-            transforms.Lambda(lambda x: x.expand(3, *image_size)),
-            transforms.Normalize(mean=[0.5, 0.5, 0.5],
-                                  std=[0.5, 0.5, 0.5])
-        ])
+        if use_randaugment:
+            train_transform = transforms.Compose([
+                transforms.Resize(image_size),
+                transforms.RandAugment(),
+                transforms.ToTensor(),
+                transforms.ConvertImageDtype(torch.float),
+                transforms.Lambda(lambda x: x.expand(3, *image_size)),
+                transforms.Normalize(mean=[0.5, 0.5, 0.5],
+                                     std=[0.5, 0.5, 0.5])
+            ])
+
+        else:
+            train_transform = transforms.Compose([
+                transforms.Resize(image_size),
+                transforms.RandomHorizontalFlip(p=0.5),
+                transforms.RandomRotation(degrees=15.0),
+                transforms.ToTensor(),
+                transforms.ConvertImageDtype(torch.float),
+                transforms.Lambda(lambda x: x.expand(3, *image_size)),
+                transforms.Normalize(mean=[0.5, 0.5, 0.5],
+                                     std=[0.5, 0.5, 0.5])
+            ])
 
         val_transform = transforms.Compose([
             transforms.Resize(image_size),
@@ -213,7 +217,7 @@ class COCODataset(FewShotDataset):
             transforms.ConvertImageDtype(torch.float),
             transforms.Lambda(lambda x: x.expand(3, *image_size)),
             transforms.Normalize(mean=[0.5, 0.5, 0.5],
-                                  std=[0.5, 0.5, 0.5])
+                                 std=[0.5, 0.5, 0.5])
         ])
 
         self.transform = {"train": train_transform, "val": val_transform}[split]
