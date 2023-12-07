@@ -17,6 +17,10 @@ import shutil
 
 
 class FewShotDataset(Dataset):
+    """
+    TL: This dataset simulates a few-shot use case. All inherited classes use examples_per_class
+    as an upper bound for the number of fixed examples they contain.
+    """
 
     num_classes: int = None
     class_names: int = None
@@ -34,6 +38,8 @@ class FewShotDataset(Dataset):
         self.synthetic_dir = synthetic_dir
         self.synthetic_examples = defaultdict(list)
 
+        self.synthetics_filter_threshold = synthetics_filter_threshold
+
         self.transform = transforms.Compose([
             transforms.ToTensor(),
             transforms.ConvertImageDtype(torch.float),
@@ -49,8 +55,6 @@ class FewShotDataset(Dataset):
 
                 self.filter_model = torch.load("models/ClassificationFilterModel.pth")
                 self.filter_model.eval()
-
-                self.synthetics_filter_threshold = synthetics_filter_threshold
 
                 # Extract the path_to_dir and dir_name, change to new_dir_name and combine to discarded_dir
                 path_to_dir, dir_name = os.path.split(synthetic_dir)
