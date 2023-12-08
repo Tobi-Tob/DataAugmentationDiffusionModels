@@ -30,7 +30,7 @@ if __name__ == "__main__":
 
             method_path = os.path.join(logdir, method_name)  # path to csv file
 
-            if not os.path.isdir(method_path) or method_name == 'test':  # skip if not directory or test dir
+            if not os.path.isdir(method_path):  # skip if not directory
                 continue
 
             files = list(glob.glob(os.path.join(method_path, "*.csv")))

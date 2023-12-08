@@ -36,7 +36,8 @@ def train_filter(examples_per_class,
                  image_size: int = 256,
                  model_dir: str = "models",
                  lr: float = 1e-4,
-                 weight_decay: float = 1e-3,
+                 weight_decay: float = 1e-2,
+                 use_randaugment: bool = True,
                  early_stopping_threshold: int = 10):  # Number of epochs without improvement trigger early stopping
     """
     Trains a classifier on the training data using a weighted sampler to address imbalances in class distribution
@@ -56,14 +57,15 @@ def train_filter(examples_per_class,
         split="train",
         examples_per_class=examples_per_class,
         synthetic_probability=0,
-        use_randaugment=False,  # Test with True
+        use_randaugment=use_randaugment,
         seed=seed,
         image_size=(image_size, image_size)
     )
 
     # Calculate class weights based on the inverse of class frequencies. Assign weight to each sample in the dataset
-    # based on the class distribution, so that each class has an equal contribution to the overall loss
-    class_weights = 1.0 / train_dataset.class_counts
+    # based on the class distribution, so that each class has an equal contribution to the overall loss.
+    # If class_count is 0 set the corresponding entry in class_weights to 0 too.
+    class_weights = np.where(train_dataset.class_counts == 0, 0, 1.0 / train_dataset.class_counts)
     weights = [class_weights[label] for label in train_dataset.all_labels]
 
     weighted_train_sampler = WeightedRandomSampler(
@@ -78,13 +80,18 @@ def train_filter(examples_per_class,
         split="val", seed=seed,
         image_size=(image_size, image_size))
 
-    val_sampler = torch.utils.data.RandomSampler(
-        val_dataset, replacement=True,
+    # TL: RuntimeWarning divide by zero can happen, everything will work as it should,
+    # but this means that some classes are not present in the validation dataset.
+    class_weights = np.where(val_dataset.class_counts == 0, 0, 1.0 / val_dataset.class_counts)
+    weights = [class_weights[label] for label in val_dataset.all_labels]
+
+    weighted_val_sampler = WeightedRandomSampler(
+        weights, replacement=True,
         num_samples=batch_size * iterations_per_epoch)
 
     val_dataloader = DataLoader(
         val_dataset, batch_size=batch_size,
-        sampler=val_sampler, num_workers=4)
+        sampler=weighted_val_sampler, num_workers=4)
 
     filter_model = ClassificationFilterModel(
         train_dataset.num_classes
@@ -274,7 +281,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--examples-per-class", type=int, default=8)
     parser.add_argument("--seed", type=int, default=0)
-    parser.add_argument("--weight-decay", type=float, default=1e-3)
+    parser.add_argument("--weight-decay", type=float, default=1e-2)
 
     args = parser.parse_args()
 
