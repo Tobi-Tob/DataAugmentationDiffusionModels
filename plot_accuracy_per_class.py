@@ -47,9 +47,9 @@ if __name__ == "__main__":
         data["method"] = dirs[i].split("/")[idx]
 
         class_data = []
-        for class_name in COCODataset.class_names:
-            data_val = data[(data["metric"].lower() == f"Accuracy {class_name}".lower()) &  # make it case-insensitive
-                            (data["split"] == "Validation")]
+        # for class_name in COCODataset.class_names:
+        #     data_val = data[(data["metric"].lower() == f"Accuracy {class_name}".lower()) &  # make it case-insensitive
+        #                     (data["split"] == "Validation")]
 
         data_val = data[("Accuracy " in data["metric"]) &
                         (data["split"] == "Validation")]
