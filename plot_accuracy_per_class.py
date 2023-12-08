@@ -13,6 +13,8 @@ if __name__ == "__main__":
     # class accuracies of the first two log files (in csv format) in the given directory
     # It also plots the difference for the classes with highest difference
 
+    # python plot_accuracy_per_class.py --log-dir1 "./results/g10_s0,6_llm_prompts" --log-dir2 "./results/guidance_10_strength_0,6"
+
     parser = argparse.ArgumentParser("Plot Accuracy per Class")
 
     parser.add_argument("--log-dir1", type=str, default="./results/guidance_7,5_strength_0,5")
