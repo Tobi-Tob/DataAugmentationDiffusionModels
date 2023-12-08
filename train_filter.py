@@ -28,12 +28,12 @@ DATASETS = {
 
 
 def train_filter(examples_per_class,
-                 seed: int = 0,
-                 dataset: str = "coco",
+                 seed: int,
+                 dataset: str,
+                 image_size: int,
                  iterations_per_epoch: int = 200,
                  max_epochs: int = 100,
                  batch_size: int = 32,
-                 image_size: int = 256,
                  model_dir: str = "models",
                  lr: float = 1e-4,
                  weight_decay: float = 1e-2,
@@ -287,4 +287,6 @@ if __name__ == "__main__":
 
     train_filter(examples_per_class=args.examples_per_class,
                  seed=args.seed,
+                 dataset="coco",
+                 image_size=256,
                  weight_decay=args.weight_decay)
