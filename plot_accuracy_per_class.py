@@ -28,7 +28,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    dataframe_best = []
     dataframe_val = []
 
     dirs = [args.log_dir1, args.log_dir2]
@@ -53,38 +52,15 @@ if __name__ == "__main__":
         #     data_val = data[(data["metric"].lower() == f"Accuracy {class_name}".lower()) &  # make it case-insensitive
         #                     (data["split"] == "Validation")]
 
-        data_val = data[("Accuracy " in data["metric"]) &
+        data_val = data[data["metric"].str.contains("Accuracy ") &
                         (data["split"] == "Validation")]
 
-        class_group = data_val.groupby(["examples_per_class", "metric"])
-        class_group = class_group["value"].mean().to_frame('value').reset_index()
+        mean_per_class = data_val.groupby(["examples_per_class", "metric"])
+        mean_per_class = mean_per_class["value"].mean().to_frame('value').reset_index()
 
-        print(class_group)
-
+        dataframe_val.append(mean_per_class)
 
 '''
-            def select_by_epoch(df):
-                selected_row = df.loc[df["value"].idxmax()]
-                return data_val[(data_val["epoch"] == selected_row["epoch"]) &
-                                (data_val["examples_per_class"] ==
-                                 selected_row["examples_per_class"])]
-
-
-            best = data_val.groupby(["examples_per_class", "epoch"])
-            best = best["value"].mean().to_frame('value').reset_index()
-            best = best.groupby("examples_per_class").apply(
-                select_by_epoch
-            )
-
-            # print(data_val):
-            #      seed  examples_per_class  epoch     value       split method
-            # 3       0                   1      0  0.012111  Validation   test
-            # 327     0                   1      1  0.016188  Validation   test
-            # ...
-
-            dataframe_best.append(best)
-            dataframe_val.append(data_val)
-
     dataframe_best = pd.concat(
         dataframe_best, ignore_index=True)
     dataframe_val = pd.concat(
