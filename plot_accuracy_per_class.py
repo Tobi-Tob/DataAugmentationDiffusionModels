@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 from scipy import stats
+from semantic_aug.datasets.coco import COCODataset
 
 import os
 import glob
@@ -8,46 +9,58 @@ import argparse
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser("Plot Accuracy")
+    # currently this script generates a csv file that contains the mean difference of
+    # class accuracies of the first two log files (in csv format) in the given directory
+    # It also plots the difference for the classes with highest difference
 
-    parser.add_argument("--dirs", nargs="+", type=str, default=["./results"])
+    parser = argparse.ArgumentParser("Plot Accuracy per Class")
+
+    parser.add_argument("--log-dir1", type=str, default="./results/guidance_7,5_strength_0,5")
+    parser.add_argument("--log-dir2", type=str, default="./results/guidance_10_strength_0,6")
+
+    parser.add_argument("--out-dir", type=str, default="./results")
 
     parser.add_argument("--datasets", nargs="+", type=str, default=["COCO"])
 
-    parser.add_argument("--file_name", type=str, default="accuracy")
+    parser.add_argument("--file_name", type=str, default="accuracy_per_class")
 
     args = parser.parse_args()
 
     dataframe_best = []
     dataframe_val = []
-    dataframe_train = []
 
-    for logdir, dataset in zip(
-            args.dirs, args.datasets):
+    dirs = [args.log_dir1, args.log_dir2]
 
-        for method_name in os.listdir(logdir):
+    for i in range(len(dirs)):
+        files = list(glob.glob(os.path.join(dirs[i], "*.csv")))
+        if len(files) == 0:
+            raise RuntimeError(f"Didn't find any csv logs in --log-dir{i} to perform a comparison!")
 
-            method_path = os.path.join(logdir, method_name)  # path to csv file
+        # store data of method i
+        data = pd.concat([pd.read_csv(x, index_col=0)
+                          for x in files], ignore_index=True)
 
-            if not os.path.isdir(method_path) or method_name == 'test':  # skip if not directory or test dir
-                continue
+        # add column to identify the method
+        idx = -1
+        if dirs[i].split("/")[idx] == "":  # handle .../path/ vs .../path
+            idx -= 1
+        data["method"] = dirs[i].split("/")[idx]
 
-            files = list(glob.glob(os.path.join(method_path, "*.csv")))
-
-            if len(files) == 0:  # skip if dir is empty
-                continue
-
-            data = pd.concat([pd.read_csv(x, index_col=0)
-                              for x in files], ignore_index=True)
-
-            data["method"] = method_name
-            data_val = data[(data["metric"] == "Accuracy") &
+        class_data = []
+        for class_name in COCODataset.class_names:
+            data_val = data[(data["metric"].lower() == f"Accuracy {class_name}".lower()) &  # make it case-insensitive
                             (data["split"] == "Validation")]
 
-            data_train = data[(data["metric"] == "Accuracy") &
-                              (data["split"] == "Training")]
+        data_val = data[("Accuracy " in data["metric"]) &
+                        (data["split"] == "Validation")]
+
+        class_group = data_val.groupby(["examples_per_class", "metric"])
+        class_group = class_group["value"].mean().to_frame('value').reset_index()
+
+        print(class_group)
 
 
+'''
             def select_by_epoch(df):
                 selected_row = df.loc[df["value"].idxmax()]
                 return data_val[(data_val["epoch"] == selected_row["epoch"]) &
@@ -69,27 +82,19 @@ if __name__ == "__main__":
 
             dataframe_best.append(best)
             dataframe_val.append(data_val)
-            dataframe_train.append(data_train)
 
     dataframe_best = pd.concat(
         dataframe_best, ignore_index=True)
     dataframe_val = pd.concat(
         dataframe_val, ignore_index=True)  # write the list of DataFrame into one DataFrame
-    dataframe_train = pd.concat(
-        dataframe_train, ignore_index=True)
 
     mean_values_val = dataframe_val.groupby(['method', 'epoch']).mean()['value'].reset_index()
     conf_int_values_val = dataframe_val.groupby(['method', 'epoch']).agg(
-        {'value': lambda x: stats.sem(x) * 1.96}).reset_index()
-    mean_values_train = dataframe_train.groupby(['method', 'epoch']).mean()['value'].reset_index()
-    conf_int_values_train = dataframe_train.groupby(['method', 'epoch']).agg(
         {'value': lambda x: stats.sem(x) * 1.96}).reset_index()
     # Confidence interval: 95% of the data falls within 1.96 * standard deviation of the mean
 
     # Merge mean and confidence intervals (join on column method and epoch)
     plot_data_val = pd.merge(mean_values_val, conf_int_values_val, on=['method', 'epoch'], suffixes=('_mean', '_ci'))
-    plot_data_train = pd.merge(mean_values_train, conf_int_values_train, on=['method', 'epoch'],
-                               suffixes=('_mean', '_ci'))
 
     for i, plot_data in enumerate([plot_data_val, plot_data_train]):  # Generating figures for val and train data
         fig, ax = plt.subplots(figsize=(10, 6))
@@ -116,3 +121,4 @@ if __name__ == "__main__":
 
         file_name = f"results/validation_{args.file_name}.png" if i == 0 else f"results/training_{args.file_name}.png"
         plt.savefig(file_name)
+'''
