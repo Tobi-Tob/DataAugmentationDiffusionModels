@@ -27,7 +27,6 @@ import pandas as pd
 import numpy as np
 import random
 import os
-from generate_prompts import read_prompts_from_csv
 
 try: 
     from cutmix.cutmix import CutMix

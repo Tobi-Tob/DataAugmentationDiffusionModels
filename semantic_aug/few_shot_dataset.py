@@ -104,10 +104,13 @@ class FewShotDataset(Dataset):
             if self.use_llm_prompt:
                 # This chooses a prompt out of the list according to the occurrence of the class name
                 prompt_idx = class_occur[class_name] % len(prompts_dict[class_name])
-                self.generative_aug.set_prompt(prompts_dict[class_name][prompt_idx])
+                # MR: generative_aug must have a TextualInversion instance!!
+                self.generative_aug.set_augs_prompt(prompts_dict[class_name][prompt_idx])
             else:
                 self.generative_aug.set_prompt(DEFAULT_PROMPT)
 
+            print(f"prompt: {self.generative_aug.augs[0].prompt} | has type: {type(self.generative_aug.augs[0].prompt)}")
+            print(f"default prompt: {DEFAULT_PROMPT} | has type: {type(DEFAULT_PROMPT)}")
             image, label = self.generative_aug(
                 image, label, metadata)
 

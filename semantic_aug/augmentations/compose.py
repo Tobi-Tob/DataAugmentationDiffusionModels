@@ -1,4 +1,5 @@
 from semantic_aug.generative_augmentation import GenerativeAugmentation
+from semantic_aug.augmentations.textual_inversion import TextualInversion
 from diffusers import StableDiffusionImg2ImgPipeline
 from diffusers import StableDiffusionInpaintPipeline
 from diffusers.utils import logging
@@ -34,6 +35,15 @@ class ComposeSequential(GenerativeAugmentation):
 
         return image, label
 
+    def set_augs_prompt(self, prompt: str):
+        for aug in self.augs:
+            if isinstance(aug, TextualInversion):
+                aug.set_prompt(prompt)
+            else:
+                raise ValueError("No TextualInversion instance found in augs. This is mandetory until csv prompts is "
+                                 "implemented in other aug variants")
+
+
 
 class ComposeParallel(GenerativeAugmentation):
 
@@ -42,7 +52,7 @@ class ComposeParallel(GenerativeAugmentation):
 
         super(ComposeParallel, self).__init__()
 
-        self.augs = augs  # MR: comprises TextualInverstion()
+        self.augs = augs
         self.probs = probs if probs is not None \
             else [1.0 / len(augs) for _ in augs]
 
@@ -54,3 +64,12 @@ class ComposeParallel(GenerativeAugmentation):
         image, label = self.augs[idx](image, label, metadata)
 
         return image, label
+
+    def set_augs_prompt(self, prompt: str):
+        for aug in self.augs:
+            if isinstance(aug, TextualInversion):
+                aug.set_prompt(prompt)
+            else:
+                raise ValueError("No TextualInversion instance found in augs. This is mandetory until csv prompts is "
+                                 "implemented in other aug variants")
+
