@@ -106,18 +106,20 @@ class FewShotDataset(Dataset):
                 prompt_idx = class_occur[class_name] % len(prompts_dict[class_name])
                 # MR: generative_aug must have a TextualInversion instance!!
                 self.generative_aug.set_augs_prompt(prompts_dict[class_name][prompt_idx])
+                if prompt_idx == 5:
+                    self.generative_aug.set_augs_prompt(DEFAULT_PROMPT)
             else:
                 self.generative_aug.set_prompt(DEFAULT_PROMPT)
 
-            print(f"prompt: {self.generative_aug.augs[0].prompt} | has type: {type(self.generative_aug.augs[0].prompt)}")
-            print(f"default prompt: {DEFAULT_PROMPT} | has type: {type(DEFAULT_PROMPT)}")
+            # print(f"prompt: {self.generative_aug.augs[0].prompt} | has type: {type(self.generative_aug.augs[0].prompt)}")
+            # print(f"default prompt: {DEFAULT_PROMPT} | has type: {type(DEFAULT_PROMPT)}")
             image, label = self.generative_aug(
                 image, label, metadata)
 
             if self.synthetic_dir is not None:
 
                 pil_image, image = image, os.path.join(
-                    self.synthetic_dir, f"aug-{idx}-{num}.png")
+                    self.synthetic_dir, f"{class_name}-{idx}-{num}.png")
 
                 pil_image.save(image)
 

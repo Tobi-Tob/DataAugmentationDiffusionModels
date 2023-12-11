@@ -6,6 +6,7 @@ import numpy as np
 import torchvision.transforms as transforms
 import torch
 import os
+import csv
 
 from pycocotools.coco import COCO
 from PIL import Image
@@ -95,6 +96,31 @@ class COCODataset(FewShotDataset):
         self.class_to_images = {
             key: [class_to_images[key][i] for i in ids] 
             for key, ids in class_to_ids.items()}
+
+        # Writing image paths to CSV
+        out_dir = "prompts"
+        if not os.path.exists(out_dir):
+            os.makedirs(out_dir)
+
+        out_path = os.path.join(out_dir, f"img_paths.csv")
+
+        # Finding the maximum number of paths
+        max_paths = max(len(paths) for paths in self.class_to_images.values())
+
+        # Creating the CSV file
+        with open(out_path, 'w', newline='') as file:
+            writer = csv.writer(file)
+
+            # Writing the header
+            header = ['class'] + [f'path{i}' for i in range(1, max_paths + 1)]
+            writer.writerow(header)
+
+            # Writing the data
+            for class_name, paths in self.class_to_images.items():
+                row = [class_name] + paths + [''] * (max_paths - len(paths))
+                writer.writerow(row)
+
+        print("Wrote paths to csv")
 
         self.class_to_annotations = {
             key: [class_to_annotations[key][i] for i in ids] 
