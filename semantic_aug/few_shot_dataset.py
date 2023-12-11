@@ -106,7 +106,7 @@ class FewShotDataset(Dataset):
                 prompt_idx = class_occur[class_name] % len(prompts_dict[class_name])
                 # MR: generative_aug must have a TextualInversion instance!!
                 self.generative_aug.set_augs_prompt(prompts_dict[class_name][prompt_idx])
-                if prompt_idx == 5:
+                if prompt_idx == 4:
                     self.generative_aug.set_augs_prompt(DEFAULT_PROMPT)
             else:
                 self.generative_aug.set_prompt(DEFAULT_PROMPT)
