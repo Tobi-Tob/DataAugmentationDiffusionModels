@@ -37,11 +37,12 @@ class ComposeSequential(GenerativeAugmentation):
 
     def set_augs_prompt(self, prompt: str):
         for aug in self.augs:
-            if isinstance(aug, TextualInversion):
+            try:
+                # Attempt to set the prompt
                 aug.set_prompt(prompt)
-            else:
-                raise ValueError("No TextualInversion instance found in augs. This is mandetory until csv prompts is "
-                                 "implemented in other aug variants")
+            except AttributeError:
+                # Handle the case where the aug does not have set_prompt method
+                raise ValueError(f"No set_prompt() method was found in the aug of type: {type(aug)}")
 
 
 
@@ -67,9 +68,10 @@ class ComposeParallel(GenerativeAugmentation):
 
     def set_augs_prompt(self, prompt: str):
         for aug in self.augs:
-            if isinstance(aug, TextualInversion):
+            try:
+                # Attempt to set the prompt
                 aug.set_prompt(prompt)
-            else:
-                raise ValueError("No TextualInversion instance found in augs. This is mandetory until csv prompts is "
-                                 "implemented in other aug variants")
+            except AttributeError:
+                # Handle the case where the aug does not have set_prompt method
+                raise ValueError(f"No set_prompt() method was found in the aug of type: {type(aug)}")
 
