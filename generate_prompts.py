@@ -17,7 +17,7 @@ SYS_PROMPT = "<s>[INST] <<SYS>> You are a helpful, respectful and honest assista
 You will be asked to generate short text prompts. Just respond with those text prompts, nothing else! Enumerate the prompts! Each answer prompt must contain the key-word inside [] from the user prompt. The prompts can not exceed 10 words! \
 <</SYS>> "
 
-USER_PROMPT = "Generate {num_prompts} prompt(s) that start with 'A photo of a [{name1}]'. Add an realistic environment to the [{name2}], to make it semantically more diverse. The word [{name3}] must be in the prompt and the length of each prompt should not be greater than 10. [/INST]"
+USER_PROMPT = "Generate {num_prompts} prompt(s) that start with 'A photo of a [{name}]'. Add an realistic environment to the [{name}], to make it semantically more diverse. The word [{name}] must be in the prompt and the length of each prompt should not be greater than 10. [/INST]"
 
 # Ideas to improve prompts:
 # - generate one word environments (not a whole sentence) -> like [car]: street or motorway or ...
@@ -32,15 +32,15 @@ PROMPT_TEMPLATE = f"""[INST] <<SYS>>
 
 def clean_response(res: str, num_prompts: int, class_name: str):
     def clean_single_prompt(prompt_item):
-        class_with_rect_brackets = f'[{class_name}]'
-        class_with_curl_brackets = f'{{{class_name}}}'
-        # only replace the first occurrence of class name with {}
-        prompt_item = prompt_item.replace(class_with_rect_brackets, class_with_curl_brackets, 1)
+        # remove the leading space
+        prompt_item = prompt_item[1:]
+        # only replace the first occurrence of class name with {} -> the other one might be a descriptive word
+        prompt_item = prompt_item.replace(f'[{class_name}]', '{name}', 1)
         # remove duplicate class mentioning in the prompt
-        prompt_item = prompt_item.replace(class_with_rect_brackets, '')
+        prompt_item = prompt_item.replace(f'[{class_name}]', '')
 
         # replace with default prompt if prompt is not as desired
-        if prompt_item.count(class_with_curl_brackets) == 1:
+        if not prompt_item.count('{name}') == 1:
             prompt_item = DEFAULT_PROMPT.format(name=class_name)
 
         return prompt_item
@@ -56,17 +56,20 @@ def clean_response(res: str, num_prompts: int, class_name: str):
         # Check if the line matches the enumeration pattern
         if re.match(pattern, line):
             prompt = line.split('.')[1]
-            prompt = prompt[1:]  # remove the leading space
-            prompt += '.'
             prompt = clean_single_prompt(prompt)
             cleaned_prompts.append(prompt)
 
     # Check if the response only contains the expected amount of prompts.
-    if not len(cleaned_prompts) == num_prompts:
+    if len(cleaned_prompts) < num_prompts:
+        for i in range(len(cleaned_prompts), num_prompts):
+            cleaned_prompts.append(DEFAULT_PROMPT)
+        print(f"Warning: The Llama 2 response didn't contain the expected amount of prompts."
+              f"-> The prompts might not work as expected.\nResponse was:\n {res}")
+    elif len(cleaned_prompts) > num_prompts:
+        cleaned_prompts = cleaned_prompts[:num_prompts]
         print(f"Warning: The Llama 2 response didn't contain the expected amount of prompts."
               f"-> The prompts might not work as expected.\nResponse was:\n {res}")
 
-    # Return the list of prompts
     return cleaned_prompts
 
 
@@ -85,7 +88,7 @@ def write_prompts_to_csv(all_prompts: Dict):
 
     out_path = os.path.join(out_dir, f"prompts.csv")
     with open(out_path, 'w', newline='', encoding='utf-8') as file:
-        writer = csv.DictWriter(file, fieldnames=['class_name', 'class_idx', 'prompt'])
+        writer = csv.DictWriter(file, fieldnames=['class_name', 'class_idx', 'prompt'], delimiter=';')
         writer.writeheader()
         writer.writerows(rows)
 
@@ -93,7 +96,6 @@ def write_prompts_to_csv(all_prompts: Dict):
 if __name__ == '__main__':
 
     '''
-    MR:
     python generate_prompts.py --outdir "prompts" --prompts-per-class 5
     '''
 
@@ -101,11 +103,9 @@ if __name__ == '__main__':
 
     parser.add_argument("--outdir", type=str, default="prompts")
     parser.add_argument("--model-path", type=str, default="meta-llama/Llama-2-7b-chat-hf")
-    # MR: If the 7B model is too small (bad prompts), then try 13B or 70B models
-
     parser.add_argument("--prompts-per-class", type=int, default=1)
     parser.add_argument("--dataset", type=str, default="coco", choices=["coco"])
-    parser.add_argument("--model-prompt", type=str, default=DEFAULT_MODEL_PROMPT)
+    parser.add_argument("--model-prompt", type=str, default=PROMPT_TEMPLATE)
 
     args = parser.parse_args()
 
@@ -122,10 +122,7 @@ if __name__ == '__main__':
 
     for idx in range(len(class_names)):
         name = class_names[idx]
-        print(args.prompts_per_class)
-        print(name)
-        model_prompt = args.model_prompt.format(num_prompts=str(args.prompts_per_class), name1=name, name2=name,
-                                                name3=name)
+        model_prompt = args.model_prompt.format(num_prompts=str(args.prompts_per_class), name=name)
 
         response = pipe(
             model_prompt,
@@ -136,7 +133,7 @@ if __name__ == '__main__':
             max_length=1024,
         )
 
-        print(f"Result: {response[0]['generated_text']}")
+        print(f"Result for {name}: {response[0]['generated_text']}")
         prompts[name] = clean_response(response[0]['generated_text'], args.prompts_per_class, name)
 
     write_prompts_to_csv(prompts)
