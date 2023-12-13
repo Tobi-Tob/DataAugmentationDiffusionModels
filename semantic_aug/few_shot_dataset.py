@@ -13,7 +13,6 @@ import abc
 import random
 import os
 
-# TODO: Try to find better solution to not have the same constants defined multiple times
 DEFAULT_PROMPT_PATH = "prompts/prompts.csv"
 DEFAULT_PROMPT = "a photo of a {name}"
 
@@ -38,6 +37,8 @@ class FewShotDataset(Dataset):
         self.synthetic_examples = defaultdict(list)
 
         self.use_llm_prompt = use_llm_prompt
+        if prompt_path is None:
+            prompt_path = DEFAULT_PROMPT_PATH
         self.prompt_path = prompt_path
 
         self.transform = transforms.Compose([

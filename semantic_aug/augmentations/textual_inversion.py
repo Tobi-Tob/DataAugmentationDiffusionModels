@@ -120,7 +120,6 @@ class TextualInversion(GenerativeAugmentation):
 
         canvas = image.resize((512, 512), Image.BILINEAR)
         name = self.format_name(metadata.get("name", ""))
-        print(f"self.prompt in text_inv: {self.prompt}  has type: {type(self.prompt)}")
         prompt = self.prompt.format(name=name)
 
         if self.mask: assert "mask" in metadata, \
@@ -182,5 +181,8 @@ class TextualInversion(GenerativeAugmentation):
 
         return canvas, label
 
+    # TODO: This function is needed by all single generative_augs (textual_inversion, textual_inversion_upstream,
+    #  real_guidance). Implement superclass that inherits from generative_augmentation and has method attribute
+    #  self.prompt as well as set_prompt().
     def set_prompt(self, new_prompt):
         self.prompt = new_prompt
