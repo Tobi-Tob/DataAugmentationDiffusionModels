@@ -10,6 +10,7 @@ from semantic_aug.augmentations.real_guidance import RealGuidance
 from semantic_aug.augmentations.textual_inversion import TextualInversion
 from semantic_aug.augmentations.textual_inversion_upstream \
     import TextualInversion as MultiTokenTextualInversion
+from semantic_aug.few_shot_dataset import DEFAULT_PROMPT_PATH, DEFAULT_PROMPT
 from torch.utils.data import DataLoader
 from torchvision.models import resnet50, ResNet50_Weights
 from transformers import AutoImageProcessor, DeiTModel
@@ -36,8 +37,6 @@ except:
 
 
 DEFAULT_MODEL_PATH = "CompVis/stable-diffusion-v1-4"
-DEFAULT_PROMPT_PATH = "prompts/prompts.csv"
-DEFAULT_PROMPT = "a photo of a {name}"
 
 DEFAULT_SYNTHETIC_DIR = "/data/dlcv2023_groupA/augmentations/{dataset}-{aug}-{seed}-{examples_per_class}"
 #  TL: Permission denied when using DEFAULT_SYNTHETIC_DIR, no read/write permission?
@@ -104,7 +103,7 @@ def run_experiment(examples_per_class: int = 0,
             AUGMENTATIONS[aug](
                 embed_path=embed_path, 
                 model_path=model_path, 
-                prompt=prompt,  # MR: this is only the initialize with the default prompt
+                prompt=prompt,  # this is only the initialization with the default prompt
                 strength=strength, 
                 guidance_scale=guidance_scale,
                 mask=mask, 
@@ -393,17 +392,12 @@ if __name__ == "__main__":
     parser.add_argument("--model-path", type=str, default="CompVis/stable-diffusion-v1-4")
     # Path to the Diffusion Model
 
-    parser.add_argument("--prompt", nargs="+", type=str, default=["a photo of a {name}"])
+    parser.add_argument("--prompt", type=str, default=["a photo of a {name}"])
     # A Textual Inversion parameter:
     # Augmentations are generated conditioned on the prompt ({name} is replaced with the particular class pseudo word)
-    #
-    # MR: added nargs='+' to enable multiple prompts.
-    # If multiple prompts are given, one of them is chosen for each image creation Hence, how many prompts are used
-    # depends on the --num_synthetic parameter. To make it reproducible, we iterate through the list of prompts.
-    # Those prompts are only taken if --use-generated-prompts is 0 (=False)
 
     parser.add_argument("--use-generated-prompts", type=int, default=[0], choices=[0, 1])
-    # MR: determines if prompts of LLM are used or the prompt(s) from the --prompts argument in the command line
+    # Determines if prompts of LLM are used or the prompt(s) from the --prompts argument in the command line
 
     parser.add_argument("--prompt-path", type=str, default="prompts/prompts.csv")
 
