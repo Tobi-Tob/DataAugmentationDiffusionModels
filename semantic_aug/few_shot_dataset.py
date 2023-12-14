@@ -1,5 +1,5 @@
 from semantic_aug.generative_augmentation import GenerativeAugmentation
-from typing import Any, Tuple
+from typing import Tuple
 from torch.utils.data import Dataset
 from collections import defaultdict
 from itertools import product
@@ -7,14 +7,20 @@ from tqdm import tqdm
 from PIL import Image
 
 import torchvision.transforms as transforms
+import torch.nn.functional as F
 import torch
 import numpy as np
 import abc
 import random
 import os
+import shutil
 
 
 class FewShotDataset(Dataset):
+    """
+    TL: This dataset simulates a few-shot use case. All inherited classes use examples_per_class
+    as an upper bound for the number of fixed examples they contain.
+    """
 
     num_classes: int = None
     class_names: int = None
@@ -22,7 +28,8 @@ class FewShotDataset(Dataset):
     def __init__(self, examples_per_class: int = None, 
                  generative_aug: GenerativeAugmentation = None, 
                  synthetic_probability: float = 0.5,
-                 synthetic_dir: str = None):
+                 synthetic_dir: str = None,
+                 synthetics_filter_threshold: float = None):
 
         self.examples_per_class = examples_per_class
         self.generative_aug = generative_aug
@@ -30,6 +37,8 @@ class FewShotDataset(Dataset):
         self.synthetic_probability = synthetic_probability
         self.synthetic_dir = synthetic_dir
         self.synthetic_examples = defaultdict(list)
+
+        self.synthetics_filter_threshold = synthetics_filter_threshold
 
         self.transform = transforms.Compose([
             transforms.ToTensor(),
@@ -39,7 +48,22 @@ class FewShotDataset(Dataset):
         ])
         
         if synthetic_dir is not None:
-            os.makedirs(synthetic_dir, exist_ok=True)
+            # Remove the directory and its contents and create a new one (important if trials > 1 and filter is used)
+            shutil.rmtree(synthetic_dir, ignore_errors=True)
+            os.makedirs(synthetic_dir)
+            if synthetics_filter_threshold is not None:
+
+                self.filter_model = torch.load("models/ClassificationFilterModel.pth")
+                self.filter_model.eval()
+
+                # Extract the path_to_dir and dir_name, change to new_dir_name and combine to discarded_dir
+                path_to_dir, dir_name = os.path.split(synthetic_dir)
+                new_dir_name = dir_name + "_discarded"
+                self.discarded_dir = os.path.join(path_to_dir, new_dir_name)
+                self.number_of_discarded_images = {}
+
+                shutil.rmtree(self.discarded_dir, ignore_errors=True)
+                os.makedirs(self.discarded_dir)
     
     @abc.abstractmethod
     def get_image_by_idx(self, idx: int) -> Image.Image:
@@ -71,13 +95,44 @@ class FewShotDataset(Dataset):
                 image, label, self.get_metadata_by_idx(idx))
 
             if self.synthetic_dir is not None:
+                pil_image = image  # type: PIL.Image.Image
+                discard_image = False
 
-                pil_image, image = image, os.path.join(
-                    self.synthetic_dir, f"aug-{idx}-{num}.png")
+                if self.synthetics_filter_threshold is not None:
+                    with torch.no_grad():
+                        # Add an extra batch dimension as the model expects a batch of images and change device
+                        transformed_image = self.transform(image).unsqueeze(0).cuda()
+                        # Run image through model
+                        logits = self.filter_model(transformed_image)
+                        # Apply softmax activation to convert logits into probabilities
+                        probabilities = F.softmax(logits, dim=1)
+                        probabilities_array = probabilities.cpu().detach().numpy()[0]
 
-                pil_image.save(image)
+                        # Filter criterion:
+                        if probabilities_array[label] < self.synthetics_filter_threshold:
+                            discard_image = True
+                            # Maybe use weighting instead of discarding
 
-            self.synthetic_examples[idx].append((image, label))
+                    print_decision = False
+                    if print_decision:
+                        print(f'Image: label_{label}-{idx}-{num}.png')
+                        predicted_class = np.argmax(probabilities_array)
+                        print(f'Highest class: {predicted_class} with probability of: '
+                              f'{np.round(probabilities_array[predicted_class], 3)}')
+                        if not np.isclose(predicted_class, label):
+                            print(f'Wrong classified, probability of correct label {label}: '
+                                  f'{np.round(probabilities_array[label], 3)}')
+                        print(f'Image accepted: {not discard_image}')
+
+                if discard_image:
+                    # Save discarded images in self.discarded_dir instead of self.synthetic_dir
+                    image_path = os.path.join(self.discarded_dir, f"label_{label}-{idx}-{num}.png")
+                    self.number_of_discarded_images[label] = self.number_of_discarded_images.get(label, 0) + 1
+                else:
+                    image_path = os.path.join(self.synthetic_dir, f"label_{label}-{idx}-{num}.png")
+                    self.synthetic_examples[idx].append((image_path, label))
+
+                pil_image.save(image_path)
 
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, int]:
 

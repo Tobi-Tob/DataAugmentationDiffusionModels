@@ -12,7 +12,7 @@ from semantic_aug.augmentations.textual_inversion_upstream \
     import TextualInversion as MultiTokenTextualInversion
 from torch.utils.data import DataLoader
 from torchvision.models import resnet50, ResNet50_Weights
-from transformers import AutoImageProcessor, DeiTModel
+from transformers import DeiTModel
 from itertools import product
 from tqdm import trange
 from typing import List
@@ -20,7 +20,6 @@ from typing import List
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torch.distributed as distributed
 
 import argparse
 import pandas as pd
@@ -28,7 +27,9 @@ import numpy as np
 import random
 import os
 
-try: 
+from train_filter import train_filter
+
+try:
     from cutmix.cutmix import CutMix
     IS_CUTMIX_INSTALLED = True
 except:
@@ -44,8 +45,8 @@ DEFAULT_SYNTHETIC_DIR = "/data/dlcv2023_groupA/augmentations/{dataset}-{aug}-{se
 DEFAULT_EMBED_PATH = "{dataset}-tokens/{dataset}-{seed}-{examples_per_class}.pt"
 
 DATASETS = {
-    "spurge": SpurgeDataset, 
-    "coco": COCODataset, 
+    "spurge": SpurgeDataset,
+    "coco": COCODataset,
     "pascal": PASCALDataset,
     "imagenet": ImageNetDataset,
     "caltech": CalTech101Dataset,
@@ -64,22 +65,22 @@ AUGMENTATIONS = {
 }
 
 
-def run_experiment(examples_per_class: int = 0, 
-                   seed: int = 0, 
-                   dataset: str = "spurge", 
-                   num_synthetic: int = 100, 
-                   iterations_per_epoch: int = 200, 
-                   num_epochs: int = 50, 
-                   batch_size: int = 32, 
+def run_experiment(examples_per_class: int = 0,
+                   seed: int = 0,
+                   dataset: str = "spurge",
+                   num_synthetic: int = 100,
+                   iterations_per_epoch: int = 200,
+                   num_epochs: int = 50,
+                   batch_size: int = 32,
                    aug: List[str] = None,
-                   strength: List[float] = None, 
+                   strength: List[float] = None,
                    guidance_scale: List[float] = None,
                    mask: List[bool] = None,
-                   inverted: List[bool] = None, 
+                   inverted: List[bool] = None,
                    probs: List[float] = None,
                    compose: str = "parallel",
-                   synthetic_probability: float = 0.5, 
-                   synthetic_dir: str = DEFAULT_SYNTHETIC_DIR, 
+                   synthetic_probability: float = 0.5,
+                   synthetic_dir: str = DEFAULT_SYNTHETIC_DIR,
                    embed_path: str = DEFAULT_EMBED_PATH,
                    model_path: str = DEFAULT_MODEL_PATH,
                    prompt: str = DEFAULT_PROMPT,
@@ -89,62 +90,76 @@ def run_experiment(examples_per_class: int = 0,
                    erasure_ckpt_path: str = None,
                    image_size: int = 256,
                    classifier_backbone: str = "resnet50",
+                   synthetics_filter_threshold: float = None,
                    filter_mask_area: int = 0):
 
     torch.manual_seed(seed)
     np.random.seed(seed)
     random.seed(seed)
 
+    train_new_filter = True
+    if synthetics_filter_threshold is not None and train_new_filter:
+        # Initialize and train the ClassificationFilterModel here and save it in models
+        train_filter(examples_per_class=examples_per_class,
+                     seed=seed,
+                     dataset=dataset,
+                     batch_size=batch_size,
+                     image_size=image_size)
+
     if aug is not None:
 
         aug = COMPOSERS[compose]([
-            
+
             AUGMENTATIONS[aug](
-                embed_path=embed_path, 
-                model_path=model_path, 
-                prompt=prompt, 
-                strength=strength, 
+                embed_path=embed_path,
+                model_path=model_path,
+                prompt=prompt,
+                strength=strength,
                 guidance_scale=guidance_scale,
-                mask=mask, 
+                mask=mask,
                 inverted=inverted,
                 erasure_ckpt_path=erasure_ckpt_path,
                 tokens_per_class=tokens_per_class
             )
 
-            for (aug, guidance_scale, 
+            for (aug, guidance_scale,
                  strength, mask, inverted) in zip(
-                aug, guidance_scale, 
+                aug, guidance_scale,
                 strength, mask, inverted
             )
 
         ], probs=probs)
 
     train_dataset = DATASETS[dataset](
-        split="train", examples_per_class=examples_per_class, 
-        synthetic_probability=synthetic_probability, 
+        split="train", examples_per_class=examples_per_class,
+        synthetic_probability=synthetic_probability,
         synthetic_dir=synthetic_dir,
         use_randaugment=use_randaugment,
         generative_aug=aug, seed=seed,
         image_size=(image_size, image_size),
+        synthetics_filter_threshold=synthetics_filter_threshold,
         filter_mask_area=filter_mask_area)
 
     if num_synthetic > 0 and aug is not None:
         train_dataset.generate_augmentations(num_synthetic)
+        if synthetics_filter_threshold is not None:
+            print('Amount of discarded images of each class:')
+            print(train_dataset.number_of_discarded_images)
 
     cutmix_dataset = None
     if use_cutmix and IS_CUTMIX_INSTALLED:
         cutmix_dataset = CutMix(
-            train_dataset, beta=1.0, prob=0.5, num_mix=2, 
+            train_dataset, beta=1.0, prob=0.5, num_mix=2,
             num_class=train_dataset.num_classes)
 
     train_sampler = torch.utils.data.RandomSampler(
-        cutmix_dataset if cutmix_dataset is not None else 
-        train_dataset, replacement=True, 
+        cutmix_dataset if cutmix_dataset is not None else
+        train_dataset, replacement=True,
         num_samples=batch_size * iterations_per_epoch)
 
     train_dataloader = DataLoader(
-        cutmix_dataset if cutmix_dataset is not None else 
-        train_dataset, batch_size=batch_size, 
+        cutmix_dataset if cutmix_dataset is not None else
+        train_dataset, batch_size=batch_size,
         sampler=train_sampler, num_workers=4)
 
     val_dataset = DATASETS[dataset](
@@ -153,15 +168,15 @@ def run_experiment(examples_per_class: int = 0,
         filter_mask_area=filter_mask_area)
 
     val_sampler = torch.utils.data.RandomSampler(
-        val_dataset, replacement=True, 
+        val_dataset, replacement=True,
         num_samples=batch_size * iterations_per_epoch)
 
     val_dataloader = DataLoader(
-        val_dataset, batch_size=batch_size, 
+        val_dataset, batch_size=batch_size,
         sampler=val_sampler, num_workers=4)
 
     model = ClassificationModel(
-        train_dataset.num_classes, 
+        train_dataset.num_classes,
         backbone=classifier_backbone
     ).cuda()
 
@@ -174,13 +189,13 @@ def run_experiment(examples_per_class: int = 0,
         model.train()
 
         epoch_loss = torch.zeros(
-            train_dataset.num_classes, 
+            train_dataset.num_classes,
             dtype=torch.float32, device='cuda')
         epoch_accuracy = torch.zeros(
-            train_dataset.num_classes, 
+            train_dataset.num_classes,
             dtype=torch.float32, device='cuda')
         epoch_size = torch.zeros(
-            train_dataset.num_classes, 
+            train_dataset.num_classes,
             dtype=torch.float32, device='cuda')
 
         for image, label in train_dataloader:
@@ -199,7 +214,7 @@ def run_experiment(examples_per_class: int = 0,
             optim.step()
 
             with torch.no_grad():
-            
+
                 epoch_size.scatter_add_(0, label, torch.ones_like(loss))
                 epoch_loss.scatter_add_(0, label, loss)
                 epoch_accuracy.scatter_add_(0, label, accuracy)
@@ -213,13 +228,13 @@ def run_experiment(examples_per_class: int = 0,
         model.eval()
 
         epoch_loss = torch.zeros(
-            train_dataset.num_classes, 
+            train_dataset.num_classes,
             dtype=torch.float32, device='cuda')
         epoch_accuracy = torch.zeros(
-            train_dataset.num_classes, 
+            train_dataset.num_classes,
             dtype=torch.float32, device='cuda')
         epoch_size = torch.zeros(
-            train_dataset.num_classes, 
+            train_dataset.num_classes,
             dtype=torch.float32, device='cuda')
 
         for image, label in val_dataloader:
@@ -232,7 +247,7 @@ def run_experiment(examples_per_class: int = 0,
             accuracy = (prediction == label).float()
 
             with torch.no_grad():
-            
+
                 epoch_size.scatter_add_(0, label, torch.ones_like(loss))
                 epoch_loss.scatter_add_(0, label, loss)
                 epoch_accuracy.scatter_add_(0, label, accuracy)
@@ -244,93 +259,93 @@ def run_experiment(examples_per_class: int = 0,
         validation_accuracy = validation_accuracy.cpu().numpy()
 
         records.append(dict(
-            seed=seed, 
+            seed=seed,
             examples_per_class=examples_per_class,
-            epoch=epoch, 
-            value=training_loss.mean(), 
-            metric="Loss", 
+            epoch=epoch,
+            value=training_loss.mean(),
+            metric="Loss",
             split="Training"
         ))
 
         records.append(dict(
-            seed=seed, 
+            seed=seed,
             examples_per_class=examples_per_class,
-            epoch=epoch, 
-            value=validation_loss.mean(), 
-            metric="Loss", 
+            epoch=epoch,
+            value=validation_loss.mean(),
+            metric="Loss",
             split="Validation"
         ))
 
         records.append(dict(
-            seed=seed, 
+            seed=seed,
             examples_per_class=examples_per_class,
-            epoch=epoch, 
-            value=training_accuracy.mean(), 
-            metric="Accuracy", 
+            epoch=epoch,
+            value=training_accuracy.mean(),
+            metric="Accuracy",
             split="Training"
         ))
 
         records.append(dict(
-            seed=seed, 
+            seed=seed,
             examples_per_class=examples_per_class,
-            epoch=epoch, 
-            value=validation_accuracy.mean(), 
-            metric="Accuracy", 
+            epoch=epoch,
+            value=validation_accuracy.mean(),
+            metric="Accuracy",
             split="Validation"
         ))
 
         for i, name in enumerate(train_dataset.class_names):
 
             records.append(dict(
-                seed=seed, 
+                seed=seed,
                 examples_per_class=examples_per_class,
-                epoch=epoch, 
-                value=training_loss[i], 
-                metric=f"Loss {name.title()}", 
+                epoch=epoch,
+                value=training_loss[i],
+                metric=f"Loss {name.title()}",
                 split="Training"
             ))
 
             records.append(dict(
-                seed=seed, 
+                seed=seed,
                 examples_per_class=examples_per_class,
-                epoch=epoch, 
-                value=validation_loss[i], 
-                metric=f"Loss {name.title()}", 
+                epoch=epoch,
+                value=validation_loss[i],
+                metric=f"Loss {name.title()}",
                 split="Validation"
             ))
 
             records.append(dict(
-                seed=seed, 
+                seed=seed,
                 examples_per_class=examples_per_class,
-                epoch=epoch, 
-                value=training_accuracy[i], 
-                metric=f"Accuracy {name.title()}", 
+                epoch=epoch,
+                value=training_accuracy[i],
+                metric=f"Accuracy {name.title()}",
                 split="Training"
             ))
 
             records.append(dict(
-                seed=seed, 
+                seed=seed,
                 examples_per_class=examples_per_class,
-                epoch=epoch, 
-                value=validation_accuracy[i], 
-                metric=f"Accuracy {name.title()}", 
+                epoch=epoch,
+                value=validation_accuracy[i],
+                metric=f"Accuracy {name.title()}",
                 split="Validation"
             ))
-            
+
     return records
 
 
 class ClassificationModel(nn.Module):
-    
+
     def __init__(self, num_classes: int, backbone: str = "resnet50"):
-        
+
         super(ClassificationModel, self).__init__()
 
         self.backbone = backbone
         self.image_processor  = None
 
         if backbone == "resnet50":
-        
+
             self.base_model = resnet50(weights=ResNet50_Weights.DEFAULT)
             self.out = nn.Linear(2048, num_classes)
 
@@ -339,13 +354,13 @@ class ClassificationModel(nn.Module):
             self.base_model = DeiTModel.from_pretrained(
                 "facebook/deit-base-distilled-patch16-224")
             self.out = nn.Linear(768, num_classes)
-        
+
     def forward(self, image):
-        
+
         x = image
 
         if self.backbone == "resnet50":
-            
+
             with torch.no_grad():
 
                 x = self.base_model.conv1(x)
@@ -362,11 +377,11 @@ class ClassificationModel(nn.Module):
                 x = torch.flatten(x, 1)
 
         elif self.backbone == "deit":
-            
+
             with torch.no_grad():
 
                 x = self.base_model(x)[0][:, 0, :]
-            
+
         return self.out(x)
 
 
@@ -382,6 +397,11 @@ if __name__ == "__main__":
     python train_classifier.py --synthetic-dir "synthetics_test" --iterations-per-epoch 10 --num-epochs 2 --batch-size 32 --num-synthetic 2 --examples-per-class 1 --embed-path "coco-tokens/coco-0-2.pt" --aug "textual-inversion" --strength 0.8 --guidance-scale 7.5 --mask 0 --inverted 0
     (values of paper)
     python train_classifier.py --synthetic-dir "synthetics" --iterations-per-epoch 200 --num-epochs 50 --batch-size 32 --num-synthetic 10 --num-trials 2 --examples-per-class 8 --embed-path "coco-tokens/coco-0-8.pt" --aug "textual-inversion" --strength 0.5 --guidance-scale 7.5 --mask 0 --inverted 0
+    
+    30.11 tried filter run:
+    python train_classifier.py --synthetic-dir "synthetics" --iterations-per-epoch 200 --num-epochs 50 --batch-size 32 --num-synthetic 10 --num-trials 2 --examples-per-class 8 --embed-path "coco-tokens/coco-0-8.pt" --aug "textual-inversion" --strength 0.6 --guidance-scale 10 --mask 0 --inverted 0 --synthetics-filter 0.2
+    06.12 filter run without bias:
+    python train_classifier.py --synthetic-dir "synthetics" --iterations-per-epoch 200 --num-epochs 50 --batch-size 32 --num-synthetic 10 --num-trials 2 --examples-per-class 8 --embed-path "coco-tokens/coco-0-8.pt" --aug "textual-inversion" --strength 0.6 --guidance-scale 10 --mask 0 --inverted 0 --synthetics-filter 0.25
     '''
 
     parser = argparse.ArgumentParser("Few-Shot Baseline")
@@ -401,7 +421,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--image-size", type=int, default=256)
     # Define the desired image size to convert all images to: [`image_size`, `image_size`]
-    parser.add_argument("--classifier-backbone", type=str, 
+    parser.add_argument("--classifier-backbone", type=str,
                         default="resnet50", choices=["resnet50", "deit"])
     # The pre-trained model to use
     parser.add_argument("--iterations-per-epoch", type=int, default=200)
@@ -423,11 +443,11 @@ if __name__ == "__main__":
 
     parser.add_argument("--embed-path", type=str, default=DEFAULT_EMBED_PATH)
     # Path to the trained embeddings of the pseudo words
-    
+
     parser.add_argument("--dataset", type=str, default="coco",
                         choices=["spurge", "imagenet", "coco", "pascal", "flowers", "caltech"])
     # Select which dataset to use (we only use coco)
-    
+
     parser.add_argument("--aug", nargs="+", type=str, default="textual-inversion",
                         choices=["real-guidance", "textual-inversion",
                                  "multi-token-inversion"])
@@ -454,11 +474,11 @@ if __name__ == "__main__":
     #   Allows to invert the mask
     parser.add_argument("--probs", nargs="+", type=float, default=None)
     # Has something to do with ComposeParallel or ComposeSequential
-    
-    parser.add_argument("--compose", type=str, default="parallel", 
+
+    parser.add_argument("--compose", type=str, default="parallel",
                         choices=["parallel", "sequential"])
     # How to process the pipeline?
-    
+
     parser.add_argument("--erasure-ckpt-path", type=str, default=None)
     # A Textual Inversion Parameter:
     #   Allows to erasure model knowledge to prevent data leakage as described in the paper
@@ -474,11 +494,17 @@ if __name__ == "__main__":
     # A Textual Inversion Parameter
     #   Only used when --aug "multi-token-inversion" selected
 
+    parser.add_argument("--synthetics-filter", type=float, default=None)
+    # Use a classifier as filter to determine the presence of the labelled class in the synthetically
+    # generated images. The filter threshold, set to 0.2, acts as a criterion for image inclusion.
+    # Images with a class score of the label below 0.2 are discarded. A filter threshold of None
+    # implies no filtering, allowing all images to be used in training the downstream model.
+
     parser.add_argument("--filter_mask_area", type=int, default=0)
     # Determines how much images per class to filter out by area size of largest bounding box for pseudo word generation
     # If no filtering at all, set to zero
     # 'Good' value is 50000 and everything in the range of 30000 - 70000 works pretty well
-    
+
     args = parser.parse_args()
 
     try:
@@ -503,20 +529,20 @@ if __name__ == "__main__":
 
         hyperparameters = dict(
             examples_per_class=examples_per_class,
-            seed=seed, 
+            seed=seed,
             dataset=args.dataset,
             num_epochs=args.num_epochs,
-            iterations_per_epoch=args.iterations_per_epoch, 
+            iterations_per_epoch=args.iterations_per_epoch,
             batch_size=args.batch_size,
             model_path=args.model_path,
-            synthetic_probability=args.synthetic_probability, 
-            num_synthetic=args.num_synthetic, 
-            prompt=args.prompt, 
+            synthetic_probability=args.synthetic_probability,
+            num_synthetic=args.num_synthetic,
+            prompt=args.prompt,
             tokens_per_class=args.tokens_per_class,
             aug=args.aug,
-            strength=args.strength, 
+            strength=args.strength,
             guidance_scale=args.guidance_scale,
-            mask=args.mask, 
+            mask=args.mask,
             inverted=args.inverted,
             probs=args.probs,
             compose=args.compose,
@@ -525,13 +551,14 @@ if __name__ == "__main__":
             erasure_ckpt_path=args.erasure_ckpt_path,
             image_size=args.image_size,
             classifier_backbone=args.classifier_backbone,
+            synthetics_filter_threshold=args.synthetics_filter,
             filter_mask_area=args.filter_mask_area)
 
         synthetic_dir = args.synthetic_dir.format(**hyperparameters)
         embed_path = args.embed_path.format(**hyperparameters)
 
         all_trials.extend(run_experiment(
-            synthetic_dir=synthetic_dir, 
+            synthetic_dir=synthetic_dir,
             embed_path=embed_path, **hyperparameters))
 
         path = f"results_{seed}_{examples_per_class}.csv"
