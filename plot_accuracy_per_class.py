@@ -11,7 +11,7 @@ if __name__ == "__main__":
 
     # currently this script generates a csv file that contains the mean difference of
     # class accuracies of the first two log files (in csv format) in the given directory
-    # It also plots the difference for the classes with highest difference
+    # It also plots the difference for the classes with the highest difference
 
     # python plot_accuracy_per_class.py --log-dir1 "./results/g10_s0,6_llm_prompts" --log-dir2 "./results/guidance_10_strength_0,6"
 
@@ -19,11 +19,8 @@ if __name__ == "__main__":
 
     parser.add_argument("--log-dir1", type=str, default="./results/guidance_7,5_strength_0,5")
     parser.add_argument("--log-dir2", type=str, default="./results/guidance_10_strength_0,6")
-
     parser.add_argument("--out-dir", type=str, default="./results")
-
     parser.add_argument("--datasets", nargs="+", type=str, default=["COCO"])
-
     parser.add_argument("--file_name", type=str, default="accuracy_per_class")
 
     args = parser.parse_args()
@@ -35,9 +32,9 @@ if __name__ == "__main__":
     for i in range(len(dirs)):
         files = list(glob.glob(os.path.join(dirs[i], "*.csv")))
         if len(files) == 0:
-            raise RuntimeError(f"Didn't find any csv logs in --log-dir{i} to perform a comparison!")
+            raise RuntimeError(f"Didn't find any csv logs in --log-dir{i}!")
 
-        # store data of method i
+        # store data of result i
         data = pd.concat([pd.read_csv(x, index_col=0)
                           for x in files], ignore_index=True)
 
