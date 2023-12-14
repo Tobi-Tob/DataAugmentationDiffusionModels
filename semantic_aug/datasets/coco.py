@@ -12,10 +12,6 @@ from pycocotools.coco import COCO
 from PIL import Image
 from collections import defaultdict
 
-# TODO: find better solution to not define constants multiple times!
-DEFAULT_PROMPT_PATH = "prompts/prompts.csv"
-
-
 COCO_DIR = r"/data/dlcv2023_groupA/coco2017"  # put ur own path here
 
 TRAIN_IMAGE_DIR = os.path.join(COCO_DIR, "train2017")
@@ -57,7 +53,7 @@ class COCODataset(FewShotDataset):
                  use_randaugment: bool = False,
                  image_size: Tuple[int] = (256, 256),
                  use_llm_prompt: bool = False,
-                 prompt_path: str = DEFAULT_PROMPT_PATH, **kwargs):
+                 prompt_path: str = None, **kwargs):
 
         super(COCODataset, self).__init__(
             *args, examples_per_class=examples_per_class,
@@ -97,7 +93,7 @@ class COCODataset(FewShotDataset):
             key: [class_to_images[key][i] for i in ids] 
             for key, ids in class_to_ids.items()}
 
-        # Writing image paths to CSV
+        # Writing image paths of training data to CSV
         out_dir = "prompts"
         if not os.path.exists(out_dir):
             os.makedirs(out_dir)
@@ -120,7 +116,7 @@ class COCODataset(FewShotDataset):
                 row = [class_name] + paths + [''] * (max_paths - len(paths))
                 writer.writerow(row)
 
-        print("Wrote paths to csv")
+        print(f"Wrote images paths of training data to csv: {out_path}")
 
         self.class_to_annotations = {
             key: [class_to_annotations[key][i] for i in ids] 
