@@ -10,6 +10,7 @@ from semantic_aug.augmentations.real_guidance import RealGuidance
 from semantic_aug.augmentations.textual_inversion import TextualInversion
 from semantic_aug.augmentations.textual_inversion_upstream \
     import TextualInversion as MultiTokenTextualInversion
+from semantic_aug.few_shot_dataset import DEFAULT_PROMPT_PATH, DEFAULT_PROMPT
 from torch.utils.data import DataLoader
 from torchvision.models import resnet50, ResNet50_Weights
 from transformers import DeiTModel
@@ -37,7 +38,6 @@ except:
 
 
 DEFAULT_MODEL_PATH = "CompVis/stable-diffusion-v1-4"
-DEFAULT_PROMPT = "a photo of a {name}"
 
 DEFAULT_SYNTHETIC_DIR = "/data/dlcv2023_groupA/augmentations/{dataset}-{aug}-{seed}-{examples_per_class}"
 #  TL: Permission denied when using DEFAULT_SYNTHETIC_DIR, no read/write permission?
@@ -91,7 +91,9 @@ def run_experiment(examples_per_class: int = 0,
                    image_size: int = 256,
                    classifier_backbone: str = "resnet50",
                    synthetics_filter_threshold: float = None,
-                   filter_mask_area: int = 0):
+                   filter_mask_area: int = 0,
+                   use_llm_prompt: bool = False,
+                   prompt_path: str = DEFAULT_PROMPT_PATH):
 
     torch.manual_seed(seed)
     np.random.seed(seed)
@@ -111,10 +113,10 @@ def run_experiment(examples_per_class: int = 0,
         aug = COMPOSERS[compose]([
 
             AUGMENTATIONS[aug](
-                embed_path=embed_path,
-                model_path=model_path,
-                prompt=prompt,
-                strength=strength,
+                embed_path=embed_path, 
+                model_path=model_path, 
+                prompt=prompt,  # this is only the initialization with the default prompt
+                strength=strength, 
                 guidance_scale=guidance_scale,
                 mask=mask,
                 inverted=inverted,
@@ -138,7 +140,9 @@ def run_experiment(examples_per_class: int = 0,
         generative_aug=aug, seed=seed,
         image_size=(image_size, image_size),
         synthetics_filter_threshold=synthetics_filter_threshold,
-        filter_mask_area=filter_mask_area)
+        filter_mask_area=filter_mask_area,
+        use_llm_prompt=use_llm_prompt,
+        prompt_path=prompt_path)
 
     if num_synthetic > 0 and aug is not None:
         train_dataset.generate_augmentations(num_synthetic)
@@ -411,9 +415,15 @@ if __name__ == "__main__":
     parser.add_argument("--model-path", type=str, default="CompVis/stable-diffusion-v1-4")
     # Path to the Diffusion Model
 
-    parser.add_argument("--prompt", type=str, default="a photo of a {name}")
+    parser.add_argument("--prompt", type=str, default=["a photo of a {name}"])
     # A Textual Inversion parameter:
     # Augmentations are generated conditioned on the prompt ({name} is replaced with the particular class pseudo word)
+
+    parser.add_argument("--use-generated-prompts", type=int, default=[0], choices=[0, 1])
+    # Determines if prompts of LLM are used or the prompt(s) from the --prompts argument in the command line
+
+    parser.add_argument("--prompt-path", type=str, default="prompts/prompts.csv")
+
     parser.add_argument("--synthetic-probability", type=float, default=0.5)
     # Probability to pick an image from the synthetic dataset while training the downstream model
     parser.add_argument("--synthetic-dir", type=str, default=DEFAULT_SYNTHETIC_DIR)
@@ -535,8 +545,8 @@ if __name__ == "__main__":
             iterations_per_epoch=args.iterations_per_epoch,
             batch_size=args.batch_size,
             model_path=args.model_path,
-            synthetic_probability=args.synthetic_probability,
-            num_synthetic=args.num_synthetic,
+            synthetic_probability=args.synthetic_probability, 
+            num_synthetic=args.num_synthetic, 
             prompt=args.prompt,
             tokens_per_class=args.tokens_per_class,
             aug=args.aug,
@@ -552,7 +562,9 @@ if __name__ == "__main__":
             image_size=args.image_size,
             classifier_backbone=args.classifier_backbone,
             synthetics_filter_threshold=args.synthetics_filter,
-            filter_mask_area=args.filter_mask_area)
+            filter_mask_area=args.filter_mask_area,
+            use_llm_prompt=args.use_generated_prompts,
+            prompt_path=args.prompt_path)
 
         synthetic_dir = args.synthetic_dir.format(**hyperparameters)
         embed_path = args.embed_path.format(**hyperparameters)

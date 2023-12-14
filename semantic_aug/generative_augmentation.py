@@ -1,5 +1,5 @@
 from torch.utils.data import Dataset
-from typing import Any, Tuple
+from typing import Any, Tuple, List
 from PIL import Image
 
 import torch.nn as nn

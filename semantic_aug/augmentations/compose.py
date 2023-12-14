@@ -1,4 +1,5 @@
 from semantic_aug.generative_augmentation import GenerativeAugmentation
+from semantic_aug.augmentations.textual_inversion import TextualInversion
 from diffusers import StableDiffusionImg2ImgPipeline
 from diffusers import StableDiffusionInpaintPipeline
 from diffusers.utils import logging
@@ -34,6 +35,16 @@ class ComposeSequential(GenerativeAugmentation):
 
         return image, label
 
+    def set_augs_prompt(self, prompt: str):
+        for aug in self.augs:
+            try:
+                # Attempt to set the prompt
+                aug.set_prompt(prompt)
+            except AttributeError:
+                # Handle the case where the aug does not have set_prompt method
+                raise ValueError(f"No set_prompt() method was found in the aug of type: {type(aug)}")
+
+
 
 class ComposeParallel(GenerativeAugmentation):
 
@@ -54,3 +65,13 @@ class ComposeParallel(GenerativeAugmentation):
         image, label = self.augs[idx](image, label, metadata)
 
         return image, label
+
+    def set_augs_prompt(self, prompt: str):
+        for aug in self.augs:
+            try:
+                # Attempt to set the prompt
+                aug.set_prompt(prompt)
+            except AttributeError:
+                # Handle the case where the aug does not have set_prompt method
+                raise ValueError(f"No set_prompt() method was found in the aug of type: {type(aug)}")
+

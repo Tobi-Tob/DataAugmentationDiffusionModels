@@ -15,6 +15,9 @@ import random
 import os
 import shutil
 
+DEFAULT_PROMPT_PATH = "prompts/prompts.csv"
+DEFAULT_PROMPT = "a photo of a {name}"
+
 
 class FewShotDataset(Dataset):
     """
@@ -29,7 +32,9 @@ class FewShotDataset(Dataset):
                  generative_aug: GenerativeAugmentation = None, 
                  synthetic_probability: float = 0.5,
                  synthetic_dir: str = None,
-                 synthetics_filter_threshold: float = None):
+                 synthetics_filter_threshold: float = None,
+                 use_llm_prompt: bool = False,
+                 prompt_path: str = DEFAULT_PROMPT_PATH):
 
         self.examples_per_class = examples_per_class
         self.generative_aug = generative_aug
@@ -37,6 +42,11 @@ class FewShotDataset(Dataset):
         self.synthetic_probability = synthetic_probability
         self.synthetic_dir = synthetic_dir
         self.synthetic_examples = defaultdict(list)
+
+        self.use_llm_prompt = use_llm_prompt
+        if prompt_path is None:
+            prompt_path = DEFAULT_PROMPT_PATH
+        self.prompt_path = prompt_path
 
         self.synthetics_filter_threshold = synthetics_filter_threshold
 
@@ -80,19 +90,49 @@ class FewShotDataset(Dataset):
 
         return NotImplemented
 
+    def read_prompts_from_csv(self):
+        prompts_dict = {}
+
+        with open(self.prompt_path, mode='r', newline='', encoding='utf-8') as file:
+            next(file)  # Skip the header line
+            for line in file:
+                row = line.strip().split(';')
+                if row[0] not in prompts_dict:
+                    prompts_dict[row[0]] = []
+                prompts_dict[row[0]].append(row[2])
+
+        return prompts_dict
+
     def generate_augmentations(self, num_repeats: int):
 
         self.synthetic_examples.clear()
         options = product(range(len(self)), range(num_repeats))
+
+        prompts_dict = {}
+        if self.use_llm_prompt:
+            prompts_dict = self.read_prompts_from_csv()
+
+        class_occur = {}
 
         for idx, num in tqdm(list(
                 options), desc="Generating Augmentations"):
 
             image = self.get_image_by_idx(idx)
             label = self.get_label_by_idx(idx)
+            metadata = self.get_metadata_by_idx(idx)
+
+            class_name = metadata['name']
+            if class_name not in class_occur:
+                class_occur[class_name] = -1
+            class_occur[class_name] += 1
+
+            if self.use_llm_prompt:
+                # This chooses a prompt out of the list according to the occurrence of the class name
+                prompt_idx = class_occur[class_name] % len(prompts_dict[class_name])
+                self.generative_aug.set_augs_prompt(prompts_dict[class_name][prompt_idx])
 
             image, label = self.generative_aug(
-                image, label, self.get_metadata_by_idx(idx))
+                image, label, metadata)
 
             if self.synthetic_dir is not None:
                 pil_image = image  # type: PIL.Image.Image

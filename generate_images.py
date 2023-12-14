@@ -23,7 +23,8 @@ if __name__ == "__main__":
     TL: Skript to manually generate images of the classes using a prompt with '<class_name>' as pseudo word
     
     Call from Terminal:
-    python generate_images.py --embed-path "coco-tokens/coco-0-8.pt" --num-generate 5 --prompt "A photo of a huge <bear>" --out images
+    MR: to use multiple prompts:
+    python generate_images.py --embed-path "coco-tokens/coco-0-8.pt" --num-generate 5 --prompt "A photo of a <airplane>" "A painting of a <airplane>" --out images
     '''
 
     parser = argparse.ArgumentParser("Stable Diffusion inference script")
@@ -35,7 +36,10 @@ if __name__ == "__main__":
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--num-generate", type=int, default=10)
 
-    parser.add_argument("--prompt", type=str, default="a photo of a <airplane>")
+    parser.add_argument("--prompt", nargs='+', type=str, default="a photo of a <airplane>")
+    # If multiple prompts are given, for each guiding image one of them is chosen
+    #   To make it reproducible the selecting process iterates through the list of prompts
+
     parser.add_argument("--out", type=str, default="erasure-tokens/fine-tuned/pascal-0-8/airplane/")
 
     parser.add_argument("--guidance-scale", type=float, default=7.5)
@@ -66,13 +70,17 @@ if __name__ == "__main__":
         pipe.unet.load_state_dict(torch.load(
             args.erasure_ckpt_name, map_location='cuda'))
 
+    prompt_idx = 0
     for idx in trange(args.num_generate, 
                       desc="Generating Images"):
 
         with autocast('cuda'):
 
+            # Calculate the index for the current prompt (cycle through list)
+            prompt_idx = idx % len(args.prompt)
+
             image = pipe(
-                args.prompt, 
+                args.prompt[prompt_idx],
                 guidance_scale=args.guidance_scale
             ).images[0]
 

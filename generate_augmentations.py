@@ -53,7 +53,7 @@ if __name__ == "__main__":
     python generate_augmentations.py --examples-per-class 4 --num-synthetic 3 --prompt "a photo of a {name}" --guidance-scale 10 --strength 0.6
     
     TL: To see how well the class concepts are embedded, generate the images without dependency to the guiding image by setting strength to 1
-    python generate_augmentations.py --out "synthetic_class_concepts" --examples-per-class 1 --num-synthetic 5 --prompt "a photo of a {name}" --guidance-scale 10 --strength 1
+    python generate_augmentations.py --out "synthetic_class_concepts_2" --examples-per-class 8 --num-synthetic 5 --prompt "a photo of a {name}" --guidance-scale 10 --strength 1
 
     '''
 
@@ -69,8 +69,13 @@ if __name__ == "__main__":
     parser.add_argument("--examples-per-class", type=int, default=1)
     parser.add_argument("--num-synthetic", type=int, default=5)
 
-    parser.add_argument("--prompt", type=str, default="a photo of a {name}")
-    
+    parser.add_argument("--prompt", type=str, default=["a photo of a {name}"])
+
+    parser.add_argument("--use-generated-prompts", type=int, default=[0], choices=[0, 1])
+    # Determines if prompts of LLM are used or the prompt from the --prompts argument in the command line
+
+    parser.add_argument("--prompt-path", type=str, default="prompts/prompts.csv")
+
     parser.add_argument("--aug", nargs="+", type=str, default=["textual-inversion"],
                         choices=["real-guidance", "textual-inversion"])
 
@@ -114,7 +119,7 @@ if __name__ == "__main__":
         AUGMENT[aug](
             embed_path=args.embed_path, 
             model_path=args.model_path, 
-            prompt=args.prompt, 
+            prompt=prompt,
             strength=strength, 
             guidance_scale=guidance_scale,
             mask=mask, 
@@ -122,9 +127,9 @@ if __name__ == "__main__":
             erasure_ckpt_path=args.erasure_ckpt_path
         )
 
-        for (aug, guidance_scale, 
+        for (aug, prompt, guidance_scale,
              strength, mask, inverted) in zip(
-            args.aug, args.guidance_scale, 
+            args.aug, args.prompt, args.guidance_scale,
             args.strength, args.mask, args.inverted
         )
 
@@ -142,10 +147,9 @@ if __name__ == "__main__":
 
         image = train_dataset.get_image_by_idx(idx)
         label = train_dataset.get_label_by_idx(idx)
-
         metadata = train_dataset.get_metadata_by_idx(idx)
 
-        if args.class_name is not None: 
+        if args.class_name is not None:
             if metadata["name"] != args.class_name: continue
 
         image, label = aug(

@@ -9,7 +9,7 @@ from transformers import (
 from diffusers.utils import logging
 from PIL import Image, ImageOps
 
-from typing import Any, Tuple, Callable
+from typing import Any, Tuple, Callable, List
 from torch import autocast
 from scipy.ndimage import maximum_filter
 
@@ -144,7 +144,7 @@ class TextualInversion(GenerativeAugmentation):
 
         kwargs = dict(
             image=canvas,
-            prompt=[prompt],  # MR: parameter with multipler prompts as list
+            prompt=[prompt],
             strength=self.strength, 
             guidance_scale=self.guidance_scale
         )
@@ -183,3 +183,9 @@ class TextualInversion(GenerativeAugmentation):
             image.size, Image.BILINEAR)
 
         return canvas, label
+
+    # TODO: This function is needed by all single generative_augs (textual_inversion, textual_inversion_upstream,
+    #  real_guidance). Implement superclass that inherits from generative_augmentation and has method attribute
+    #  self.prompt as well as set_prompt().
+    def set_prompt(self, new_prompt):
+        self.prompt = new_prompt
