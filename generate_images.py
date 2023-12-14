@@ -37,7 +37,8 @@ if __name__ == "__main__":
     parser.add_argument("--num-generate", type=int, default=10)
 
     parser.add_argument("--prompt", nargs='+', type=str, default="a photo of a <airplane>")
-    # MR: added nargs='+' to enable multiple prompts
+    # If multiple prompts are given, for each guiding image one of them is chosen
+    #   To make it reproducible the selecting process iterates through the list of prompts
 
     parser.add_argument("--out", type=str, default="erasure-tokens/fine-tuned/pascal-0-8/airplane/")
 
@@ -45,8 +46,6 @@ if __name__ == "__main__":
     parser.add_argument("--erasure-ckpt-name", type=str, default=None)  # TL: changed to default=None
 
     args = parser.parse_args()
-
-    print("# MR: promps init: ", args.prompt)
 
     os.makedirs(args.out, exist_ok=True)
 

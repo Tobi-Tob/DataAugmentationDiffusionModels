@@ -69,14 +69,10 @@ if __name__ == "__main__":
     parser.add_argument("--examples-per-class", type=int, default=1)
     parser.add_argument("--num-synthetic", type=int, default=5)
 
-    parser.add_argument("--prompt", nargs="+", type=str, default=["a photo of a {name}"])
-    # MR: added nargs='+' to enable multiple prompts.
-    # If multiple prompts are given, one of them is chosen to create the image with. Hence, how many promps are used
-    # depends on the --num_synthetic parameter. To make it reproducable, we iterate through the list of prompts.
-    # Those prompts are only taken if --use-generated-prompts is 0 (=False)
+    parser.add_argument("--prompt", type=str, default=["a photo of a {name}"])
 
     parser.add_argument("--use-generated-prompts", type=int, default=[0], choices=[0, 1])
-    # MR: determines if prompts of LLM are used or the prompt from the --prompts argument in the command line
+    # Determines if prompts of LLM are used or the prompt from the --prompts argument in the command line
 
     parser.add_argument("--prompt-path", type=str, default="prompts/prompts.csv")
 
