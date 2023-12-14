@@ -144,23 +144,26 @@ class TextualInversion(GenerativeAugmentation):
 
         kwargs = dict(
             image=canvas,
-            prompt=[prompt], 
+            prompt=[prompt],  # MR: parameter with multipler prompts as list
             strength=self.strength, 
             guidance_scale=self.guidance_scale
         )
 
         if self.mask:  # use focal object mask
 
+            # MR: creates a binary mask 512x512. White=object, black=no-object
             mask_image = Image.fromarray((
                 np.where(metadata["mask"], 255, 0)
             ).astype(np.uint8)).resize((512, 512), Image.NEAREST)
 
+            # MR: increase size of mask by the given radius
             mask_image = Image.fromarray(
                 maximum_filter(np.array(mask_image), 
                                size=self.mask_grow_radius))
 
             if self.inverted:
 
+                # MR: all white and black pixels are exchanged
                 mask_image = ImageOps.invert(
                     mask_image.convert('L')).convert('1')
 

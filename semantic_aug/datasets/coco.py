@@ -10,6 +10,7 @@ import os
 from pycocotools.coco import COCO
 from PIL import Image
 from collections import defaultdict
+from .image_dictionary import manually_selected_imgs
 
 COCO_DIR = r"/data/dlcv2023_groupA/coco2017"  # put ur own path here
 
@@ -23,6 +24,7 @@ DEFAULT_VAL_INSTANCES = os.path.join(
 
 
 class COCODataset(FewShotDataset):
+
     """
 0	person
 1	bicycle
@@ -132,7 +134,9 @@ class COCODataset(FewShotDataset):
                  generative_aug: GenerativeAugmentation = None,
                  synthetic_probability: float = 0.5,
                  use_randaugment: bool = False,
-                 image_size: Tuple[int] = (256, 256), **kwargs):
+                 image_size: Tuple[int] = (256, 256),
+                 filter_mask_area: int = 0,
+                 use_manual_list: bool = False, **kwargs):
 
         super(COCODataset, self).__init__(
             *args, examples_per_class=examples_per_class,
@@ -153,10 +157,22 @@ class COCODataset(FewShotDataset):
 
             maximal_ann = max(annotations, key=lambda x: x["area"])
             class_name = self.cocoapi.cats[maximal_ann["category_id"]]["name"]
+            if maximal_ann["area"] <= filter_mask_area:
+                threshold = filter_mask_area
+                exception_list = ["skis", "sports ball", "baseball bat", "fork", "knife", "spoon", "hair drier",
+                                  "toothbrush"]
+                if class_name in exception_list:
+                    threshold = threshold / 4
+                if maximal_ann["area"] <= threshold:
+                    continue
 
             class_to_images[class_name].append(
                 os.path.join(image_dir, x["file_name"]))
             class_to_annotations[class_name].append(maximal_ann)
+
+        if use_manual_list:
+            for category, img_list in manually_selected_imgs.items():
+                class_to_images[category] = [os.path.join(image_dir, img) for img in img_list]
 
         rng = np.random.default_rng(seed)
         class_to_ids = {key: rng.permutation(

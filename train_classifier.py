@@ -90,7 +90,8 @@ def run_experiment(examples_per_class: int = 0,
                    erasure_ckpt_path: str = None,
                    image_size: int = 256,
                    classifier_backbone: str = "resnet50",
-                   synthetics_filter_threshold: float = None):
+                   synthetics_filter_threshold: float = None,
+                   filter_mask_area: int = 0):
 
     torch.manual_seed(seed)
     np.random.seed(seed)
@@ -136,7 +137,8 @@ def run_experiment(examples_per_class: int = 0,
         use_randaugment=use_randaugment,
         generative_aug=aug, seed=seed,
         image_size=(image_size, image_size),
-        synthetics_filter_threshold=synthetics_filter_threshold)
+        synthetics_filter_threshold=synthetics_filter_threshold,
+        filter_mask_area=filter_mask_area)
 
     if num_synthetic > 0 and aug is not None:
         train_dataset.generate_augmentations(num_synthetic)
@@ -162,7 +164,8 @@ def run_experiment(examples_per_class: int = 0,
 
     val_dataset = DATASETS[dataset](
         split="val", seed=seed,
-        image_size=(image_size, image_size))
+        image_size=(image_size, image_size),
+        filter_mask_area=filter_mask_area)
 
     val_sampler = torch.utils.data.RandomSampler(
         val_dataset, replacement=True,
@@ -497,6 +500,11 @@ if __name__ == "__main__":
     # Images with a class score of the label below 0.2 are discarded. A filter threshold of None
     # implies no filtering, allowing all images to be used in training the downstream model.
 
+    parser.add_argument("--filter_mask_area", type=int, default=0)
+    # Determines how much images per class to filter out by area size of largest bounding box for pseudo word generation
+    # If no filtering at all, set to zero
+    # 'Good' value is 50000 and everything in the range of 30000 - 70000 works pretty well
+
     args = parser.parse_args()
 
     try:
@@ -543,7 +551,8 @@ if __name__ == "__main__":
             erasure_ckpt_path=args.erasure_ckpt_path,
             image_size=args.image_size,
             classifier_backbone=args.classifier_backbone,
-            synthetics_filter_threshold=args.synthetics_filter)
+            synthetics_filter_threshold=args.synthetics_filter,
+            filter_mask_area=args.filter_mask_area)
 
         synthetic_dir = args.synthetic_dir.format(**hyperparameters)
         embed_path = args.embed_path.format(**hyperparameters)
