@@ -111,6 +111,7 @@ class FewShotDataset(Dataset):
                         # Filter criterion:
                         if probabilities_array[label] < self.synthetics_filter_threshold:
                             discard_image = True
+                            # Maybe use weighting instead of discarding
 
                     print_decision = False
                     if print_decision:
