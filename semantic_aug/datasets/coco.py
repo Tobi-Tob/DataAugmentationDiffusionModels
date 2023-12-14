@@ -11,6 +11,7 @@ import csv
 from pycocotools.coco import COCO
 from PIL import Image
 from collections import defaultdict
+from .image_dictionary import manually_selected_imgs
 
 COCO_DIR = r"/data/dlcv2023_groupA/coco2017"  # put ur own path here
 
@@ -25,33 +26,118 @@ DEFAULT_VAL_INSTANCES = os.path.join(
 
 class COCODataset(FewShotDataset):
 
-    class_names = ['person', 'bicycle', 'car', 'motorcycle', 'airplane', 
-        'bus', 'train', 'truck', 'boat', 'traffic light', 'fire hydrant', 
-        'stop sign', 'parking meter', 'bench', 'bird', 'cat', 'dog', 
-        'horse', 'sheep', 'cow', 'elephant', 'bear', 'zebra', 'giraffe', 
-        'backpack', 'umbrella', 'handbag', 'tie', 'suitcase', 'frisbee', 
-        'skis', 'snowboard', 'sports ball', 'kite', 'baseball bat', 
-        'baseball glove', 'skateboard', 'surfboard', 'tennis racket', 
-        'bottle', 'wine glass', 'cup', 'fork', 'knife', 'spoon', 'bowl', 
-        'banana', 'apple', 'sandwich', 'orange', 'broccoli', 'carrot', 
-        'hot dog', 'pizza', 'donut', 'cake', 'chair', 'couch', 
-        'potted plant', 'bed', 'dining table', 'toilet', 'tv', 'laptop', 
-        'mouse', 'remote', 'keyboard', 'cell phone', 'microwave', 'oven', 
-        'toaster', 'sink', 'refrigerator', 'book', 'clock', 'vase', 
-        'scissors', 'teddy bear', 'hair drier', 'toothbrush']
+    """
+0	person
+1	bicycle
+2	car
+3	motorcycle
+4	airplane
+5	bus
+6	train
+7	truck
+8	boat
+9	trafficlight
+10	firehydrant
+11	stopsign
+12	parkingmeter
+13	bench
+14	bird
+15	cat
+16	dog
+17	horse
+18	sheep
+19	cow
+20	elephant
+21	bear
+22	zebra
+23	giraffe
+24	backpack
+25	umbrella
+26	handbag
+27	tie
+28	suitcase
+29	frisbee
+30	skis
+31	snowboard
+32	sportsball
+33	kite
+34	baseballbat
+35	baseballglove
+36	skateboard
+37	surfboard
+38	tennisracket
+39	bottle
+40	wineglass
+41	cup
+42	fork
+43	knife
+44	spoon
+45	bowl
+46	banana
+47	apple
+48	sandwich
+49	orange
+50	broccoli
+51	carrot
+52	hotdog
+53	pizza
+54	donut
+55	cake
+56	chair
+57	couch
+58	pottedplant
+59	bed
+60	diningtable
+61	toilet
+62	tv
+63	laptop
+64	mouse
+65	remote
+66	keyboard
+67	cellphone
+68	microwave
+69	oven
+70	toaster
+71	sink
+72	refrigerator
+73	book
+74	clock
+75	vase
+76	scissors
+77	teddybear
+78	hairdrier
+79	toothbrush
+    """
+
+    class_names = ['person', 'bicycle', 'car', 'motorcycle', 'airplane',
+                   'bus', 'train', 'truck', 'boat', 'traffic light', 'fire hydrant',
+                   'stop sign', 'parking meter', 'bench', 'bird', 'cat', 'dog',
+                   'horse', 'sheep', 'cow', 'elephant', 'bear', 'zebra', 'giraffe',
+                   'backpack', 'umbrella', 'handbag', 'tie', 'suitcase', 'frisbee',
+                   'skis', 'snowboard', 'sports ball', 'kite', 'baseball bat',
+                   'baseball glove', 'skateboard', 'surfboard', 'tennis racket',
+                   'bottle', 'wine glass', 'cup', 'fork', 'knife', 'spoon', 'bowl',
+                   'banana', 'apple', 'sandwich', 'orange', 'broccoli', 'carrot',
+                   'hot dog', 'pizza', 'donut', 'cake', 'chair', 'couch',
+                   'potted plant', 'bed', 'dining table', 'toilet', 'tv', 'laptop',
+                   'mouse', 'remote', 'keyboard', 'cell phone', 'microwave', 'oven',
+                   'toaster', 'sink', 'refrigerator', 'book', 'clock', 'vase',
+                   'scissors', 'teddy bear', 'hair drier', 'toothbrush']
 
     num_classes: int = len(class_names)
 
-    def __init__(self, *args, split: str = "train", seed: int = 0, 
-                 train_image_dir: str = TRAIN_IMAGE_DIR, 
-                 val_image_dir: str = VAL_IMAGE_DIR, 
-                 train_instances_file: str = DEFAULT_TRAIN_INSTANCES, 
-                 val_instances_file: str = DEFAULT_VAL_INSTANCES, 
-                 examples_per_class: int = None, 
-                 generative_aug: GenerativeAugmentation = None, 
+    def __init__(self, *args, split: str = "train", seed: int = 0,
+                 train_image_dir: str = TRAIN_IMAGE_DIR,
+                 val_image_dir: str = VAL_IMAGE_DIR,
+                 train_instances_file: str = DEFAULT_TRAIN_INSTANCES,
+                 val_instances_file: str = DEFAULT_VAL_INSTANCES,
+                 examples_per_class: int = None,
+                 generative_aug: GenerativeAugmentation = None,
                  synthetic_probability: float = 0.5,
                  use_randaugment: bool = False,
                  image_size: Tuple[int] = (256, 256),
+                 filter_mask_area: int = 0,
+                 use_manual_list: bool = False,
                  use_llm_prompt: bool = False,
                  prompt_path: str = None, **kwargs):
 
@@ -76,21 +162,33 @@ class COCODataset(FewShotDataset):
 
             maximal_ann = max(annotations, key=lambda x: x["area"])
             class_name = self.cocoapi.cats[maximal_ann["category_id"]]["name"]
+            if maximal_ann["area"] <= filter_mask_area:
+                threshold = filter_mask_area
+                exception_list = ["skis", "sports ball", "baseball bat", "fork", "knife", "spoon", "hair drier",
+                                  "toothbrush"]
+                if class_name in exception_list:
+                    threshold = threshold / 4
+                if maximal_ann["area"] <= threshold:
+                    continue
 
             class_to_images[class_name].append(
                 os.path.join(image_dir, x["file_name"]))
             class_to_annotations[class_name].append(maximal_ann)
+
+        if use_manual_list:
+            for category, img_list in manually_selected_imgs.items():
+                class_to_images[category] = [os.path.join(image_dir, img) for img in img_list]
 
         rng = np.random.default_rng(seed)
         class_to_ids = {key: rng.permutation(
             len(class_to_images[key])) for key in self.class_names}
 
         if examples_per_class is not None:
-            class_to_ids = {key: ids[:examples_per_class] 
+            class_to_ids = {key: ids[:examples_per_class]
                             for key, ids in class_to_ids.items()}
 
         self.class_to_images = {
-            key: [class_to_images[key][i] for i in ids] 
+            key: [class_to_images[key][i] for i in ids]
             for key, ids in class_to_ids.items()}
 
         # Writing image paths of training data to CSV
@@ -120,54 +218,59 @@ class COCODataset(FewShotDataset):
         print(f"Wrote images paths of training data to csv: {out_path}")
 
         self.class_to_annotations = {
-            key: [class_to_annotations[key][i] for i in ids] 
+            key: [class_to_annotations[key][i] for i in ids]
             for key, ids in class_to_ids.items()}
 
         self.all_images = sum([
-            self.class_to_images[key] 
+            self.class_to_images[key]
             for key in self.class_names], [])
 
         self.all_annotations = sum([
-            self.class_to_annotations[key] 
+            self.class_to_annotations[key]
             for key in self.class_names], [])
 
         self.all_labels = [i for i, key in enumerate(
             self.class_names) for _ in self.class_to_images[key]]
 
-        if use_randaugment: train_transform = transforms.Compose([
-            transforms.Resize(image_size),
-            transforms.RandAugment(),
-            transforms.ToTensor(),
-            transforms.ConvertImageDtype(torch.float),
-            transforms.Lambda(lambda x: x.expand(3, *image_size)),
-            transforms.Normalize(mean=[0.5, 0.5, 0.5], 
-                                  std=[0.5, 0.5, 0.5])
-        ])
+        # Enumeration of the occurrences of each class in the data set
+        self.class_counts = np.bincount(self.all_labels)
 
-        else: train_transform = transforms.Compose([
-            transforms.Resize(image_size),
-            transforms.RandomHorizontalFlip(p=0.5),
-            transforms.RandomRotation(degrees=15.0),
-            transforms.ToTensor(),
-            transforms.ConvertImageDtype(torch.float),
-            transforms.Lambda(lambda x: x.expand(3, *image_size)),
-            transforms.Normalize(mean=[0.5, 0.5, 0.5], 
-                                  std=[0.5, 0.5, 0.5])
-        ])
+        if use_randaugment:
+            train_transform = transforms.Compose([
+                transforms.Resize(image_size),
+                transforms.RandAugment(),
+                transforms.ToTensor(),
+                transforms.ConvertImageDtype(torch.float),
+                transforms.Lambda(lambda x: x.expand(3, *image_size)),
+                transforms.Normalize(mean=[0.5, 0.5, 0.5],
+                                     std=[0.5, 0.5, 0.5])
+            ])
+
+        else:
+            train_transform = transforms.Compose([
+                transforms.Resize(image_size),
+                transforms.RandomHorizontalFlip(p=0.5),
+                transforms.RandomRotation(degrees=15.0),
+                transforms.ToTensor(),
+                transforms.ConvertImageDtype(torch.float),
+                transforms.Lambda(lambda x: x.expand(3, *image_size)),
+                transforms.Normalize(mean=[0.5, 0.5, 0.5],
+                                     std=[0.5, 0.5, 0.5])
+            ])
 
         val_transform = transforms.Compose([
             transforms.Resize(image_size),
             transforms.ToTensor(),
             transforms.ConvertImageDtype(torch.float),
             transforms.Lambda(lambda x: x.expand(3, *image_size)),
-            transforms.Normalize(mean=[0.5, 0.5, 0.5], 
-                                  std=[0.5, 0.5, 0.5])
+            transforms.Normalize(mean=[0.5, 0.5, 0.5],
+                                 std=[0.5, 0.5, 0.5])
         ])
 
         self.transform = {"train": train_transform, "val": val_transform}[split]
 
     def __len__(self):
-        
+
         return len(self.all_images)
 
     def get_image_by_idx(self, idx: int) -> torch.Tensor:
@@ -177,11 +280,11 @@ class COCODataset(FewShotDataset):
     def get_label_by_idx(self, idx: int) -> torch.Tensor:
 
         return self.all_labels[idx]
-    
+
     def get_metadata_by_idx(self, idx: int) -> Dict:
 
         annotation = self.all_annotations[idx]
 
-        return dict(name=self.class_names[self.all_labels[idx]], 
+        return dict(name=self.class_names[self.all_labels[idx]],
                     mask=self.cocoapi.annToMask(annotation),
                     **annotation)

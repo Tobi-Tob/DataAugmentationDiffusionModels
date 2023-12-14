@@ -104,6 +104,8 @@ if __name__ == "__main__":
     
     parser.add_argument("--erasure-ckpt-path", type=str, default=None)
 
+    parser.add_argument("--filter_mask_area", type=int, default=0)
+
     args = parser.parse_args()
 
     os.makedirs(args.out, exist_ok=True)
@@ -135,7 +137,8 @@ if __name__ == "__main__":
 
     train_dataset = DATASETS[
         args.dataset](split="train", seed=args.seed, 
-                      examples_per_class=args.examples_per_class)
+                      examples_per_class=args.examples_per_class,
+                      filter_mask_area=args.filter_mask_area)
 
     options = product(range(len(train_dataset)), range(args.num_synthetic))
 
