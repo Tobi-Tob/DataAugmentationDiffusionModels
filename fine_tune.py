@@ -257,7 +257,7 @@ def parse_args():
     parser.add_argument("--examples-per-class", nargs='+', type=int, default=[1, 2, 4, 8, 16])
 
     parser.add_argument("--dataset", type=str, default="coco",
-                        choices=["spurge", "imagenet", "coco", "pascal"])
+                        choices=["spurge", "imagenet", "coco", "pascal", "road_sign"])
 
     parser.add_argument("--unet-ckpt", type=str, default=None)
 
@@ -740,8 +740,6 @@ def main(args):
     torch.cuda.empty_cache()
 
 
-# TL: test comment
-
 if __name__ == "__main__":
     '''
     TL: Step 1:
@@ -751,7 +749,7 @@ if __name__ == "__main__":
     
     call from terminal:
     python fine_tune.py --dataset=coco --output_dir=./ --pretrained_model_name_or_path="CompVis/stable-diffusion-v1-4" --resolution=512 --train_batch_size=4 --lr_warmup_steps=0 --gradient_accumulation_steps=1 --max_train_steps=1000 --learning_rate=5.0e-04 --scale_lr --lr_scheduler="constant" --mixed_precision=fp16 --revision=fp16 --gradient_checkpointing --only_save_embeds --num-trials 8 --examples-per-class 2
-    python fine_tune.py --dataset=coco --output_dir=./ --pretrained_model_name_or_path="CompVis/stable-diffusion-v1-4" --resolution=512 --train_batch_size=4 --lr_warmup_steps=0 --gradient_accumulation_steps=1 --max_train_steps=1000 --learning_rate=5.0e-04 --scale_lr --lr_scheduler="constant" --mixed_precision=fp16 --revision=fp16 --gradient_checkpointing --only_save_embeds --num-trials 8 --examples-per-class 2
+    python fine_tune.py --dataset="road_sign" --output_dir=./ --pretrained_model_name_or_path="CompVis/stable-diffusion-v1-4" --resolution=512 --train_batch_size=4 --lr_warmup_steps=0 --gradient_accumulation_steps=1 --max_train_steps=1000 --learning_rate=5.0e-04 --scale_lr --lr_scheduler="constant" --mixed_precision=fp16 --revision=fp16 --gradient_checkpointing --only_save_embeds --num-trials 1 --examples-per-class 8
     '''
 
     args = parse_args()

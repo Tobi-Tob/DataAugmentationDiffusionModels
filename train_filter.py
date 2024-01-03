@@ -288,6 +288,8 @@ class ClassificationFilterModel(nn.Module):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("Train Filter")
 
+    parser.add_argument("--dataset", type=str, default="coco",
+                        choices=["spurge", "coco", "pascal", "flowers", "road_sign"])
     parser.add_argument("--examples-per-class", type=int, default=8)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--weight-decay", type=float, default=1e-2)
@@ -296,6 +298,6 @@ if __name__ == "__main__":
 
     train_filter(examples_per_class=args.examples_per_class,
                  seed=args.seed,
-                 dataset="coco",
+                 dataset=args.dataset,
                  image_size=256,
                  weight_decay=args.weight_decay)

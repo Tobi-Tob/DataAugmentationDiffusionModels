@@ -41,7 +41,7 @@ except:
 DEFAULT_MODEL_PATH = "CompVis/stable-diffusion-v1-4"
 
 DEFAULT_SYNTHETIC_DIR = "/data/dlcv2023_groupA/augmentations/{dataset}-{aug}-{seed}-{examples_per_class}"
-#  TL: Permission denied when using DEFAULT_SYNTHETIC_DIR, no read/write permission?
+#  TL: Permission denied when using DEFAULT_SYNTHETIC_DIR - Only the creator of the folder dlcv2023_groupA has access
 
 DEFAULT_EMBED_PATH = "{dataset}-tokens/{dataset}-{seed}-{examples_per_class}.pt"
 
@@ -457,7 +457,7 @@ if __name__ == "__main__":
     # Path to the trained embeddings of the pseudo words
 
     parser.add_argument("--dataset", type=str, default="coco",
-                        choices=["spurge", "imagenet", "coco", "pascal", "flowers", "caltech"])
+                        choices=["spurge", "imagenet", "coco", "pascal", "flowers", "caltech", "road_sign"])
     # Select which dataset to use (we only use coco)
 
     parser.add_argument("--aug", nargs="+", type=str, default="textual-inversion",

@@ -62,6 +62,8 @@ class RoadSignDataset(FewShotDataset):
                  synthetic_probability: float = 0.5,
                  use_randaugment: bool = False,
                  image_size: Tuple[int] = (256, 256),
+                 filter_mask_area: int = 0,  # Not used, but needs to change call of COCODataset to be removed
+                 use_manual_list: bool = False,  # Not used
                  **kwargs):
 
         super(RoadSignDataset, self).__init__(
@@ -128,7 +130,7 @@ class RoadSignDataset(FewShotDataset):
         else:
             train_transform = transforms.Compose([
                 transforms.Resize(image_size),
-                transforms.RandomHorizontalFlip(p=0.0),  # TODO flips useful for signs?
+                transforms.RandomHorizontalFlip(p=0.0),  # flips useful for signs?
                 transforms.RandomRotation(degrees=15.0),
                 transforms.ToTensor(),
                 transforms.ConvertImageDtype(torch.float),

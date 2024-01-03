@@ -3,7 +3,6 @@ import os
 import glob
 import argparse
 from itertools import product
-from tqdm import trange
 
 
 DEFAULT_EMBED_PATH = "{dataset}-tokens/{dataset}-{seed}-{examples_per_class}.pt"
@@ -26,8 +25,8 @@ if __name__ == "__main__":
     parser.add_argument("--embed-path", type=str, default=DEFAULT_EMBED_PATH)
     parser.add_argument("--input-path", type=str, default="./fine-tuned")
     
-    parser.add_argument("--dataset", type=str, default="pascal", 
-                        choices=["spurge", "imagenet", "coco", "pascal"])
+    parser.add_argument("--dataset", type=str, default="coco",
+                        choices=["spurge", "imagenet", "coco", "pascal", "road_sign"])
 
     args = parser.parse_args()
 
