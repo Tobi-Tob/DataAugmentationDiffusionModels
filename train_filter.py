@@ -2,6 +2,7 @@ from semantic_aug.datasets.coco import COCODataset
 from semantic_aug.datasets.spurge import SpurgeDataset
 from semantic_aug.datasets.imagenet import ImageNetDataset
 from semantic_aug.datasets.pascal import PASCALDataset
+from semantic_aug.datasets.road_sign import RoadSignDataset
 from semantic_aug.datasets.caltech101 import CalTech101Dataset
 from semantic_aug.datasets.flowers102 import Flowers102Dataset
 from torch.utils.data import DataLoader, WeightedRandomSampler
@@ -23,7 +24,8 @@ DATASETS = {
     "pascal": PASCALDataset,
     "imagenet": ImageNetDataset,
     "caltech": CalTech101Dataset,
-    "flowers": Flowers102Dataset
+    "flowers": Flowers102Dataset,
+    "road_sign": RoadSignDataset
 }
 
 
