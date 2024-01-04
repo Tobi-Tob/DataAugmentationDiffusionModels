@@ -2,6 +2,7 @@ from semantic_aug.datasets.coco import COCODataset
 from semantic_aug.datasets.spurge import SpurgeDataset
 from semantic_aug.datasets.imagenet import ImageNetDataset
 from semantic_aug.datasets.pascal import PASCALDataset
+from semantic_aug.datasets.road_sign import RoadSignDataset
 from semantic_aug.augmentations.compose import ComposeParallel
 from semantic_aug.augmentations.compose import ComposeSequential
 from semantic_aug.augmentations.real_guidance import RealGuidance
@@ -23,7 +24,8 @@ DATASETS = {
     "spurge": SpurgeDataset, 
     "coco": COCODataset, 
     "pascal": PASCALDataset,
-    "imagenet": ImageNetDataset
+    "imagenet": ImageNetDataset,
+    "road_sign": RoadSignDataset
 }
 
 COMPOSE = {
@@ -54,7 +56,9 @@ if __name__ == "__main__":
     
     TL: To see how well the class concepts are embedded, generate the images without dependency to the guiding image by setting strength to 1
     python generate_augmentations.py --out "synthetic_class_concepts_2" --examples-per-class 8 --num-synthetic 5 --prompt "a photo of a {name}" --guidance-scale 10 --strength 1
-
+    
+    TL: Road Sign class concepts:
+    python generate_augmentations.py --dataset "road_sign" --embed-path road_sign-tokens/road_sign-0-8.pt --out "synthetic_class_concepts_2" --examples-per-class 3 --num-synthetic 2 --prompt "a photo of a {name}" --guidance-scale 10 --strength 1
     '''
 
     parser = argparse.ArgumentParser("Inference script")

@@ -35,27 +35,36 @@ class SpurgeDataset(FewShotDataset):
             synthetic_probability=synthetic_probability,
             generative_aug=generative_aug, **kwargs)
 
+        # Create lists of file paths for images in the "absent" and "apparent" directories.
+        # glob.glob is used to retrieve all files with a ".png" extension in these directories.
         absent = list(glob.glob(os.path.join(data_dir, "absent/*.png")))
         apparent = list(glob.glob(os.path.join(data_dir, "apparent/*.png")))
 
         rng = np.random.default_rng(seed)
 
+        # Generate random permutations of indices for the lists absent and apparent
         absent_ids = rng.permutation(len(absent))
         apparent_ids = rng.permutation(len(apparent))
 
+        # Split the shuffled indices into training and validation sets (50%/50%)
         absent_ids_train, absent_ids_val = np.array_split(absent_ids, 2)
         apparent_ids_train, apparent_ids_val = np.array_split(apparent_ids, 2)
 
+        # Select either the training or validation indices based on the provided split parameter
         absent_ids = {"train": absent_ids_train, "val": absent_ids_val}[split]
         apparent_ids = {"train": apparent_ids_train, "val": apparent_ids_val}[split]
 
         if examples_per_class is not None:
+            # limits the number of examples per class
             absent_ids = absent_ids[:examples_per_class]
             apparent_ids = apparent_ids[:examples_per_class]
 
+        # Those lists contain the file paths for the selected indices,
+        # creating the final lists of images for the chosen split.
         self.absent = [absent[i] for i in absent_ids]
         self.apparent = [apparent[i] for i in apparent_ids]
 
+        # concatenate the lists of images and create corresponding labels
         self.all_images = self.absent + self.apparent
         self.all_labels = [0] * len(self.absent) + [1] * len(self.apparent)
 

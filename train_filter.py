@@ -2,6 +2,7 @@ from semantic_aug.datasets.coco import COCODataset
 from semantic_aug.datasets.spurge import SpurgeDataset
 from semantic_aug.datasets.imagenet import ImageNetDataset
 from semantic_aug.datasets.pascal import PASCALDataset
+from semantic_aug.datasets.road_sign import RoadSignDataset
 from semantic_aug.datasets.caltech101 import CalTech101Dataset
 from semantic_aug.datasets.flowers102 import Flowers102Dataset
 from torch.utils.data import DataLoader, WeightedRandomSampler
@@ -23,7 +24,8 @@ DATASETS = {
     "pascal": PASCALDataset,
     "imagenet": ImageNetDataset,
     "caltech": CalTech101Dataset,
-    "flowers": Flowers102Dataset
+    "flowers": Flowers102Dataset,
+    "road_sign": RoadSignDataset
 }
 
 
@@ -286,6 +288,8 @@ class ClassificationFilterModel(nn.Module):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("Train Filter")
 
+    parser.add_argument("--dataset", type=str, default="coco",
+                        choices=["spurge", "coco", "pascal", "flowers", "road_sign"])
     parser.add_argument("--examples-per-class", type=int, default=8)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--weight-decay", type=float, default=1e-2)
@@ -294,6 +298,6 @@ if __name__ == "__main__":
 
     train_filter(examples_per_class=args.examples_per_class,
                  seed=args.seed,
-                 dataset="coco",
+                 dataset=args.dataset,
                  image_size=256,
                  weight_decay=args.weight_decay)

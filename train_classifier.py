@@ -2,6 +2,7 @@ from semantic_aug.datasets.coco import COCODataset
 from semantic_aug.datasets.spurge import SpurgeDataset
 from semantic_aug.datasets.imagenet import ImageNetDataset
 from semantic_aug.datasets.pascal import PASCALDataset
+from semantic_aug.datasets.road_sign import RoadSignDataset
 from semantic_aug.datasets.caltech101 import CalTech101Dataset
 from semantic_aug.datasets.flowers102 import Flowers102Dataset
 from semantic_aug.augmentations.compose import ComposeParallel
@@ -13,6 +14,7 @@ from semantic_aug.augmentations.textual_inversion_upstream \
 from semantic_aug.few_shot_dataset import DEFAULT_PROMPT_PATH, DEFAULT_PROMPT
 from torch.utils.data import DataLoader
 from torchvision.models import resnet50, ResNet50_Weights
+from torch.utils.data import DataLoader, WeightedRandomSampler
 from transformers import DeiTModel
 from itertools import product
 from tqdm import trange
@@ -40,7 +42,7 @@ except:
 DEFAULT_MODEL_PATH = "CompVis/stable-diffusion-v1-4"
 
 DEFAULT_SYNTHETIC_DIR = "/data/dlcv2023_groupA/augmentations/{dataset}-{aug}-{seed}-{examples_per_class}"
-#  TL: Permission denied when using DEFAULT_SYNTHETIC_DIR, no read/write permission?
+#  TL: Permission denied when using DEFAULT_SYNTHETIC_DIR - Only the creator of the folder dlcv2023_groupA has access
 
 DEFAULT_EMBED_PATH = "{dataset}-tokens/{dataset}-{seed}-{examples_per_class}.pt"
 
@@ -50,7 +52,8 @@ DATASETS = {
     "pascal": PASCALDataset,
     "imagenet": ImageNetDataset,
     "caltech": CalTech101Dataset,
-    "flowers": Flowers102Dataset
+    "flowers": Flowers102Dataset,
+    "road_sign": RoadSignDataset
 }
 
 COMPOSERS = {
@@ -156,28 +159,38 @@ def run_experiment(examples_per_class: int = 0,
             train_dataset, beta=1.0, prob=0.5, num_mix=2,
             num_class=train_dataset.num_classes)
 
-    train_sampler = torch.utils.data.RandomSampler(
-        cutmix_dataset if cutmix_dataset is not None else
-        train_dataset, replacement=True,
+    # Calculate class weights based on the inverse of class frequencies. Assign weight to each sample in the dataset
+    # based on the class distribution, so that each class has an equal contribution to the overall loss.
+    # If class_count is 0 set the corresponding entry in class_weights to 0 too.
+    class_weights = np.where(train_dataset.class_counts == 0, 0, 1.0 / train_dataset.class_counts)
+    weights = [class_weights[label] for label in train_dataset.all_labels]
+
+    weighted_train_sampler = WeightedRandomSampler(
+        weights, replacement=True,
         num_samples=batch_size * iterations_per_epoch)
 
     train_dataloader = DataLoader(
         cutmix_dataset if cutmix_dataset is not None else
         train_dataset, batch_size=batch_size,
-        sampler=train_sampler, num_workers=4)
+        sampler=weighted_train_sampler, num_workers=4)
 
     val_dataset = DATASETS[dataset](
         split="val", seed=seed,
         image_size=(image_size, image_size),
         filter_mask_area=filter_mask_area)
 
-    val_sampler = torch.utils.data.RandomSampler(
-        val_dataset, replacement=True,
+    # TL: RuntimeWarning divide by zero can happen, everything will work as it should,
+    # but this means that some classes are not present in the validation dataset.
+    class_weights = np.where(val_dataset.class_counts == 0, 0, 1.0 / val_dataset.class_counts)
+    weights = [class_weights[label] for label in val_dataset.all_labels]
+
+    weighted_val_sampler = WeightedRandomSampler(
+        weights, replacement=True,
         num_samples=batch_size * iterations_per_epoch)
 
     val_dataloader = DataLoader(
         val_dataset, batch_size=batch_size,
-        sampler=val_sampler, num_workers=4)
+        sampler=weighted_val_sampler, num_workers=4)
 
     model = ClassificationModel(
         train_dataset.num_classes,
@@ -406,6 +419,9 @@ if __name__ == "__main__":
     python train_classifier.py --synthetic-dir "synthetics" --iterations-per-epoch 200 --num-epochs 50 --batch-size 32 --num-synthetic 10 --num-trials 2 --examples-per-class 8 --embed-path "coco-tokens/coco-0-8.pt" --aug "textual-inversion" --strength 0.6 --guidance-scale 10 --mask 0 --inverted 0 --synthetics-filter 0.2
     06.12 filter run without bias:
     python train_classifier.py --synthetic-dir "synthetics" --iterations-per-epoch 200 --num-epochs 50 --batch-size 32 --num-synthetic 10 --num-trials 2 --examples-per-class 8 --embed-path "coco-tokens/coco-0-8.pt" --aug "textual-inversion" --strength 0.6 --guidance-scale 10 --mask 0 --inverted 0 --synthetics-filter 0.25
+    
+    04.01 first road_sign run:
+    python train_classifier.py --dataset "road_sign" --synthetic-dir "synthetics" --iterations-per-epoch 200 --num-epochs 50 --batch-size 32 --num-synthetic 10 --num-trials 1 --examples-per-class 8 --embed-path "road_sign-tokens/road_sign-0-8.pt" --aug "textual-inversion" --strength 0.5 --guidance-scale 7.5
     '''
 
     parser = argparse.ArgumentParser("Few-Shot Baseline")
@@ -415,11 +431,11 @@ if __name__ == "__main__":
     parser.add_argument("--model-path", type=str, default="CompVis/stable-diffusion-v1-4")
     # Path to the Diffusion Model
 
-    parser.add_argument("--prompt", type=str, default=["a photo of a {name}"])
+    parser.add_argument("--prompt", type=str, default="a photo of a {name}")  # TL: Removed the list ["..."]
     # A Textual Inversion parameter:
     # Augmentations are generated conditioned on the prompt ({name} is replaced with the particular class pseudo word)
 
-    parser.add_argument("--use-generated-prompts", type=int, default=[0], choices=[0, 1])
+    parser.add_argument("--use-generated-prompts", type=int, default=False)
     # Determines if prompts of LLM are used or the prompt(s) from the --prompts argument in the command line
 
     parser.add_argument("--prompt-path", type=str, default="prompts/prompts.csv")
@@ -455,7 +471,7 @@ if __name__ == "__main__":
     # Path to the trained embeddings of the pseudo words
 
     parser.add_argument("--dataset", type=str, default="coco",
-                        choices=["spurge", "imagenet", "coco", "pascal", "flowers", "caltech"])
+                        choices=["spurge", "imagenet", "coco", "pascal", "flowers", "caltech", "road_sign"])
     # Select which dataset to use (we only use coco)
 
     parser.add_argument("--aug", nargs="+", type=str, default="textual-inversion",
@@ -474,12 +490,12 @@ if __name__ == "__main__":
     # guidance_scale (`float`, *optional*, defaults to 7.5):
     #   A higher guidance scale value encourages the model to generate images closely linked to the text prompt
     #   at the expense of lower image quality. Guidance scale is enabled when `guidance_scale > 1`.
-    parser.add_argument("--mask", nargs="+", type=int, default=0, choices=[0, 1])
+    parser.add_argument("--mask", nargs="+", type=int, default=[0], choices=[0, 1])
     # A StableDiffusionInpaintPipeline Parameter:
     # mask_image (`torch.FloatTensor`):
     #   `mask_image` is representing an image batch to mask `image`. White pixels in the mask are repainted
     #   while black pixels are preserved. Mask determines which pixels the model is allowed to change.
-    parser.add_argument("--inverted", nargs="+", type=int, default=0, choices=[0, 1])
+    parser.add_argument("--inverted", nargs="+", type=int, default=[0], choices=[0, 1])
     # A Textual Inversion Parameter:
     #   Allows to invert the mask
     parser.add_argument("--probs", nargs="+", type=float, default=None)
