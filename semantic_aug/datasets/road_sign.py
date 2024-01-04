@@ -101,12 +101,15 @@ class RoadSignDataset(FewShotDataset):
                 selected_class_ids[class_name] = selected_class_ids[class_name][:examples_per_class]
 
         # Checks for data imbalance
-        critical_threshold = 3  # Warning if classes have fewer examples than critical_threshold
+        critical_threshold = 5  # Warning if classes have fewer examples than critical_threshold
+
+        if examples_per_class is not None and examples_per_class < critical_threshold:
+            critical_threshold = examples_per_class
         critical_classes = [class_name for class_name in self.class_names
                             if len(selected_class_ids[class_name]) < critical_threshold]
         if critical_classes:
-            warnings.warn(f"Warning: Classes: {critical_classes} have fewer than "
-                          f"{critical_threshold} examples for split: {split}.")
+            warnings.warn(f"Warning for classes: {critical_classes} - fewer than "
+                          f"{critical_threshold} examples for {split} split.")
 
         # Create the final list of images and labels for the chosen split
         self.all_images = [self.image_paths[class_name][idx] for class_name in self.class_names

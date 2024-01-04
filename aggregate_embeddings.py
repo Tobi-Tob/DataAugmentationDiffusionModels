@@ -15,6 +15,7 @@ if __name__ == "__main__":
     
     call from terminal:
     python aggregate_embeddings.py --num-trials 1 --examples-per-class 2 --dataset coco
+    python aggregate_embeddings.py --num-trials 1 --examples-per-class 8 --dataset "road_sign"
     '''
 
     parser = argparse.ArgumentParser("Merge token files")
