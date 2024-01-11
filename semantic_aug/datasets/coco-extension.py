@@ -11,7 +11,10 @@ import torch
 import warnings
 import matplotlib.pyplot as plt
 
-COCO_EXTENSION_DIR = r"/data/dlcv2023_groupA/coco-extension"
+# COCO_EXTENSION_DIR = r"/data/dlcv2023_groupA/coco-extension"
+COCO_EXTENSION_DIR = r"D:\Studium\TUDarmstadt\WiSe23_24\DLCV\datasets\common_obj_our\CustomDatasets\Common_Objects"
+
+class_selection = ['knife', 'fork', 'spoon', 'potted plant', 'chair', 'car', 'bicycle', 'bottle', 'book', 'cup']
 
 
 class COCOExtension(FewShotDataset):
@@ -49,7 +52,8 @@ class COCOExtension(FewShotDataset):
     """
 
     classes = []
-    for class_name in os.listdir(os.path.join(COCO_EXTENSION_DIR, 'train-val')):
+    # for class_name in os.listdir(os.path.join(COCO_EXTENSION_DIR, 'train-val')):
+    for class_name in class_selection:  # TODO: remove this line when dataset completed
         class_dir_path = os.path.join(COCO_EXTENSION_DIR, 'train-val', class_name)  # path to class dir
         if os.path.isdir(class_dir_path) and any(os.listdir(class_dir_path)):
             # only if path points to a directory and directory is not empty
@@ -57,6 +61,7 @@ class COCOExtension(FewShotDataset):
 
     class_names = sorted(classes)  # List of all directory names in COCO_EXTENSION_DIR/train-val
     num_classes: int = len(class_names)
+    print(num_classes)
 
     def __init__(self, *args, data_dir: str = COCO_EXTENSION_DIR,
                  split: str = "train", seed: int = 0,
@@ -78,7 +83,7 @@ class COCOExtension(FewShotDataset):
         # glob.glob is used to retrieve all files with a ".jpg" extension in these directories.
         self.image_paths = {class_name: [] for class_name in self.class_names}
         for class_name in self.class_names:
-            class_dir_path = os.path.join(data_dir, class_name)
+            class_dir_path = os.path.join(data_dir, 'train-val', class_name)
             class_image_paths = glob.glob(os.path.join(class_dir_path, '*.jpg'))
             self.image_paths[class_name].extend(class_image_paths)
 
