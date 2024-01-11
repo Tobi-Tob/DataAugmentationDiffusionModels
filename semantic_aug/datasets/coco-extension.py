@@ -49,13 +49,13 @@ class COCOExtension(FewShotDataset):
     """
 
     classes = []
-    for class_name in os.listdir(COCO_EXTENSION_DIR):
-        class_dir_path = os.path.join(COCO_EXTENSION_DIR, class_name)  # path to class dir
+    for class_name in os.listdir(os.path.join(COCO_EXTENSION_DIR, 'train-val')):
+        class_dir_path = os.path.join(COCO_EXTENSION_DIR, 'train-val', class_name)  # path to class dir
         if os.path.isdir(class_dir_path) and any(os.listdir(class_dir_path)):
             # only if path points to a directory and directory is not empty
             classes.append(class_name)
 
-    class_names = sorted(classes)  # List of all directory names in ROAD_SIGN_DIR
+    class_names = sorted(classes)  # List of all directory names in COCO_EXTENSION_DIR/train-val
     num_classes: int = len(class_names)
 
     def __init__(self, *args, data_dir: str = COCO_EXTENSION_DIR,
