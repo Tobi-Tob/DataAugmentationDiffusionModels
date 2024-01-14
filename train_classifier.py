@@ -3,6 +3,7 @@ from semantic_aug.datasets.spurge import SpurgeDataset
 from semantic_aug.datasets.imagenet import ImageNetDataset
 from semantic_aug.datasets.pascal import PASCALDataset
 from semantic_aug.datasets.road_sign import RoadSignDataset
+from semantic_aug.datasets.coco_extension import COCOExtension
 from semantic_aug.datasets.caltech101 import CalTech101Dataset
 from semantic_aug.datasets.flowers102 import Flowers102Dataset
 from semantic_aug.augmentations.compose import ComposeParallel
@@ -53,7 +54,8 @@ DATASETS = {
     "imagenet": ImageNetDataset,
     "caltech": CalTech101Dataset,
     "flowers": Flowers102Dataset,
-    "road_sign": RoadSignDataset
+    "road_sign": RoadSignDataset,
+    "coco_extension": COCOExtension
 }
 
 COMPOSERS = {
@@ -471,7 +473,7 @@ if __name__ == "__main__":
     # Path to the trained embeddings of the pseudo words
 
     parser.add_argument("--dataset", type=str, default="coco",
-                        choices=["spurge", "imagenet", "coco", "pascal", "flowers", "caltech", "road_sign"])
+                        choices=["spurge", "imagenet", "coco", "pascal", "flowers", "caltech", "road_sign", "coco_extension"])
     # Select which dataset to use (we only use coco)
 
     parser.add_argument("--aug", nargs="+", type=str, default="textual-inversion",
