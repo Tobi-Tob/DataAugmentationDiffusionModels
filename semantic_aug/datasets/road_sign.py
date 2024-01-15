@@ -11,43 +11,38 @@ import torch
 import warnings
 import matplotlib.pyplot as plt
 
-ROAD_SIGN_DIR = r"/data/vilab07/train_data"
+ROAD_SIGN_DIR_TRAIN_VAL = r"/data/vilab07/CustomDatasets/Road_Signs/train-val"
+ROAD_SIGN_DIR_TEST = r"/data/vilab07/CustomDatasets/Road_Signs/test"
 
 
 class RoadSignDataset(FewShotDataset):
     """
-    Dangerous_Area
-    End_of_Restriction
-    Exit
-    Exit_in_100
-    Exit_in_200
-    Exit_in_300
-    Give_way
-    Ice_Hazard
-    Mandatory_Direction
-    No_Entry
-    No_Overtaking
-    No_Parking
-    Parking
-    Priority_Ahead
-    Priority_Road
-    Slippery_Road
-    Speed_Limit_100
-    Speed_Limit_120
-    Speed_Limit_50
-    Speed_Limit_60
-    Speed_Limit_70
-    Speed_Limit_80
-    Stop
-    Traffic_Banned
-    Traffic_Jam_Warning
-    Wildlife_Crossing
-    Work_Zone
+attention zone sign
+end of restriction sign
+give way sign
+highway exit in 100m sign
+highway exit in 200m sign
+highway exit in 300m sign
+highway exit sign
+mandatory direction sign
+no entry sign
+no overtaking sign
+no parking sign
+parking sign
+pedestrian zone sign
+priority road sign
+slippery road sign
+speed limit 100 sign
+speed limit 120 sign
+speed limit 30 sign
+speed limit 80 sign
+traffic banned sign
+work zone sign
     """
 
     classes = []
-    for class_name in os.listdir(ROAD_SIGN_DIR):
-        class_dir_path = os.path.join(ROAD_SIGN_DIR, class_name)  # path to class dir
+    for class_name in os.listdir(ROAD_SIGN_DIR_TRAIN_VAL):
+        class_dir_path = os.path.join(ROAD_SIGN_DIR_TRAIN_VAL, class_name)  # path to class dir
         if os.path.isdir(class_dir_path) and any(os.listdir(class_dir_path)):
             # only if path points to a directory and directory is not empty
             classes.append(class_name)
@@ -55,7 +50,7 @@ class RoadSignDataset(FewShotDataset):
     class_names = sorted(classes)  # List of all directory names in ROAD_SIGN_DIR
     num_classes: int = len(class_names)
 
-    def __init__(self, *args, data_dir: str = ROAD_SIGN_DIR,
+    def __init__(self, *args, data_dir: str = ROAD_SIGN_DIR_TRAIN_VAL,
                  split: str = "train", seed: int = 0,
                  examples_per_class: int = None,
                  generative_aug: GenerativeAugmentation = None,
