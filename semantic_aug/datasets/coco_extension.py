@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 COCO_EXTENSION_DIR = r"/data/vilab06/CustomDatasets/Common_Objects"
 # COCO_EXTENSION_DIR = r"D:\Studium\TUDarmstadt\WiSe23_24\DLCV\datasets\common_obj_our\CustomDatasets\Common_Objects"
 
-class_selection = ['knife', 'fork', 'spoon', 'potted plant', 'chair', 'car', 'bicycle', 'bottle', 'book', 'cup']
+class_selection = ['knife', 'fork', 'spoon', 'chair', 'car', 'bicycle', 'bottle', 'book', 'cup']
 
 
 class COCOExtension(FewShotDataset):

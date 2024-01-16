@@ -424,6 +424,9 @@ if __name__ == "__main__":
     
     04.01 first road_sign run:
     python train_classifier.py --dataset "road_sign" --synthetic-dir "synthetics" --iterations-per-epoch 200 --num-epochs 50 --batch-size 32 --num-synthetic 10 --num-trials 1 --examples-per-class 8 --embed-path "road_sign-tokens/road_sign-0-8.pt" --aug "textual-inversion" --strength 0.5 --guidance-scale 7.5
+    
+    MR: COCOExtension:
+    python train_classifier.py --dataset "coco_extension" --synthetic-dir "intermediates/coco_ext_test/synthetic_class_concepts" --logdir "intermediates/coco_ext_test/logs" --iterations-per-epoch 200 --num-epochs 50 --batch-size 32 --num-synthetic 5 --num-trials 1 --examples-per-class 8 --embed-path "intermediates/coco_ext_test/coco_extension-tokens/coco_extension-0-2.pt" --aug "textual-inversion" --strength 0.5 --guidance-scale 7.5 --mask 0 --inverted 0 --use-generated-prompts 0
     '''
 
     parser = argparse.ArgumentParser("Few-Shot Baseline")

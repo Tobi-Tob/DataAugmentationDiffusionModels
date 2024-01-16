@@ -61,6 +61,9 @@ if __name__ == "__main__":
     
     TL: Road Sign class concepts:
     python generate_augmentations.py --dataset "road_sign" --embed-path road_sign-tokens/road_sign-0-8.pt --out "synthetic_class_concepts_2" --examples-per-class 3 --num-synthetic 2 --prompt "a photo of a {name}" --guidance-scale 10 --strength 1
+    
+    MR: COCOExtension:
+    python generate_augmentations.py --dataset "coco_extension" --embed-path coco_extension-tokens/coco_extension-0-2.pt --out "intermediates/coco_ext_test/synthetic_class_concepts_2" --examples-per-class 2 --num-synthetic 5 --guidance-scale 10 --strength 1 --use-generated-prompts 0
     '''
 
     parser = argparse.ArgumentParser("Inference script")
