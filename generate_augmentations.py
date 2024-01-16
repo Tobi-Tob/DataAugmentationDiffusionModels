@@ -3,6 +3,7 @@ from semantic_aug.datasets.spurge import SpurgeDataset
 from semantic_aug.datasets.imagenet import ImageNetDataset
 from semantic_aug.datasets.pascal import PASCALDataset
 from semantic_aug.datasets.road_sign import RoadSignDataset
+from semantic_aug.datasets.coco_extension import COCOExtension
 from semantic_aug.augmentations.compose import ComposeParallel
 from semantic_aug.augmentations.compose import ComposeSequential
 from semantic_aug.augmentations.real_guidance import RealGuidance
@@ -25,7 +26,8 @@ DATASETS = {
     "coco": COCODataset, 
     "pascal": PASCALDataset,
     "imagenet": ImageNetDataset,
-    "road_sign": RoadSignDataset
+    "road_sign": RoadSignDataset,
+    "coco_extension": COCOExtension
 }
 
 COMPOSE = {
@@ -59,6 +61,9 @@ if __name__ == "__main__":
     
     TL: Road Sign class concepts:
     python generate_augmentations.py --dataset "road_sign" --embed-path road_sign-tokens/road_sign-0-8.pt --out "synthetic_class_concepts_2" --examples-per-class 3 --num-synthetic 2 --prompt "a photo of a {name}" --guidance-scale 10 --strength 1
+    
+    MR: COCOExtension:
+    python generate_augmentations.py --dataset "coco_extension" --embed-path coco_extension-tokens/coco_extension-0-2.pt --out "intermediates/coco_ext_test/synthetic_class_concepts_2" --examples-per-class 2 --num-synthetic 5 --guidance-scale 10 --strength 1 --use-generated-prompts 0
     '''
 
     parser = argparse.ArgumentParser("Inference script")

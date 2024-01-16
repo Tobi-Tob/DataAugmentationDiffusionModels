@@ -16,6 +16,7 @@ if __name__ == "__main__":
     call from terminal:
     python aggregate_embeddings.py --num-trials 1 --examples-per-class 2 --dataset coco
     python aggregate_embeddings.py --num-trials 1 --examples-per-class 8 --dataset "road_sign"
+    python aggregate_embeddings.py --num-trials 1 --examples-per-class 2 --dataset "coco_extension" --input-path "./fine-tuned"
     '''
 
     parser = argparse.ArgumentParser("Merge token files")
@@ -27,7 +28,7 @@ if __name__ == "__main__":
     parser.add_argument("--input-path", type=str, default="./fine-tuned")
     
     parser.add_argument("--dataset", type=str, default="coco",
-                        choices=["spurge", "imagenet", "coco", "pascal", "road_sign"])
+                        choices=["spurge", "imagenet", "coco", "pascal", "road_sign", "coco_extension"])
 
     args = parser.parse_args()
 
