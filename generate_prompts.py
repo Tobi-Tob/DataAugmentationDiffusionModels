@@ -3,6 +3,8 @@ from transformers import AutoTokenizer, pipeline
 import transformers
 import torch
 from semantic_aug.datasets.coco import COCODataset
+from semantic_aug.datasets.coco_extension import COCOExtension
+from semantic_aug.datasets.road_sign import DatasetRoadSigns
 from typing import Dict
 import os
 import csv
@@ -28,6 +30,13 @@ PROMPT_TEMPLATE = f"""[INST] <<SYS>>
 
 {USER_PROMPT} [/INST]
 """
+
+
+DATASETS = {
+    "coco": COCODataset,
+    "road_sign": RoadSignDataset,
+    "coco_extension": COCOExtension
+}
 
 
 def clean_response(res: str, num_prompts: int, class_name: str):
@@ -104,7 +113,7 @@ if __name__ == '__main__':
     parser.add_argument("--outdir", type=str, default="prompts")
     parser.add_argument("--model-path", type=str, default="meta-llama/Llama-2-7b-chat-hf")
     parser.add_argument("--prompts-per-class", type=int, default=1)
-    parser.add_argument("--dataset", type=str, default="coco", choices=["coco"])
+    parser.add_argument("--dataset", type=str, default="coco", choices=["coco", "coco_extesion"])
     parser.add_argument("--model-prompt", type=str, default=PROMPT_TEMPLATE)
 
     args = parser.parse_args()
