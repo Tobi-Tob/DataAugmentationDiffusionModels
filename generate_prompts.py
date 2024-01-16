@@ -4,7 +4,7 @@ import transformers
 import torch
 from semantic_aug.datasets.coco import COCODataset
 from semantic_aug.datasets.coco_extension import COCOExtension
-from semantic_aug.datasets.road_sign import DatasetRoadSigns
+from semantic_aug.datasets.road_sign import RoadSignDataset
 from typing import Dict
 import os
 import csv
@@ -113,7 +113,7 @@ if __name__ == '__main__':
     parser.add_argument("--outdir", type=str, default="prompts")
     parser.add_argument("--model-path", type=str, default="meta-llama/Llama-2-7b-chat-hf")
     parser.add_argument("--prompts-per-class", type=int, default=1)
-    parser.add_argument("--dataset", type=str, default="coco", choices=["coco", "coco_extesion"])
+    parser.add_argument("--dataset", type=str, default="coco", choices=["coco", "coco_extesion", "road_sign"])
     parser.add_argument("--model-prompt", type=str, default=PROMPT_TEMPLATE)
 
     args = parser.parse_args()
@@ -125,6 +125,8 @@ if __name__ == '__main__':
         torch_dtype=torch.float16,
         device_map="auto",
     )
+
+    dataset = DATASETS[args.dataset]
 
     class_names = COCODataset.class_names
     prompts = {}

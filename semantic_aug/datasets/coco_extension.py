@@ -61,7 +61,7 @@ class COCOExtension(FewShotDataset):
 
     class_names = sorted(classes)  # List of all directory names in COCO_EXTENSION_DIR/train-val
     num_classes: int = len(class_names)
-    print(num_classes)
+    print(f"num_classes to be evaluated from dataset coco_extension: {num_classes}")
 
     def __init__(self, *args, data_dir: str = COCO_EXTENSION_DIR,
                  split: str = "train", seed: int = 0,
