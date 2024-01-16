@@ -129,7 +129,7 @@ if __name__ == '__main__':
 
     dataset = DATASETS[args.dataset]
 
-    class_names = COCODataset.class_names
+    class_names = dataset.class_names
     prompts = {}
 
     for idx in range(len(class_names)):
