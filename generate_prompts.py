@@ -123,7 +123,7 @@ if __name__ == '__main__':
     pipe = pipeline(
         "text-generation",
         model=args.model_path,
-        torch_dtype=torch.float16,
+        torch_dtype=torch.bfloat16,
         device_map="auto",
     )
 
