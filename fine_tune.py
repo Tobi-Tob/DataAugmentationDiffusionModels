@@ -272,6 +272,8 @@ def parse_args():
     parser.add_argument("--use_manual_list", type=bool, default=False,
                         help="Whether to use the preselected images for extracting or the standard approach")
 
+    parser.add_argument("--device", type=int, default=0)
+
     args = parser.parse_args()
     env_local_rank = int(os.environ.get("LOCAL_RANK", -1))
     if env_local_rank != -1 and env_local_rank != args.local_rank:
@@ -762,10 +764,11 @@ if __name__ == "__main__":
     rank = int(os.environ.pop("RANK", 0))
     world_size = int(os.environ.pop("WORLD_SIZE", 1))
 
-    device_id = rank % torch.cuda.device_count()  # TL: torch.cuda.device_count() is 0 on my lokal machine
+    #MR: device_id = rank % torch.cuda.device_count()  # TL: torch.cuda.device_count() is 0 on my lokal machine
+    device_id = args.device
     torch.cuda.set_device(rank % torch.cuda.device_count())
 
-    print(f'Initialized process {rank} / {world_size}')
+    print(f'Initialized process {rank} / {world_size} on device(gpu) {device_id}')
 
     options = product(range(args.num_trials), args.examples_per_class)
     options = np.array(list(options))
