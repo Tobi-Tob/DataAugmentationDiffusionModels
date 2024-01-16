@@ -106,6 +106,7 @@ if __name__ == '__main__':
 
     '''
     python generate_prompts.py --outdir "prompts" --prompts-per-class 5
+    python generate_prompts.py --dataset "coco_extension --outdir "prompts/coco_extension" --prompts-per-class 3
     '''
 
     parser = argparse.ArgumentParser("LLM Prompt Generation")
