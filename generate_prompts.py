@@ -180,6 +180,7 @@ if __name__ == '__main__':
                 )
                 response_okay = True
             except RuntimeError as e:
+                print(Warning(f"Exception thrown while piping Llama 2: {e}"))
                 trys += 1
 
         # MR:
