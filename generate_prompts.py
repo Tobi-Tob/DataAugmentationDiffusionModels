@@ -142,7 +142,7 @@ if __name__ == '__main__':
     pipe = pipeline(
         "text-generation",
         model=args.model_path,
-        torch_dtype=torch.bfloat16,
+        torch_dtype=torch.float16,
         device_map="auto",
     )
 
@@ -159,7 +159,6 @@ if __name__ == '__main__':
             name.replace("_", " ")
 
         model_prompt = args.model_prompt.format(num_prompts=str(args.prompts_per_class), name=name)
-        print(f"model prompt:\n{model_prompt}")
 
         #MR: It is important that no _ or other special signs are in the prompt. If so, Llama 2 probably returns garbage
         response = pipe(
