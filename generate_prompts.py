@@ -98,7 +98,7 @@ def clean_response(res: str, num_prompts: int, class_name: str):
         if len(lst) <= i:
             prompts_lst.append(DEFAULT_PROMPT)
         else:
-            #MR: geht nicht!! prompts_lst.append(DEFAULT_PROMPT_W_SETTING.format(setting=lst[i]))
+            # MR: geht nicht!! prompts_lst.append(DEFAULT_PROMPT_W_SETTING.format(setting=lst[i]))
             prompts_lst.append(DEFAULT_PROMPT_W_SETTING.replace("{setting}", lst[i]))
 
     return prompts_lst
@@ -157,21 +157,30 @@ if __name__ == '__main__':
     for idx in range(len(class_names)):
         name = class_names[idx]
 
-        #MR:
+        # MR:
         if "_" in name:
             name.replace("_", " ")
 
         model_prompt = args.model_prompt.format(num_prompts=str(args.prompts_per_class), name=name)
 
-        #MR: It is important that no _ or other special signs are in the prompt. If so, Llama 2 probably returns garbage
-        response = pipe(
-            model_prompt,
-            do_sample=True,
-            top_k=10,
-            num_return_sequences=1,
-            eos_token_id=tokenizer.eos_token_id,
-            max_length=1024,
-        )
+        response = []  # just to declare it...
+        response_okay = False
+        trys = 0
+        # MR: sometimes our Llama 2 configs lead to instabilities (tensor goes inf, nan, or negative).
+        #   Yet I don't know why that happens...
+        while not response_okay and trys < 5:
+            try:
+                response = pipe(
+                    model_prompt,
+                    do_sample=True,
+                    top_k=10,
+                    num_return_sequences=1,
+                    eos_token_id=tokenizer.eos_token_id,
+                    max_length=1024,
+                )
+                response_okay = True
+            except RuntimeError as e:
+                trys += 1
 
         # MR:
         if " " in name:
