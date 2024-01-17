@@ -96,7 +96,8 @@ def clean_response(res: str, num_prompts: int, class_name: str):
         if len(lst) <= i:
             prompts_lst.append(DEFAULT_PROMPT)
         else:
-            prompts_lst.append(DEFAULT_PROMPT_W_SETTING.format(setting=lst[i]))
+            #MR: geht nicht!! prompts_lst.append(DEFAULT_PROMPT_W_SETTING.format(setting=lst[i]))
+            prompts_lst.append(DEFAULT_PROMPT_W_SETTING.replace("{setting}", lst[i]))
 
     return prompts_lst
 
