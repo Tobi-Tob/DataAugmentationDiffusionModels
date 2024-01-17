@@ -11,26 +11,18 @@ import csv
 import re
 from train_classifier import DEFAULT_PROMPT
 
-DEFAULT_MODEL_PROMPT = "<s>[INST] <<SYS>> You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. \
-You will be asked to generate short text prompts. Just respond with those text prompts, nothing else! Each prompt should have a ' at the start and at the end! Each answer prompt must contain the key-word inside [] from the user prompt. \
-<</SYS>> Generate {num_prompts} prompt(s) that start with 'A photo of a [{name1}]'. Add an realistic environment to the [{name2}], to make it semantically more diverse. The word [{name3}] must be in the prompt. [/INST]"
+SYS_PROMPT = "You are a helpful, respectful and precise assistant. \
+You will be asked to generate {num_prompts} words. Only respond with those {num_prompts} words. \
+Wrap those words as strings in a python list."
 
-SYS_PROMPT = "<s>[INST] <<SYS>> You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. \
-You will be asked to generate short text prompts. Just respond with those text prompts, nothing else! Enumerate the prompts! Each answer prompt must contain the key-word inside [] from the user prompt. The prompts can not exceed 10 words! \
-<</SYS>> "
+USER_PROMPT = "In which different settings can {name}s occur?"
 
-USER_PROMPT = "Generate {num_prompts} prompt(s) that start with 'A photo of a [{name}]'. Add an realistic environment to the [{name}], to make it semantically more diverse. The word [{name}] must be in the prompt and the length of each prompt should not be greater than 10. [/INST]"
-
-# Ideas to improve prompts:
-# - generate one word environments (not a whole sentence) -> like [car]: street or motorway or ...
-
-PROMPT_TEMPLATE = f"""[INST] <<SYS>>
+PROMPT_TEMPLATE = f"""<s>[INST] <<SYS>>
 {SYS_PROMPT}
 <</SYS>>
 
 {USER_PROMPT} [/INST]
 """
-
 
 DATASETS = {
     "coco": COCODataset,
