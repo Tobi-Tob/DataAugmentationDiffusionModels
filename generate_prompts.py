@@ -138,6 +138,7 @@ if __name__ == '__main__':
         )
 
         print(f"Result for {name}: {response[0]['generated_text']}")
-        prompts[name] = clean_response(response[0]['generated_text'], args.prompts_per_class, name)
+        prompts[name] = response[0]['generated_text']
+        # prompts[name] = clean_response(response[0]['generated_text'], args.prompts_per_class, name)
 
     write_prompts_to_csv(prompts)
