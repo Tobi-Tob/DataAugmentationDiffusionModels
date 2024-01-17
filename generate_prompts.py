@@ -36,12 +36,14 @@ DATASETS = {
 
 
 def extract_list_from_string(s):
-    # Find a substring that matches Python list syntax
-    match = re.search(r"\[.*?\]", s)
-    if match:
-        list_str = match.group(0)
+    # Finds all substrings that matches Python list syntax
+    matches = re.findall(r"\[.*?\]", s)
+    for match in matches:
+        print(f"list_str: {match}")
+        if "INST" in match:
+            continue
         # Safely evaluate the string as a Python list
-        return ast.literal_eval(list_str)
+        return ast.literal_eval(match)
     raise Exception()
 
 
