@@ -1,4 +1,6 @@
 import argparse
+import ast
+
 from transformers import AutoTokenizer, pipeline
 import transformers
 import torch
@@ -10,6 +12,8 @@ import os
 import csv
 import re
 from train_classifier import DEFAULT_PROMPT
+
+DEFAULT_PROMPT_W_SETTING = "a photo of a {name} in the setting of a {setting}"
 
 SYS_PROMPT = "You are a helpful, respectful and precise assistant. \
 You will be asked to generate {num_prompts} words. Only respond with those {num_prompts} words. \
@@ -31,47 +35,70 @@ DATASETS = {
 }
 
 
-def clean_response(res: str, num_prompts: int, class_name: str):
-    def clean_single_prompt(prompt_item):
-        # remove the leading space
-        prompt_item = prompt_item[1:]
-        # only replace the first occurrence of class name with {} -> the other one might be a descriptive word
-        prompt_item = prompt_item.replace(f'[{class_name}]', '{name}', 1)
-        # remove duplicate class mentioning in the prompt
-        prompt_item = prompt_item.replace(f'[{class_name}]', '')
+def extract_list_from_string(s):
+    # Find a substring that matches Python list syntax
+    match = re.search(r"\[.*?\]", s)
+    if match:
+        list_str = match.group(0)
+        # Safely evaluate the string as a Python list
+        return ast.literal_eval(list_str)
+    raise Exception()
 
-        # replace with default prompt if prompt is not as desired
-        if not prompt_item.count('{name}') == 1:
-            prompt_item = DEFAULT_PROMPT.format(name=class_name)
 
-        return prompt_item
-
-    # Split the string into lines
-    lines = res.split('\n')
-
+def extract_enum_as_list_from_string(s):
     cleaned_prompts = []
+    lines = s.split('\n')
+
     # Define a regex pattern for lines starting with a number, period, and space
     pattern = r'^\d+\.\s*'
 
     for line in lines:
         # Check if the line matches the enumeration pattern
         if re.match(pattern, line):
+            # remove enumeration
             prompt = line.split('.')[1]
-            prompt = clean_single_prompt(prompt)
+            # remove the leading space
+            prompt = prompt[1:]
             cleaned_prompts.append(prompt)
 
-    # Check if the response only contains the expected amount of prompts.
-    if len(cleaned_prompts) < num_prompts:
-        for i in range(len(cleaned_prompts), num_prompts):
-            cleaned_prompts.append(DEFAULT_PROMPT)
-        print(f"Warning: The Llama 2 response didn't contain the expected amount of prompts."
-              f"-> The prompts might not work as expected.\nResponse was:\n {res}")
-    elif len(cleaned_prompts) > num_prompts:
-        cleaned_prompts = cleaned_prompts[:num_prompts]
-        print(f"Warning: The Llama 2 response didn't contain the expected amount of prompts."
-              f"-> The prompts might not work as expected.\nResponse was:\n {res}")
-
     return cleaned_prompts
+
+
+def clean_single_prompt(p, c):
+    # remove the leading space
+    prompt_item = p[1:]
+    # only replace the first occurrence of class name with {} -> the other one might be a descriptive word
+    prompt_item = prompt_item.replace(f'[{c}]', '{name}', 1)
+    # remove duplicate class mentioning in the prompt
+    prompt_item = prompt_item.replace(f'[{c}]', '')
+
+    # replace with default prompt if prompt is not as desired
+    if not prompt_item.count('{name}') == 1:
+        prompt_item = DEFAULT_PROMPT.format(name=c)
+
+    return prompt_item
+
+
+def clean_response(res: str, num_prompts: int, class_name: str):
+    prompts_lst = []
+
+    try:
+        lst = extract_list_from_string(res)
+    except Exception as e:
+        print(Warning(f"No list was found in the Llama 2 response for class: {class_name}"))
+        lst = extract_enum_as_list_from_string(res)
+        if len(lst) == 0:
+            print(Warning(
+                f"No enum was found in the Llama 2 response for class: {class_name}. Continue with default prompt"))
+
+    # Fill the settings in the final prompt skeleton
+    for i in range(num_prompts):
+        if len(lst) <= i:
+            prompts_lst.append(DEFAULT_PROMPT)
+        else:
+            prompts_lst.append(DEFAULT_PROMPT_W_SETTING.format(setting=lst[i]))
+
+    return prompts_lst
 
 
 def write_prompts_to_csv(all_prompts: Dict):
@@ -115,7 +142,7 @@ if __name__ == '__main__':
     pipe = pipeline(
         "text-generation",
         model=args.model_path,
-        torch_dtype=torch.float16,
+        torch_dtype=torch.bfloat16,
         device_map="auto",
     )
 
@@ -134,6 +161,7 @@ if __name__ == '__main__':
         model_prompt = args.model_prompt.format(num_prompts=str(args.prompts_per_class), name=name)
         print(f"model prompt:\n{model_prompt}")
 
+        #MR: It is important that no _ or other special signs are in the prompt. If so, Llama 2 probably returns garbage
         response = pipe(
             model_prompt,
             do_sample=True,
@@ -147,8 +175,8 @@ if __name__ == '__main__':
         if " " in name:
             name.replace(" ", "_")
 
-        print(f"Result for {name}: {response[0]['generated_text']}")
-        prompts[name] = response[0]['generated_text']
-        # prompts[name] = clean_response(response[0]['generated_text'], args.prompts_per_class, name)
+        print(f"\n{name} -----> LLM response:\n{response[0]['generated_text']}")
+        prompts[name] = clean_response(response[0]['generated_text'], args.prompts_per_class, name)
+        print(f"\n{name} -----> final prompts:\n{prompts[name]}")
 
     write_prompts_to_csv(prompts)
