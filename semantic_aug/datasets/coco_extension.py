@@ -14,52 +14,39 @@ import matplotlib.pyplot as plt
 COCO_EXTENSION_DIR = r"/data/vilab06/CustomDatasets/Common_Objects"
 # COCO_EXTENSION_DIR = r"D:\Studium\TUDarmstadt\WiSe23_24\DLCV\datasets\common_obj_our\CustomDatasets\Common_Objects"
 
-class_selection = ['knife', 'fork', 'spoon', 'chair', 'car', 'bicycle', 'bottle', 'book', 'cup']
-
 
 class COCOExtension(FewShotDataset):
     """
+    bench
     bicycle
-    car
+    book
     bottle
+    bowl
+    car
+    cellphone
+    chair
+    clock
     cup
     fork
-    knife
-    spoon
-    book
-    potted plant
-    chair
-    bowl
-    clock
-    truck
-    traffic light
-    stop sign
-    bench
-    umbrella
-    sportsball
-    wineglas
-    apple
-    banana
-    couch
-    tv
-    laptop
-    tv remote
-    motorcycle
-    sandwich
-    bed
-    dining table
     keyboard
+    knife
+    laptop
+    motorcycle
+    mouse
+    spoon
+    potted_plant
+    remote
+    spoon
+    sportsball
+    tie
+    traffic light
+    wineglas
     """
 
-    classes = []
-    # for class_name in os.listdir(os.path.join(COCO_EXTENSION_DIR, 'train-val')):
-    for class_name in class_selection:  # TODO: remove this line when dataset completed
-        class_dir_path = os.path.join(COCO_EXTENSION_DIR, 'train-val', class_name)  # path to class dir
-        if os.path.isdir(class_dir_path) and any(os.listdir(class_dir_path)):
-            # only if path points to a directory and directory is not empty
-            classes.append(class_name)
-
-    class_names = sorted(classes)  # List of all directory names in COCO_EXTENSION_DIR/train-val
+    classes = ["bench", "bicycle", "book", "bottle", "bowl", "car", "cellphone", "chair", "clock", "cup",
+    "fork", "keyboard", "knife", "laptop", "motorcycle", "mouse", "spoon", "potted_plant", "remote", "sportsball",
+    "tie", "trafficlight", "wineglas"]
+    class_names = sorted(classes)
     num_classes: int = len(class_names)
     print(f"num_classes to be evaluated from dataset coco_extension: {num_classes}")
 
