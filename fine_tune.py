@@ -764,11 +764,13 @@ if __name__ == "__main__":
     rank = int(os.environ.pop("RANK", 0))
     world_size = int(os.environ.pop("WORLD_SIZE", 1))
 
-    #MR: device_id = rank % torch.cuda.device_count()  # TL: torch.cuda.device_count() is 0 on my lokal machine
+    #MR enabled custom divice_id
+    # device_id = rank % torch.cuda.device_count()  # TL: torch.cuda.device_count() is 0 on my lokal machine
+    # torch.cuda.set_device(rank % torch.cuda.device_count())
     device_id = args.device
-    torch.cuda.set_device(rank % torch.cuda.device_count())
+    torch.cuda.set_device(device_id)
 
-    print(f'Initialized process {rank} / {world_size} on device(gpu) {device_id}')
+    print(f'Initialized process {rank} / {world_size} on current device(gpu) {torch.cuda.current_device()}')
 
     options = product(range(args.num_trials), args.examples_per_class)
     options = np.array(list(options))
