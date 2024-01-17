@@ -126,6 +126,11 @@ if __name__ == '__main__':
 
     for idx in range(len(class_names)):
         name = class_names[idx]
+
+        #MR:
+        if "_" in name:
+            name.replace("_", " ")
+
         model_prompt = args.model_prompt.format(num_prompts=str(args.prompts_per_class), name=name)
 
         response = pipe(
@@ -136,6 +141,10 @@ if __name__ == '__main__':
             eos_token_id=tokenizer.eos_token_id,
             max_length=1024,
         )
+
+        # MR:
+        if " " in name:
+            name.replace(" ", "_")
 
         print(f"Result for {name}: {response[0]['generated_text']}")
         prompts[name] = response[0]['generated_text']
