@@ -91,14 +91,15 @@ def clean_response(res: str, num_prompts: int, class_name: str):
         lst = extract_enum_as_list_from_string(res)
         if len(lst) == 0:
             print(Warning(
-                f"No enum was found in the Llama 2 response for class: {class_name}. Continue with default prompt"))
+                f"No enum was found in the Llama 2 response for class: {class_name}"))
+            raise RuntimeError()
 
     # Fill the settings in the final prompt skeleton
     for i in range(num_prompts):
         if len(lst) <= i:
+            # This code should never be reached
             prompts_lst.append(DEFAULT_PROMPT)
         else:
-            # MR: geht nicht!! prompts_lst.append(DEFAULT_PROMPT_W_SETTING.format(setting=lst[i]))
             prompts_lst.append(DEFAULT_PROMPT_W_SETTING.replace("{setting}", lst[i]))
 
     return prompts_lst
@@ -156,39 +157,48 @@ if __name__ == '__main__':
 
     for idx in range(len(class_names)):
         name = class_names[idx]
+        name_w_spaces = name.replace("_", " ")
+        model_prompt = args.model_prompt.format(num_prompts=str(args.prompts_per_class), name=name_w_spaces)
 
-        # MR:
-        if "_" in name:
-            name.replace("_", " ")
+        # MR: sometimes the response of the LLM is not as required, hence try more often.
+        prompt_okay = False
+        trys_prompt = 0
+        max_trys_prompt = 10
+        while not prompt_okay and trys_prompt < max_trys_prompt:
 
-        model_prompt = args.model_prompt.format(num_prompts=str(args.prompts_per_class), name=name)
+            # MR: sometimes our Llama 2 configs lead to instabilities (tensor goes inf, nan, or negative).
+            #   Then just do another call
+            #   Yet I don't know why that happens...
+            response = []  # just to declare it...
+            response_okay = False
+            trys_response = 0
+            while not response_okay and trys_response < 10:
+                try:
+                    # Call of LLM
+                    response = pipe(
+                        model_prompt,
+                        do_sample=True,
+                        top_k=10,
+                        num_return_sequences=1,
+                        eos_token_id=tokenizer.eos_token_id,
+                        max_length=1024,
+                    )
+                    response_okay = True
+                except RuntimeError as e:
+                    print(Warning(f"Exception thrown while piping Llama 2: {e}"))
+                    trys_response += 1
 
-        response = []  # just to declare it...
-        response_okay = False
-        trys = 0
-        # MR: sometimes our Llama 2 configs lead to instabilities (tensor goes inf, nan, or negative).
-        #   Yet I don't know why that happens...
-        while not response_okay and trys < 5:
+            print(f"\n{name} , try: {trys_prompt} -----> LLM response:\n{response[0]['generated_text']}")
             try:
-                response = pipe(
-                    model_prompt,
-                    do_sample=True,
-                    top_k=10,
-                    num_return_sequences=1,
-                    eos_token_id=tokenizer.eos_token_id,
-                    max_length=1024,
-                )
-                response_okay = True
-            except RuntimeError as e:
-                print(Warning(f"Exception thrown while piping Llama 2: {e}"))
-                trys += 1
+                prompts[name] = clean_response(response[0]['generated_text'], args.prompts_per_class, name)
+                prompt_okay = True
+            except RuntimeWarning as w:
+                if trys_prompt >= max_trys_prompt - 1:
+                    prompts[name] = [DEFAULT_PROMPT for _ in range(args.prompts_per_class)]
+                else:
+                    print(f"Doing another call of Llama 2 to get a better response.")
+                trys_prompt += 1
 
-        # MR:
-        if " " in name:
-            name.replace(" ", "_")
-
-        print(f"\n{name} -----> LLM response:\n{response[0]['generated_text']}")
-        prompts[name] = clean_response(response[0]['generated_text'], args.prompts_per_class, name)
         print(f"\n{name} -----> final prompts:\n{prompts[name]}")
 
     write_prompts_to_csv(prompts)
