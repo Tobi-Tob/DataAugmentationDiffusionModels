@@ -119,7 +119,10 @@ def write_prompts_to_csv(all_prompts: Dict):
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 
-    out_path = os.path.join(out_dir, f"prompts.csv")
+    filename = "prompts.csv"
+    if ".csv" in args.out_filename:
+        filename = args.out_filename
+    out_path = os.path.join(out_dir, filename)
     with open(out_path, 'w', newline='', encoding='utf-8') as file:
         writer = csv.DictWriter(file, fieldnames=['class_name', 'class_idx', 'prompt'], delimiter=';')
         writer.writeheader()
