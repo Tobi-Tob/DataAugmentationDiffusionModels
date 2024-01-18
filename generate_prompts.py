@@ -112,7 +112,7 @@ def construct_prompts(prompt_dict: dict, num_prompts: int, mode: str, classes: l
     kws = [mode]
     if mode == "setting_adjective":
         prompt_skeleton = DEFAULT_PROMPT_W_SETTING_AND_ADJECTIVE
-        kw = ["setting", "adjective"]
+        kws = ["setting", "adjective"]
     elif mode == "setting":
         prompt_skeleton = DEFAULT_PROMPT_W_SETTING
     elif mode == "adjective":
@@ -162,8 +162,7 @@ def write_prompts_to_csv(all_prompts: Dict):
 if __name__ == '__main__':
 
     '''
-    python generate_prompts.py --outdir "prompts" --prompts-per-class 5
-    python generate_prompts.py --dataset "coco_extension" --outdir "prompts/coco_extension" --prompts-per-class 3
+    python generate_prompts.py --dataset "coco_extension" --outdir "prompts/coco_extension" --out-filename "prompts_setting_adjective_1.csv" --prompts-per-class 5 --content "setting_adjective"
     '''
 
     parser = argparse.ArgumentParser("LLM Prompt Generation")
@@ -193,7 +192,7 @@ if __name__ == '__main__':
 
     for key_word in content:
         user_prompt = USER_PROMPTS[key_word]
-        model_pr = SYS_PROMPT.replace("[user_prompt]", user_prompt)
+        model_pr = PROMPT_TEMPLATE.replace("[user_prompt]", user_prompt)
 
         prompt_words = {}  # stores all words for the final prompt
 
