@@ -536,6 +536,8 @@ if __name__ == "__main__":
     # If no filtering at all, set to zero
     # 'Good' value is 50000 and everything in the range of 30000 - 70000 works pretty well
 
+    parser.add_argument("--device", type=int, default=0)
+
     args = parser.parse_args()
 
     try:
@@ -544,10 +546,13 @@ if __name__ == "__main__":
     except KeyError:
         rank, world_size = 0, 1
 
-    device_id = rank % torch.cuda.device_count()
-    torch.cuda.set_device(rank % torch.cuda.device_count())
+    # MR enabled custom divice_id
+    # device_id = rank % torch.cuda.device_count()  # TL: torch.cuda.device_count() is 0 on my lokal machine
+    # torch.cuda.set_device(rank % torch.cuda.device_count())
+    device_id = args.device
+    torch.cuda.set_device(device_id)
 
-    print(f'Initialized process {rank} / {world_size}')
+    print(f'Initialized process {rank} / {world_size} on current device(gpu) {torch.cuda.current_device()}')
     os.makedirs(args.logdir, exist_ok=True)
 
     all_trials = []
