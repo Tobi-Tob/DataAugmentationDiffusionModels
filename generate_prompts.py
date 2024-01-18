@@ -13,7 +13,8 @@ import csv
 import re
 from train_classifier import DEFAULT_PROMPT
 
-DEFAULT_PROMPT_W_SETTING = "a photo of a {name} in the setting of a {setting}"
+# DEFAULT_PROMPT_W_SETTING = "a photo of a {name} in the setting of a {setting}"
+DEFAULT_PROMPT_W_SETTING = "a photo of a {name} in a {setting}"
 
 SYS_PROMPT = "You are a helpful, respectful and precise assistant. \
 You will be asked to generate {num_prompts} words. Only respond with those {num_prompts} words. \
@@ -135,6 +136,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser("LLM Prompt Generation")
 
     parser.add_argument("--outdir", type=str, default="prompts")
+    parser.add_argument("--out-filename", type=str, default="prompts.csv")
     parser.add_argument("--model-path", type=str, default="meta-llama/Llama-2-7b-chat-hf")
     parser.add_argument("--prompts-per-class", type=int, default=1)
     parser.add_argument("--dataset", type=str, default="coco", choices=["coco", "coco_extension", "road_sign"])
