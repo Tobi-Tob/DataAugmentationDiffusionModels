@@ -16,18 +16,29 @@ from train_classifier import DEFAULT_PROMPT
 # DEFAULT_PROMPT_W_SETTING = "a photo of a {name} in the setting of a {setting}"
 DEFAULT_PROMPT_W_SETTING = "a photo of a {name} in a {setting}"
 
+DEFAULT_PROMPT_W_ADJECTIVE = "a photo of a {adjective} {name}"
+# DEFAULT_PROMPT_W_ADJECTIVE = "a photo of a {name} in the style of a {adjective}"
+
+DEFAULT_PROMPT_W_SETTING_AND_ADJECTIVE = "a photo of a {adjective} {name} in a {setting}"
+# DEFAULT_PROMPT_W_SETTING_AND_ADJECTIVE = "a photo of a {name} in the style of a {adjective} in a {setting}"
+
+
 SYS_PROMPT = "You are a helpful, respectful and precise assistant. \
 You will be asked to generate {num_prompts} words. Only respond with those {num_prompts} words. \
 Wrap those words as strings in a python list."
 
-USER_PROMPT = "In which different settings can {name}s occur?"
+USER_PROMPTS = {
+    "setting": "In which different settings can {name}s occur?",
+    "adjective": "What are different descriptive adjectives for {name}?"
+}
 
 PROMPT_TEMPLATE = f"""<s>[INST] <<SYS>>
 {SYS_PROMPT}
 <</SYS>>
 
-{USER_PROMPT} [/INST]
+[user_prompt] [/INST]
 """
+
 
 DATASETS = {
     "coco": COCODataset,
@@ -83,27 +94,46 @@ def clean_single_prompt(p, c):
 
 
 def clean_response(res: str, num_prompts: int, class_name: str):
-    prompts_lst = []
-
     try:
         lst = extract_list_from_string(res)
     except Exception as e:
         print(Warning(f"No list was found in the Llama 2 response for class: {class_name}"))
         lst = extract_enum_as_list_from_string(res)
-        if len(lst) == 0:
+        if len(lst) <= num_prompts:
             print(Warning(
                 f"No enum was found in the Llama 2 response for class: {class_name}"))
             raise Exception()
+    return lst
 
-    # Fill the settings in the final prompt skeleton
-    for i in range(num_prompts):
-        if len(lst) <= i:
-            # This code should never be reached
-            prompts_lst.append(DEFAULT_PROMPT)
-        else:
-            prompts_lst.append(DEFAULT_PROMPT_W_SETTING.replace("{setting}", lst[i]))
 
-    return prompts_lst
+def construct_prompts(prompt_dict: dict, num_prompts: int, mode: str, classes: list):
+    prompts = {}
+    prompt_skeleton = DEFAULT_PROMPT
+    kws = [mode]
+    if mode == "setting_adjective":
+        prompt_skeleton = DEFAULT_PROMPT_W_SETTING_AND_ADJECTIVE
+        kw = ["setting", "adjective"]
+    elif mode == "setting":
+        prompt_skeleton = DEFAULT_PROMPT_W_SETTING
+    elif mode == "adjective":
+        prompt_skeleton = DEFAULT_PROMPT_W_ADJECTIVE
+
+    for c in classes:
+        class_prompt_list = []
+        for i in range(num_prompts):
+            temp = prompt_skeleton
+            for kw in kws:
+                word_list_for_kw = prompt_dict[kw][c]
+                if len(word_list_for_kw) <= i:
+                    # set standard prompt if no content word (for setting, ...) was found
+                    temp = DEFAULT_PROMPT
+                    break
+                else:
+                    temp = temp.replace("{" + f"{kw}" + "}", prompt_dict[kw][c][i])
+            class_prompt_list.append(temp)
+        prompts[c] = class_prompt_list
+
+    return prompts
 
 
 def write_prompts_to_csv(all_prompts: Dict):
@@ -143,7 +173,8 @@ if __name__ == '__main__':
     parser.add_argument("--model-path", type=str, default="meta-llama/Llama-2-7b-chat-hf")
     parser.add_argument("--prompts-per-class", type=int, default=1)
     parser.add_argument("--dataset", type=str, default="coco", choices=["coco", "coco_extension", "road_sign"])
-    parser.add_argument("--model-prompt", type=str, default=PROMPT_TEMPLATE)
+    parser.add_argument("--content", type=str, default="setting_adjective", choices=["setting", "adjective", "setting_adjective"])
+    # parser.add_argument("--model-prompt", type=str, default=PROMPT_TEMPLATE)  -> not robust for user input
 
     args = parser.parse_args()
 
@@ -156,54 +187,63 @@ if __name__ == '__main__':
     )
 
     dataset = DATASETS[args.dataset]
-
     class_names = dataset.class_names
-    prompts = {}
+    content = args.content.split("_")
+    prompt_words_key_word = {}  # stores all words for the final prompt for only settings or only adjective
 
-    for idx in range(len(class_names)):
-        name = class_names[idx]
-        name_w_spaces = name.replace("_", " ")
-        model_prompt = args.model_prompt.format(num_prompts=str(args.prompts_per_class), name=name_w_spaces)
+    for key_word in content:
+        user_prompt = USER_PROMPTS[key_word]
+        model_pr = SYS_PROMPT.replace("[user_prompt]", user_prompt)
 
-        # MR: sometimes the response of the LLM is not as required, hence try more often.
-        prompt_okay = False
-        trys_prompt = 0
-        max_trys_prompt = 10
-        while not prompt_okay and trys_prompt < max_trys_prompt:
+        prompt_words = {}  # stores all words for the final prompt
 
-            # MR: sometimes our Llama 2 configs lead to instabilities (tensor goes inf, nan, or negative).
-            #   Then just do another call
-            #   Yet I don't know why that happens...
-            response = []  # just to declare it...
-            response_okay = False
-            trys_response = 0
-            while not response_okay and trys_response < 10:
+        for idx in range(len(class_names)):
+            name = class_names[idx]
+            name_w_spaces = name.replace("_", " ")
+            model_prompt = model_pr.format(num_prompts=str(args.prompts_per_class), name=name_w_spaces)
+
+            # MR: sometimes the response of the LLM is not as required, hence try more often.
+            prompt_okay = False
+            trys_prompt = 0
+            max_trys_prompt = 10
+            while not prompt_okay and trys_prompt < max_trys_prompt:
+
+                # MR: sometimes our Llama 2 configs lead to instabilities (tensor goes inf, nan, or negative).
+                #   Then just do another call
+                #   Yet I don't know why that happens...
+                response = []  # just to declare it...
+                response_okay = False
+                trys_response = 0
+                while not response_okay and trys_response < 10:
+                    try:
+                        # Call of LLM
+                        response = pipe(
+                            model_prompt,
+                            do_sample=True,
+                            top_k=10,
+                            num_return_sequences=1,
+                            eos_token_id=tokenizer.eos_token_id,
+                            max_length=1024,
+                        )
+                        response_okay = True
+                    except RuntimeError as e:
+                        print(Warning(f"Exception thrown while piping Llama 2: {e}"))
+                        trys_response += 1
+
+                print(f"\n{name} , try: {trys_prompt} -----> LLM response:\n{response[0]['generated_text']}")
                 try:
-                    # Call of LLM
-                    response = pipe(
-                        model_prompt,
-                        do_sample=True,
-                        top_k=10,
-                        num_return_sequences=1,
-                        eos_token_id=tokenizer.eos_token_id,
-                        max_length=1024,
-                    )
-                    response_okay = True
-                except RuntimeError as e:
-                    print(Warning(f"Exception thrown while piping Llama 2: {e}"))
-                    trys_response += 1
+                    prompt_words[name] = clean_response(response[0]['generated_text'], args.prompts_per_class, name)
+                    prompt_okay = True
+                except Exception as e:
+                    if trys_prompt >= max_trys_prompt - 1:
+                        print(f"After {max_trys_prompt} LLM calls no proper prompt was found for {name}")
+                    else:
+                        print(f"Doing another call of Llama2 to get a better response")
+                    trys_prompt += 1
 
-            print(f"\n{name} , try: {trys_prompt} -----> LLM response:\n{response[0]['generated_text']}")
-            try:
-                prompts[name] = clean_response(response[0]['generated_text'], args.prompts_per_class, name)
-                prompt_okay = True
-            except Exception as e:
-                if trys_prompt >= max_trys_prompt - 1:
-                    prompts[name] = [DEFAULT_PROMPT for _ in range(args.prompts_per_class)]
-                else:
-                    print(f"Doing another call of Llama 2 to get a better response.")
-                trys_prompt += 1
+            print(f"\n{name} -----> final prompt words for {key_word}:\n{prompt_words[name]}")
 
-        print(f"\n{name} -----> final prompts:\n{prompts[name]}")
+        prompt_words_key_word[key_word] = prompt_words
 
-    write_prompts_to_csv(prompts)
+    class_prompts = construct_prompts(prompt_words_key_word, args.prompts_per_class, args.content, class_names)
+    write_prompts_to_csv(class_prompts)
