@@ -196,7 +196,6 @@ if __name__ == '__main__':
 
         prompt_words = {}  # stores all words for the final prompt
 
-        class_names = ["bicycle", "potted_plant"]
         for idx in range(len(class_names)):
             name = class_names[idx]
             name_w_spaces = name.replace("_", " ")
