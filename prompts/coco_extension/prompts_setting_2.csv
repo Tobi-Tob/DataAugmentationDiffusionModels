@@ -1,0 +1,116 @@
+class_name;class_idx;prompt
+bench;1;a photo of a {name} in a Park
+bench;2;a photo of a {name} in a Street
+bench;3;a photo of a {name} in a Beach
+bench;4;a photo of a {name} in a Garden
+bench;5;a photo of a {name} in a Court
+bicycle;1;a photo of a {name} in a City streets
+bicycle;2;a photo of a {name} in a Mountain trails
+bicycle;3;a photo of a {name} in a Beaches
+bicycle;4;a photo of a {name} in a Park paths
+bicycle;5;a photo of a {name} in a Rural roads
+book;1;a photo of a {name} in a Library
+book;2;a photo of a {name} in a Beach
+book;3;a photo of a {name} in a Coffee
+book;4;a photo of a {name} in a Classroom
+book;5;a photo of a {name} in a Home
+bottle;1;a photo of a {name} in a Beach
+bottle;2;a photo of a {name} in a Kitchen
+bottle;3;a photo of a {name} in a Camping
+bottle;4;a photo of a {name} in a Hospital
+bottle;5;a photo of a {name} in a Desert
+bowl;1;a photo of a {name} in a Bowling alley
+bowl;2;a photo of a {name} in a Kitchen
+bowl;3;a photo of a {name} in a Lounge
+bowl;4;a photo of a {name} in a Sporting event
+bowl;5;a photo of a {name} in a Ceremonial context
+car;1;a photo of a {name} in a City
+car;2;a photo of a {name} in a Highway
+car;3;a photo of a {name} in a Race
+car;4;a photo of a {name} in a Parking
+car;5;a photo of a {name} in a Garage
+cellphone;1;a photo of a {name} in a Home
+cellphone;2;a photo of a {name} in a Office
+cellphone;3;a photo of a {name} in a School
+cellphone;4;a photo of a {name} in a Outdoor
+cellphone;5;a photo of a {name} in a Public
+chair;1;a photo of a {name} in a Living room
+chair;2;a photo of a {name} in a Office
+chair;3;a photo of a {name} in a Conference
+chair;4;a photo of a {name} in a Bedroom
+chair;5;a photo of a {name} in a Dining
+clock;1;a photo of a {name} in a Kitchen
+clock;2;a photo of a {name} in a Office
+clock;3;a photo of a {name} in a Living room
+clock;4;a photo of a {name} in a Bedroom
+clock;5;a photo of a {name} in a Outdoor
+cup;1;a photo of a {name} in a Coffee
+cup;2;a photo of a {name} in a Tea
+cup;3;a photo of a {name} in a Drink
+cup;4;a photo of a {name} in a Party
+cup;5;a photo of a {name} in a Office
+fork;1;a photo of a {name} in a Restaurant
+fork;2;a photo of a {name} in a Kitchen
+fork;3;a photo of a {name} in a Food
+fork;4;a photo of a {name} in a Table
+fork;5;a photo of a {name} in a  utensils
+keyboard;1;a photo of a {name} in a Office
+keyboard;2;a photo of a {name} in a Home
+keyboard;3;a photo of a {name} in a School
+keyboard;4;a photo of a {name} in a Café
+keyboard;5;a photo of a {name} in a Remote
+knife;1;a photo of a {name} in a Kitchen
+knife;2;a photo of a {name} in a Outdoors
+knife;3;a photo of a {name} in a Camping
+knife;4;a photo of a {name} in a Hunting
+knife;5;a photo of a {name} in a Carry
+laptop;1;a photo of a {name} in a Home
+laptop;2;a photo of a {name} in a Office
+laptop;3;a photo of a {name} in a School
+laptop;4;a photo of a {name} in a Coffee shop
+laptop;5;a photo of a {name} in a Travel
+motorcycle;1;a photo of a {name} in a Racing
+motorcycle;2;a photo of a {name} in a Urban
+motorcycle;3;a photo of a {name} in a Mountain
+motorcycle;4;a photo of a {name} in a Desert
+motorcycle;5;a photo of a {name} in a Touring
+mouse;1;a photo of a {name} in a Living room
+mouse;2;a photo of a {name} in a Kitchen
+mouse;3;a photo of a {name} in a Bedroom
+mouse;4;a photo of a {name} in a Basement
+mouse;5;a photo of a {name} in a Attic
+potted_plant;1;a photo of a {name} in a Indoor
+potted_plant;2;a photo of a {name} in a Outdoor
+potted_plant;3;a photo of a {name} in a Kitchen
+potted_plant;4;a photo of a {name} in a Livingroom
+potted_plant;5;a photo of a {name} in a Garden
+remote;1;a photo of a {name} in a Home Office
+remote;2;a photo of a {name} in a Classroom
+remote;3;a photo of a {name} in a Conference Room
+remote;4;a photo of a {name} in a Public Space
+remote;5;a photo of a {name} in a Outdoor Area
+spoon;1;a photo of a {name} in a Kitchen
+spoon;2;a photo of a {name} in a Dining room
+spoon;3;a photo of a {name} in a Restaurant
+spoon;4;a photo of a {name} in a Outdoor picnic
+spoon;5;a photo of a {name} in a Café
+sportsball;1;a photo of a {name} in a Tennis court
+sportsball;2;a photo of a {name} in a Baseball field
+sportsball;3;a photo of a {name} in a Basketball court
+sportsball;4;a photo of a {name} in a Soccer pitch
+sportsball;5;a photo of a {name} in a Indoor pool
+tie;1;a photo of a {name} in a Business meeting
+tie;2;a photo of a {name} in a Formal event
+tie;3;a photo of a {name} in a Outdoor activity
+tie;4;a photo of a {name} in a Casual gathering
+tie;5;a photo of a {name} in a Creative project
+trafficlight;1;a photo of a {name} in a Intersection
+trafficlight;2;a photo of a {name} in a Traffic
+trafficlight;3;a photo of a {name} in a Light
+trafficlight;4;a photo of a {name} in a Crosswalk
+trafficlight;5;a photo of a {name} in a Signal
+wineglas;1;a photo of a {name} in a Wine tasting
+wineglas;2;a photo of a {name} in a Dining table
+wineglas;3;a photo of a {name} in a Party setting
+wineglas;4;a photo of a {name} in a Cruise ship
+wineglas;5;a photo of a {name} in a Restaurant

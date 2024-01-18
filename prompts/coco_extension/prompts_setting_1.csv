@@ -1,0 +1,116 @@
+class_name;class_idx;prompt
+bench;1;a photo of a {name} in the setting of a Parks
+bench;2;a photo of a {name} in the setting of a Courtyards
+bench;3;a photo of a {name} in the setting of a Streets
+bench;4;a photo of a {name} in the setting of a Beaches
+bench;5;a photo of a {name} in the setting of a Mountains
+bicycle;1;a photo of a {name} in the setting of a Road
+bicycle;2;a photo of a {name} in the setting of a Mountain
+bicycle;3;a photo of a {name} in the setting of a Park
+bicycle;4;a photo of a {name} in the setting of a City
+bicycle;5;a photo of a {name} in the setting of a Beach
+book;1;a photo of a {name} in the setting of a library
+book;2;a photo of a {name} in the setting of a bookstore
+book;3;a photo of a {name} in the setting of a classroom
+book;4;a photo of a {name} in the setting of a beach
+book;5;a photo of a {name} in the setting of a mountain
+bottle;1;a photo of a {name} in the setting of a Beach
+bottle;2;a photo of a {name} in the setting of a Bar
+bottle;3;a photo of a {name} in the setting of a Restaurant
+bottle;4;a photo of a {name} in the setting of a Party
+bottle;5;a photo of a {name} in the setting of a Camping
+bowl;1;a photo of a {name} in the setting of a Bowling alley
+bowl;2;a photo of a {name} in the setting of a Olympic event
+bowl;3;a photo of a {name} in the setting of a Cereal bowl
+bowl;4;a photo of a {name} in the setting of a SoupЋ bowl
+bowl;5;a photo of a {name} in the setting of a Soup kitchen
+car;1;a photo of a {name} in the setting of a City Streets
+car;2;a photo of a {name} in the setting of a Highway
+car;3;a photo of a {name} in the setting of a Racing
+car;4;a photo of a {name} in the setting of a Parking Lot
+car;5;a photo of a {name} in the setting of a Beach
+cellphone;1;a photo of a {name} in the setting of a pocket
+cellphone;2;a photo of a {name} in the setting of a home
+cellphone;3;a photo of a {name} in the setting of a office
+cellphone;4;a photo of a {name} in the setting of a public space
+cellphone;5;a photo of a {name} in the setting of a outdoor
+chair;1;a photo of a {name} in the setting of a living room
+chair;2;a photo of a {name} in the setting of a office
+chair;3;a photo of a {name} in the setting of a conference
+chair;4;a photo of a {name} in the setting of a dining
+chair;5;a photo of a {name} in the setting of a bedroom
+clock;1;a photo of a {name} in the setting of a Home
+clock;2;a photo of a {name} in the setting of a Office
+clock;3;a photo of a {name} in the setting of a Kitchen
+clock;4;a photo of a {name} in the setting of a Bedroom
+clock;5;a photo of a {name} in the setting of a Outdoor
+cup;1;a photo of a {name} in the setting of a Coffee cup
+cup;2;a photo of a {name} in the setting of a Tea cup
+cup;3;a photo of a {name} in the setting of a Glass cup
+cup;4;a photo of a {name} in the setting of a Plastic cup
+cup;5;a photo of a {name} in the setting of a Fruit cup
+fork;1;a photo of a {name} in the setting of a Dining
+fork;2;a photo of a {name} in the setting of a Cooking
+fork;3;a photo of a {name} in the setting of a Music
+fork;4;a photo of a {name} in the setting of a Coding
+fork;5;a photo of a {name} in the setting of a Travel
+keyboard;1;a photo of a {name} in the setting of a Office workspace
+keyboard;2;a photo of a {name} in the setting of a Home workspace
+keyboard;3;a photo of a {name} in the setting of a Coffee shop
+keyboard;4;a photo of a {name} in the setting of a Library
+keyboard;5;a photo of a {name} in the setting of a Museum
+knife;1;a photo of a {name} in the setting of a Kitchen
+knife;2;a photo of a {name} in the setting of a Outdoor
+knife;3;a photo of a {name} in the setting of a Camping
+knife;4;a photo of a {name} in the setting of a Hunting
+knife;5;a photo of a {name} in the setting of a Tactical
+laptop;1;a photo of a {name} in the setting of a Home
+laptop;2;a photo of a {name} in the setting of a Office
+laptop;3;a photo of a {name} in the setting of a School
+laptop;4;a photo of a {name} in the setting of a Travel
+laptop;5;a photo of a {name} in the setting of a Outdoors
+motorcycle;1;a photo of a {name} in the setting of a City streets
+motorcycle;2;a photo of a {name} in the setting of a Highway roads
+motorcycle;3;a photo of a {name} in the setting of a Mountain trails
+motorcycle;4;a photo of a {name} in the setting of a Beach coast
+motorcycle;5;a photo of a {name} in the setting of a Rural fields
+mouse;1;a photo of a {name} in the setting of a Lab
+mouse;2;a photo of a {name} in the setting of a Kitchen
+mouse;3;a photo of a {name} in the setting of a Cave
+mouse;4;a photo of a {name} in the setting of a Desert
+mouse;5;a photo of a {name} in the setting of a Library
+potted_plant;1;a photo of a {name} in the setting of a Living room
+potted_plant;2;a photo of a {name} in the setting of a kitchen
+potted_plant;3;a photo of a {name} in the setting of a bedroom
+potted_plant;4;a photo of a {name} in the setting of a terrace
+potted_plant;5;a photo of a {name} in the setting of a garden
+remote;1;a photo of a {name} in the setting of a Home
+remote;2;a photo of a {name} in the setting of a Office
+remote;3;a photo of a {name} in the setting of a School
+remote;4;a photo of a {name} in the setting of a Restaurant
+remote;5;a photo of a {name} in the setting of a Hotel
+spoon;1;a photo of a {name} in the setting of a Dinner
+spoon;2;a photo of a {name} in the setting of a Camping
+spoon;3;a photo of a {name} in the setting of a Hospital
+spoon;4;a photo of a {name} in the setting of a Medicine
+spoon;5;a photo of a {name} in the setting of a Food
+sportsball;1;a photo of a {name} in the setting of a Tennis Court
+sportsball;2;a photo of a {name} in the setting of a Football Field
+sportsball;3;a photo of a {name} in the setting of a Basketball Court
+sportsball;4;a photo of a {name} in the setting of a Soccer Stadium
+sportsball;5;a photo of a {name} in the setting of a Baseball Diamond
+tie;1;a photo of a {name} in the setting of a Business
+tie;2;a photo of a {name} in the setting of a Wedding
+tie;3;a photo of a {name} in the setting of a Formal
+tie;4;a photo of a {name} in the setting of a Casual
+tie;5;a photo of a {name} in the setting of a Outdoor
+trafficlight;1;a photo of a {name} in the setting of a Intersection
+trafficlight;2;a photo of a {name} in the setting of a Road
+trafficlight;3;a photo of a {name} in the setting of a City
+trafficlight;4;a photo of a {name} in the setting of a Highway
+trafficlight;5;a photo of a {name} in the setting of a Tunnel
+wineglas;1;a photo of a {name} in the setting of a Wine
+wineglas;2;a photo of a {name} in the setting of a Glass
+wineglas;3;a photo of a {name} in the setting of a Checter
+wineglas;4;a photo of a {name} in the setting of a Restaurant
+wineglas;5;a photo of a {name} in the setting of a Party
