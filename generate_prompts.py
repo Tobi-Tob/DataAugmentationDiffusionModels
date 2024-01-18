@@ -92,7 +92,7 @@ def clean_response(res: str, num_prompts: int, class_name: str):
         if len(lst) == 0:
             print(Warning(
                 f"No enum was found in the Llama 2 response for class: {class_name}"))
-            raise RuntimeError()
+            raise Exception()
 
     # Fill the settings in the final prompt skeleton
     for i in range(num_prompts):
@@ -192,7 +192,7 @@ if __name__ == '__main__':
             try:
                 prompts[name] = clean_response(response[0]['generated_text'], args.prompts_per_class, name)
                 prompt_okay = True
-            except RuntimeWarning as w:
+            except Exception as e:
                 if trys_prompt >= max_trys_prompt - 1:
                     prompts[name] = [DEFAULT_PROMPT for _ in range(args.prompts_per_class)]
                 else:
