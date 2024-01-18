@@ -240,7 +240,10 @@ if __name__ == '__main__':
                         print(f"Doing another call of Llama2 to get a better response")
                     trys_prompt += 1
 
-            print(f"\n{name} -----> final prompt words for {key_word}:\n{prompt_words[name]}")
+            if name in prompt_words.keys():
+                print(f"\n{name} -----> final prompt words for {key_word}:\n{prompt_words[name]}")
+            else:
+                print(f"\n{name} -----> no words found for {key_word}:\n{prompt_words[name]}")
 
         prompt_words_key_word[key_word] = prompt_words
 
