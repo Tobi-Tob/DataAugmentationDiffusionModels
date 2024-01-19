@@ -123,8 +123,8 @@ class RoadSignDataset(FewShotDataset):
             ])
         else:
             train_transform = transforms.Compose([
-                transforms.Resize(image_size),
-                transforms.RandomHorizontalFlip(p=0.0),  # flips useful for signs?
+                transforms.RandomResizedCrop(size=image_size, scale=(0.7, 1)),
+                transforms.RandomHorizontalFlip(p=0.0),  # do not flip signs
                 transforms.RandomRotation(degrees=15.0),
                 transforms.ToTensor(),
                 transforms.ConvertImageDtype(torch.float),

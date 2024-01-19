@@ -137,6 +137,9 @@ def parse_args():
         "--center_crop", action="store_true", help="Whether to center crop images before resizing to resolution"
     )
     parser.add_argument(
+        "--flip_p", type=float, default=0.5, help="Probability to augment the learning process through"
+                                                  "horizontal flips.")
+    parser.add_argument(
         "--train_batch_size", type=int, default=16, help="Batch size (per device) for the training dataloader."
     )
     parser.add_argument("--num_train_epochs", type=int, default=100)
@@ -562,6 +565,7 @@ def main(args):
         size=args.resolution,
         placeholder_token=args.placeholder_token,
         repeats=args.repeats,
+        flip_p=args.flip_p,
         learnable_property=args.learnable_property,
         center_crop=args.center_crop,
         set="train",
@@ -749,7 +753,7 @@ if __name__ == "__main__":
     
     call from terminal:
     python fine_tune.py --dataset=coco --output_dir=./ --pretrained_model_name_or_path="CompVis/stable-diffusion-v1-4" --resolution=512 --train_batch_size=4 --lr_warmup_steps=0 --gradient_accumulation_steps=1 --max_train_steps=1000 --learning_rate=5.0e-04 --scale_lr --lr_scheduler="constant" --mixed_precision=fp16 --revision=fp16 --gradient_checkpointing --only_save_embeds --num-trials 8 --examples-per-class 2
-    python fine_tune.py --dataset="road_sign" --output_dir=./ --pretrained_model_name_or_path="CompVis/stable-diffusion-v1-4" --resolution=512 --train_batch_size=4 --lr_warmup_steps=0 --gradient_accumulation_steps=1 --max_train_steps=1000 --learning_rate=5.0e-04 --scale_lr --lr_scheduler="constant" --mixed_precision=fp16 --revision=fp16 --gradient_checkpointing --only_save_embeds --num-trials 1 --examples-per-class 8
+    python fine_tune.py --dataset="road_sign" --output_dir=./ --pretrained_model_name_or_path="CompVis/stable-diffusion-v1-4" --resolution=512 --flip_p=0 --train_batch_size=4 --lr_warmup_steps=0 --gradient_accumulation_steps=1 --max_train_steps=1000 --learning_rate=5.0e-04 --scale_lr --lr_scheduler="constant" --mixed_precision=fp16 --revision=fp16 --gradient_checkpointing --only_save_embeds --num-trials=1 --examples-per-class=8
     '''
 
     args = parse_args()
