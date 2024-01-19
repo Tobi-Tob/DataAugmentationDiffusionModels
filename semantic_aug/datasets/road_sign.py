@@ -11,46 +11,42 @@ import torch
 import warnings
 import matplotlib.pyplot as plt
 
-ROAD_SIGN_DIR_TRAIN_VAL = r"/data/vilab07/CustomDatasets/Road_Signs/train-val"
-ROAD_SIGN_DIR_TEST = r"/data/vilab07/CustomDatasets/Road_Signs/test"
+ROAD_SIGN_DIR = r"/data/vilab07/Road_Signs"
 
 
 class RoadSignDataset(FewShotDataset):
-    """
-attention zone sign
-end of restriction sign
-give way sign
-highway exit in 100m sign
-highway exit in 200m sign
-highway exit in 300m sign
-highway exit sign
-mandatory direction sign
-no entry sign
-no overtaking sign
-no parking sign
-parking sign
-pedestrian zone sign
-priority road sign
-slippery road sign
-speed limit 100 sign
-speed limit 120 sign
-speed limit 30 sign
-speed limit 80 sign
-traffic banned sign
-work zone sign
-    """
 
-    classes = []
-    for class_name in os.listdir(ROAD_SIGN_DIR_TRAIN_VAL):
-        class_dir_path = os.path.join(ROAD_SIGN_DIR_TRAIN_VAL, class_name)  # path to class dir
-        if os.path.isdir(class_dir_path) and any(os.listdir(class_dir_path)):
-            # only if path points to a directory and directory is not empty
-            classes.append(class_name)
+    # classes = []
+    # for class_name in os.listdir(ROAD_SIGN_DIR_TRAIN_VAL):
+    #     class_dir_path = os.path.join(ROAD_SIGN_DIR_TRAIN_VAL, class_name)  # path to class dir
+    #     if os.path.isdir(class_dir_path) and any(os.listdir(class_dir_path)):
+    #         # only if path points to a directory and directory is not empty
+    #         classes.append(class_name)
 
-    class_names = sorted(classes)  # List of all directory names in ROAD_SIGN_DIR
+    class_names = ["attention_zone_sign",
+                   "end_of_restriction_sign",
+                   "give_way_sign",
+                   "highway_exit_in_100m_sign",
+                   "highway_exit_in_200m_sign",
+                   "highway_exit_in_300m_sign",
+                   "highway_exit_sign",
+                   "mandatory_direction_sign",
+                   "no_entry_sign",
+                   "no_overtaking_sign",
+                   "no_parking_sign",
+                   "parking_sign",
+                   "pedestrian_zone_sign",
+                   "priority_road_sign",
+                   "slippery_road_sign",
+                   "speed_limit_30_sign",
+                   "speed_limit_80_sign",
+                   "speed_limit_100_sign",
+                   "speed_limit_120_sign",
+                   "traffic_banned_sign",
+                   "work_zone_sign"]
     num_classes: int = len(class_names)
 
-    def __init__(self, *args, data_dir: str = ROAD_SIGN_DIR_TRAIN_VAL,
+    def __init__(self, *args, data_dir: str = ROAD_SIGN_DIR,
                  split: str = "train", seed: int = 0,
                  examples_per_class: int = None,
                  generative_aug: GenerativeAugmentation = None,
@@ -70,7 +66,7 @@ work zone sign
         # glob.glob is used to retrieve all files with a ".jpg" extension in these directories.
         self.image_paths = {class_name: [] for class_name in self.class_names}
         for class_name in self.class_names:
-            class_dir_path = os.path.join(data_dir, class_name)
+            class_dir_path = os.path.join(data_dir, 'train-val', class_name)
             class_image_paths = glob.glob(os.path.join(class_dir_path, '*.jpg'))
             self.image_paths[class_name].extend(class_image_paths)
 

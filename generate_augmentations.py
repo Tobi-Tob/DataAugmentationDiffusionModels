@@ -73,7 +73,7 @@ if __name__ == "__main__":
     parser.add_argument("--examples-per-class", type=int, default=1)
     parser.add_argument("--num-synthetic", type=int, default=5)
 
-    parser.add_argument("--prompt", type=str, default=["a photo of a {name}"])
+    parser.add_argument("--prompt", type=str, default="a photo of a {name}")  # TL: removed the list
 
     parser.add_argument("--use-generated-prompts", type=int, default=[0], choices=[0, 1])
     # Determines if prompts of LLM are used or the prompt from the --prompts argument in the command line
@@ -123,7 +123,7 @@ if __name__ == "__main__":
         AUGMENT[aug](
             embed_path=args.embed_path, 
             model_path=args.model_path, 
-            prompt=prompt,
+            prompt=args.prompt,
             strength=strength, 
             guidance_scale=guidance_scale,
             mask=mask, 
@@ -131,9 +131,9 @@ if __name__ == "__main__":
             erasure_ckpt_path=args.erasure_ckpt_path
         )
 
-        for (aug, prompt, guidance_scale,
+        for (aug, guidance_scale,
              strength, mask, inverted) in zip(
-            args.aug, args.prompt, args.guidance_scale,
+            args.aug, args.guidance_scale,
             args.strength, args.mask, args.inverted
         )
 
