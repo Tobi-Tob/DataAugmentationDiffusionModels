@@ -3,6 +3,8 @@ from transformers import AutoTokenizer, pipeline
 import transformers
 import torch
 from semantic_aug.datasets.coco import COCODataset
+from semantic_aug.datasets.coco_extension import COCOExtension
+from semantic_aug.datasets.road_sign import RoadSignDataset
 from typing import Dict
 import os
 import csv
@@ -28,6 +30,13 @@ PROMPT_TEMPLATE = f"""[INST] <<SYS>>
 
 {USER_PROMPT} [/INST]
 """
+
+
+DATASETS = {
+    "coco": COCODataset,
+    "road_sign": RoadSignDataset,
+    "coco_extension": COCOExtension
+}
 
 
 def clean_response(res: str, num_prompts: int, class_name: str):
@@ -97,6 +106,7 @@ if __name__ == '__main__':
 
     '''
     python generate_prompts.py --outdir "prompts" --prompts-per-class 5
+    python generate_prompts.py --dataset "coco_extension" --outdir "prompts/coco_extension" --prompts-per-class 3
     '''
 
     parser = argparse.ArgumentParser("LLM Prompt Generation")
@@ -104,7 +114,7 @@ if __name__ == '__main__':
     parser.add_argument("--outdir", type=str, default="prompts")
     parser.add_argument("--model-path", type=str, default="meta-llama/Llama-2-7b-chat-hf")
     parser.add_argument("--prompts-per-class", type=int, default=1)
-    parser.add_argument("--dataset", type=str, default="coco", choices=["coco"])
+    parser.add_argument("--dataset", type=str, default="coco", choices=["coco", "coco_extension", "road_sign"])
     parser.add_argument("--model-prompt", type=str, default=PROMPT_TEMPLATE)
 
     args = parser.parse_args()
@@ -113,11 +123,13 @@ if __name__ == '__main__':
     pipe = pipeline(
         "text-generation",
         model=args.model_path,
-        torch_dtype=torch.float16,
+        torch_dtype=torch.bfloat16,
         device_map="auto",
     )
 
-    class_names = COCODataset.class_names
+    dataset = DATASETS[args.dataset]
+
+    class_names = dataset.class_names
     prompts = {}
 
     for idx in range(len(class_names)):

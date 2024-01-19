@@ -20,6 +20,7 @@ from semantic_aug.datasets.spurge import SpurgeDataset
 from semantic_aug.datasets.imagenet import ImageNetDataset
 from semantic_aug.datasets.pascal import PASCALDataset
 from semantic_aug.datasets.road_sign import RoadSignDataset
+from semantic_aug.datasets.coco_extension import COCOExtension
 
 import datasets
 import diffusers
@@ -46,7 +47,8 @@ DATASETS = {
     "coco": COCODataset,
     "pascal": PASCALDataset,
     "imagenet": ImageNetDataset,
-    "road_sign": RoadSignDataset
+    "road_sign": RoadSignDataset,
+    "coco_extension": COCOExtension
 }
 
 if version.parse(version.parse(PIL.__version__).base_version) >= version.parse("9.1.0"):
@@ -260,7 +262,7 @@ def parse_args():
     parser.add_argument("--examples-per-class", nargs='+', type=int, default=[1, 2, 4, 8, 16])
 
     parser.add_argument("--dataset", type=str, default="coco",
-                        choices=["spurge", "imagenet", "coco", "pascal", "road_sign"])
+                        choices=["spurge", "imagenet", "coco", "pascal", "road_sign", "coco_extension"])
 
     parser.add_argument("--unet-ckpt", type=str, default=None)
 
@@ -272,6 +274,8 @@ def parse_args():
 
     parser.add_argument("--use_manual_list", type=bool, default=False,
                         help="Whether to use the preselected images for extracting or the standard approach")
+
+    parser.add_argument("--device", type=int, default=0)
 
     args = parser.parse_args()
     env_local_rank = int(os.environ.get("LOCAL_RANK", -1))
@@ -754,6 +758,7 @@ if __name__ == "__main__":
     call from terminal:
     python fine_tune.py --dataset=coco --output_dir=./ --pretrained_model_name_or_path="CompVis/stable-diffusion-v1-4" --resolution=512 --train_batch_size=4 --lr_warmup_steps=0 --gradient_accumulation_steps=1 --max_train_steps=1000 --learning_rate=5.0e-04 --scale_lr --lr_scheduler="constant" --mixed_precision=fp16 --revision=fp16 --gradient_checkpointing --only_save_embeds --num-trials 8 --examples-per-class 2
     python fine_tune.py --dataset="road_sign" --output_dir=./ --pretrained_model_name_or_path="CompVis/stable-diffusion-v1-4" --resolution=512 --flip_p=0 --train_batch_size=4 --lr_warmup_steps=0 --gradient_accumulation_steps=1 --max_train_steps=1000 --learning_rate=5.0e-04 --scale_lr --lr_scheduler="constant" --mixed_precision=fp16 --revision=fp16 --gradient_checkpointing --only_save_embeds --num-trials=1 --examples-per-class=8
+    python fine_tune.py --dataset="coco_extension" --output_dir=./ --pretrained_model_name_or_path="CompVis/stable-diffusion-v1-4" --resolution=512 --train_batch_size=4 --lr_warmup_steps=0 --gradient_accumulation_steps=1 --max_train_steps=1000 --learning_rate=5.0e-04 --scale_lr --lr_scheduler="constant" --mixed_precision=fp16 --revision=fp16 --gradient_checkpointing --only_save_embeds --num-trials 1 --examples-per-class 2
     '''
 
     args = parse_args()
@@ -763,10 +768,13 @@ if __name__ == "__main__":
     rank = int(os.environ.pop("RANK", 0))
     world_size = int(os.environ.pop("WORLD_SIZE", 1))
 
-    device_id = rank % torch.cuda.device_count()  # TL: torch.cuda.device_count() is 0 on my lokal machine
-    torch.cuda.set_device(rank % torch.cuda.device_count())
+    #MR enabled custom divice_id
+    # device_id = rank % torch.cuda.device_count()  # TL: torch.cuda.device_count() is 0 on my lokal machine
+    # torch.cuda.set_device(rank % torch.cuda.device_count())
+    device_id = args.device
+    torch.cuda.set_device(device_id)
 
-    print(f'Initialized process {rank} / {world_size}')
+    print(f'Initialized process {rank} / {world_size} on current device(gpu) {torch.cuda.current_device()}')
 
     options = product(range(args.num_trials), args.examples_per_class)
     options = np.array(list(options))

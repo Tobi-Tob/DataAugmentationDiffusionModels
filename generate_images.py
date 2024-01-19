@@ -25,6 +25,7 @@ if __name__ == "__main__":
     Call from Terminal:
     MR: to use multiple prompts:
     python generate_images.py --embed-path "coco-tokens/coco-0-8.pt" --num-generate 5 --prompt "A photo of a <airplane>" "A painting of a <airplane>" --out images
+    python generate_images.py --embed-path "coco_extension-tokens/coco_extension-0-8.pt" --num-generate 5 --prompt "A photo of a <car>" --out images
     '''
 
     parser = argparse.ArgumentParser("Stable Diffusion inference script")
