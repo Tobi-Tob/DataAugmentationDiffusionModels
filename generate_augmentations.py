@@ -170,3 +170,4 @@ if __name__ == "__main__":
             args.out, f"{name}-{idx}-{num}.png")
 
         pil_image.save(image)
+        print(f"saved image to {image}")
