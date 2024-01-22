@@ -1,4 +1,6 @@
 import argparse
+import ast
+
 from transformers import AutoTokenizer, pipeline
 import transformers
 import torch
@@ -11,24 +13,30 @@ import csv
 import re
 from train_classifier import DEFAULT_PROMPT
 
-DEFAULT_MODEL_PROMPT = "<s>[INST] <<SYS>> You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. \
-You will be asked to generate short text prompts. Just respond with those text prompts, nothing else! Each prompt should have a ' at the start and at the end! Each answer prompt must contain the key-word inside [] from the user prompt. \
-<</SYS>> Generate {num_prompts} prompt(s) that start with 'A photo of a [{name1}]'. Add an realistic environment to the [{name2}], to make it semantically more diverse. The word [{name3}] must be in the prompt. [/INST]"
+# DEFAULT_PROMPT_W_SETTING = "a photo of a {name} in the setting of a {setting}"
+DEFAULT_PROMPT_W_SETTING = "a photo of a {name} in a {setting}"
 
-SYS_PROMPT = "<s>[INST] <<SYS>> You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. \
-You will be asked to generate short text prompts. Just respond with those text prompts, nothing else! Enumerate the prompts! Each answer prompt must contain the key-word inside [] from the user prompt. The prompts can not exceed 10 words! \
-<</SYS>> "
+DEFAULT_PROMPT_W_ADJECTIVE = "a photo of a {adjective} {name}"
+# DEFAULT_PROMPT_W_ADJECTIVE = "a photo of a {name} in the style of a {adjective}"
 
-USER_PROMPT = "Generate {num_prompts} prompt(s) that start with 'A photo of a [{name}]'. Add an realistic environment to the [{name}], to make it semantically more diverse. The word [{name}] must be in the prompt and the length of each prompt should not be greater than 10. [/INST]"
+DEFAULT_PROMPT_W_SETTING_AND_ADJECTIVE = "a photo of a {adjective} {name} in a {setting}"
+# DEFAULT_PROMPT_W_SETTING_AND_ADJECTIVE = "a photo of a {name} in the style of a {adjective} in a {setting}"
 
-# Ideas to improve prompts:
-# - generate one word environments (not a whole sentence) -> like [car]: street or motorway or ...
 
-PROMPT_TEMPLATE = f"""[INST] <<SYS>>
+SYS_PROMPT = "You are a helpful, respectful and precise assistant. \
+You will be asked to generate {num_prompts} words. Only respond with those {num_prompts} words. \
+Wrap those words as strings in a python list."
+
+USER_PROMPTS = {
+    "setting": "In which different settings can {name}s occur?",
+    "adjective": "What are different descriptive adjectives for {name}?"
+}
+
+PROMPT_TEMPLATE = f"""<s>[INST] <<SYS>>
 {SYS_PROMPT}
 <</SYS>>
 
-{USER_PROMPT} [/INST]
+[user_prompt] [/INST]
 """
 
 
@@ -39,47 +47,93 @@ DATASETS = {
 }
 
 
-def clean_response(res: str, num_prompts: int, class_name: str):
-    def clean_single_prompt(prompt_item):
-        # remove the leading space
-        prompt_item = prompt_item[1:]
-        # only replace the first occurrence of class name with {} -> the other one might be a descriptive word
-        prompt_item = prompt_item.replace(f'[{class_name}]', '{name}', 1)
-        # remove duplicate class mentioning in the prompt
-        prompt_item = prompt_item.replace(f'[{class_name}]', '')
+def extract_list_from_string(s):
+    # Finds all substrings that matches Python list syntax
+    matches = re.findall(r"\[.*?\]", s)
+    for match in matches:
+        print(f"list_str: {match}")
+        if "INST" in match:
+            continue
+        # Safely evaluate the string as a Python list
+        return ast.literal_eval(match)
+    raise Exception()
 
-        # replace with default prompt if prompt is not as desired
-        if not prompt_item.count('{name}') == 1:
-            prompt_item = DEFAULT_PROMPT.format(name=class_name)
 
-        return prompt_item
-
-    # Split the string into lines
-    lines = res.split('\n')
-
+def extract_enum_as_list_from_string(s):
     cleaned_prompts = []
+    lines = s.split('\n')
+
     # Define a regex pattern for lines starting with a number, period, and space
     pattern = r'^\d+\.\s*'
 
     for line in lines:
         # Check if the line matches the enumeration pattern
         if re.match(pattern, line):
+            # remove enumeration
             prompt = line.split('.')[1]
-            prompt = clean_single_prompt(prompt)
+            # remove the leading space
+            prompt = prompt[1:]
             cleaned_prompts.append(prompt)
 
-    # Check if the response only contains the expected amount of prompts.
-    if len(cleaned_prompts) < num_prompts:
-        for i in range(len(cleaned_prompts), num_prompts):
-            cleaned_prompts.append(DEFAULT_PROMPT)
-        print(f"Warning: The Llama 2 response didn't contain the expected amount of prompts."
-              f"-> The prompts might not work as expected.\nResponse was:\n {res}")
-    elif len(cleaned_prompts) > num_prompts:
-        cleaned_prompts = cleaned_prompts[:num_prompts]
-        print(f"Warning: The Llama 2 response didn't contain the expected amount of prompts."
-              f"-> The prompts might not work as expected.\nResponse was:\n {res}")
-
     return cleaned_prompts
+
+
+def clean_single_prompt(p, c):
+    # remove the leading space
+    prompt_item = p[1:]
+    # only replace the first occurrence of class name with {} -> the other one might be a descriptive word
+    prompt_item = prompt_item.replace(f'[{c}]', '{name}', 1)
+    # remove duplicate class mentioning in the prompt
+    prompt_item = prompt_item.replace(f'[{c}]', '')
+
+    # replace with default prompt if prompt is not as desired
+    if not prompt_item.count('{name}') == 1:
+        prompt_item = DEFAULT_PROMPT.format(name=c)
+
+    return prompt_item
+
+
+def clean_response(res: str, num_prompts: int, class_name: str):
+    try:
+        lst = extract_list_from_string(res)
+    except Exception as e:
+        print(Warning(f"No list was found in the Llama 2 response for class: {class_name}"))
+        lst = extract_enum_as_list_from_string(res)
+        if len(lst) <= num_prompts:
+            print(Warning(
+                f"No enum was found in the Llama 2 response for class: {class_name}"))
+            raise Exception()
+    return lst
+
+
+def construct_prompts(prompt_dict: dict, num_prompts: int, mode: str, classes: list):
+    prompts = {}
+    prompt_skeleton = DEFAULT_PROMPT
+    kws = [mode]
+    if mode == "setting_adjective":
+        prompt_skeleton = DEFAULT_PROMPT_W_SETTING_AND_ADJECTIVE
+        kws = ["setting", "adjective"]
+    elif mode == "setting":
+        prompt_skeleton = DEFAULT_PROMPT_W_SETTING
+    elif mode == "adjective":
+        prompt_skeleton = DEFAULT_PROMPT_W_ADJECTIVE
+
+    for c in classes:
+        class_prompt_list = []
+        for i in range(num_prompts):
+            temp = prompt_skeleton
+            for kw in kws:
+                word_list_for_kw = prompt_dict[kw][c]
+                if len(word_list_for_kw) <= i:
+                    # set standard prompt if no content word (for setting, ...) was found
+                    temp = DEFAULT_PROMPT
+                    break
+                else:
+                    temp = temp.replace("{" + f"{kw}" + "}", prompt_dict[kw][c][i])
+            class_prompt_list.append(temp)
+        prompts[c] = class_prompt_list
+
+    return prompts
 
 
 def write_prompts_to_csv(all_prompts: Dict):
@@ -95,7 +149,10 @@ def write_prompts_to_csv(all_prompts: Dict):
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 
-    out_path = os.path.join(out_dir, f"prompts.csv")
+    filename = "prompts.csv"
+    if ".csv" in args.out_filename:
+        filename = args.out_filename
+    out_path = os.path.join(out_dir, filename)
     with open(out_path, 'w', newline='', encoding='utf-8') as file:
         writer = csv.DictWriter(file, fieldnames=['class_name', 'class_idx', 'prompt'], delimiter=';')
         writer.writeheader()
@@ -105,17 +162,18 @@ def write_prompts_to_csv(all_prompts: Dict):
 if __name__ == '__main__':
 
     '''
-    python generate_prompts.py --outdir "prompts" --prompts-per-class 5
-    python generate_prompts.py --dataset "coco_extension" --outdir "prompts/coco_extension" --prompts-per-class 3
+    python generate_prompts.py --dataset "coco_extension" --outdir "prompts/coco_extension" --out-filename "prompts_setting_adjective_1.csv" --prompts-per-class 5 --content "setting_adjective"
     '''
 
     parser = argparse.ArgumentParser("LLM Prompt Generation")
 
     parser.add_argument("--outdir", type=str, default="prompts")
+    parser.add_argument("--out-filename", type=str, default="prompts.csv")
     parser.add_argument("--model-path", type=str, default="meta-llama/Llama-2-7b-chat-hf")
     parser.add_argument("--prompts-per-class", type=int, default=1)
     parser.add_argument("--dataset", type=str, default="coco", choices=["coco", "coco_extension", "road_sign"])
-    parser.add_argument("--model-prompt", type=str, default=PROMPT_TEMPLATE)
+    parser.add_argument("--content", type=str, default="setting_adjective", choices=["setting", "adjective", "setting_adjective"])
+    # parser.add_argument("--model-prompt", type=str, default=PROMPT_TEMPLATE)  -> not robust for user input
 
     args = parser.parse_args()
 
@@ -123,29 +181,71 @@ if __name__ == '__main__':
     pipe = pipeline(
         "text-generation",
         model=args.model_path,
-        torch_dtype=torch.bfloat16,
+        torch_dtype=torch.float16,
         device_map="auto",
     )
 
     dataset = DATASETS[args.dataset]
-
     class_names = dataset.class_names
-    prompts = {}
+    content = args.content.split("_")
+    prompt_words_key_word = {}  # stores all words for the final prompt for only settings or only adjective
 
-    for idx in range(len(class_names)):
-        name = class_names[idx]
-        model_prompt = args.model_prompt.format(num_prompts=str(args.prompts_per_class), name=name)
+    for key_word in content:
+        user_prompt = USER_PROMPTS[key_word]
+        model_pr = PROMPT_TEMPLATE.replace("[user_prompt]", user_prompt)
 
-        response = pipe(
-            model_prompt,
-            do_sample=True,
-            top_k=10,
-            num_return_sequences=1,
-            eos_token_id=tokenizer.eos_token_id,
-            max_length=1024,
-        )
+        prompt_words = {}  # stores all words for the final prompt
 
-        print(f"Result for {name}: {response[0]['generated_text']}")
-        prompts[name] = clean_response(response[0]['generated_text'], args.prompts_per_class, name)
+        for idx in range(len(class_names)):
+            name = class_names[idx]
+            name_w_spaces = name.replace("_", " ")
+            model_prompt = model_pr.format(num_prompts=str(args.prompts_per_class), name=name_w_spaces)
 
-    write_prompts_to_csv(prompts)
+            # MR: sometimes the response of the LLM is not as required, hence try more often.
+            prompt_okay = False
+            trys_prompt = 0
+            max_trys_prompt = 10
+            while not prompt_okay and trys_prompt < max_trys_prompt:
+
+                # MR: sometimes our Llama 2 configs lead to instabilities (tensor goes inf, nan, or negative).
+                #   Then just do another call
+                #   Yet I don't know why that happens...
+                response = []  # just to declare it...
+                response_okay = False
+                trys_response = 0
+                while not response_okay and trys_response < 10:
+                    try:
+                        # Call of LLM
+                        response = pipe(
+                            model_prompt,
+                            do_sample=True,
+                            top_k=10,
+                            num_return_sequences=1,
+                            eos_token_id=tokenizer.eos_token_id,
+                            max_length=1024,
+                        )
+                        response_okay = True
+                    except RuntimeError as e:
+                        print(Warning(f"Exception thrown while piping Llama 2: {e}"))
+                        trys_response += 1
+
+                print(f"\n{name} , try: {trys_prompt} -----> LLM response:\n{response[0]['generated_text']}")
+                try:
+                    prompt_words[name] = clean_response(response[0]['generated_text'], args.prompts_per_class, name)
+                    prompt_okay = True
+                except Exception as e:
+                    if trys_prompt >= max_trys_prompt - 1:
+                        print(f"After {max_trys_prompt} LLM calls no proper prompt was found for {name}")
+                    else:
+                        print(f"Doing another call of Llama2 to get a better response")
+                    trys_prompt += 1
+
+            if name in prompt_words.keys():
+                print(f"\n{name} -----> final prompt words for {key_word}:\n{prompt_words[name]}")
+            else:
+                print(f"\n{name} -----> no words found for {key_word}:\n{prompt_words[name]}")
+
+        prompt_words_key_word[key_word] = prompt_words
+
+    class_prompts = construct_prompts(prompt_words_key_word, args.prompts_per_class, args.content, class_names)
+    write_prompts_to_csv(class_prompts)

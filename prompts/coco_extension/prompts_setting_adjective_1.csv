@@ -1,0 +1,116 @@
+class_name;class_idx;prompt
+bench;1;a photo of a wooden {name} in a courtroom
+bench;2;a photo of a industrial {name} in a school
+bench;3;a photo of a rusted {name} in a park
+bench;4;a photo of a comfortable {name} in a beach
+bench;5;a photo of a modern {name} in a garden
+bicycle;1;a photo of a adventurous {name} in a Mountain Bike
+bicycle;2;a photo of a efficient {name} in a Road Bike
+bicycle;3;a photo of a sustainable {name} in a Commuter Bike
+bicycle;4;a photo of a agile {name} in a Racing Bike
+bicycle;5;a photo of a classic {name} in a Touring Bike
+book;1;a photo of a Fascinating {name} in a Library
+book;2;a photo of a Informative {name} in a Beach
+book;3;a photo of a Classic {name} in a Park
+book;4;a photo of a Riveting {name} in a Cafe
+book;5;a photo of a Thought-provoking {name} in a Home
+bottle;1;a photo of a tall {name} in a Beach
+bottle;2;a photo of a clear {name} in a Restaurant
+bottle;3;a photo of a round {name} in a Kitchen
+bottle;4;a photo of a green {name} in a Camping
+bottle;5;a photo of a full {name} in a Desert
+bowl;1;a photo of a Large {name} in a Bowling alley
+bowl;2;a photo of a Small {name} in a Ceramic studio
+bowl;3;a photo of a Round {name} in a Kitchen
+bowl;4;a photo of a Deep {name} in a Laundromat
+bowl;5;a photo of a Square {name} in a Tennis court
+car;1;a photo of a sleek {name} in a City
+car;2;a photo of a classic {name} in a Highway
+car;3;a photo of a sporty {name} in a Race
+car;4;a photo of a spacious {name} in a Beach
+car;5;a photo of a luxurious {name} in a Mountain
+cellphone;1;a photo of a Smart {name} in a pocket
+cellphone;2;a photo of a Portable {name} in a purse
+cellphone;3;a photo of a Multifunctional {name} in a hand
+cellphone;4;a photo of a Connected {name} in a car
+cellphone;5;a photo of a High-tech {name} in a desk
+chair;1;a photo of a Comfortable {name} in a Dining room
+chair;2;a photo of a Elegant {name} in a Office
+chair;3;a photo of a Majestic {name} in a Living room
+chair;4;a photo of a Sturdy {name} in a Conference
+chair;5;a photo of a Adjustable {name} in a Theater
+clock;1;a photo of a analog {name} in a Kitchen
+clock;2;a photo of a digital {name} in a Office
+clock;3;a photo of a old-fashioned {name} in a Bedroom
+clock;4;a photo of a large {name} in a Living Room
+clock;5;a photo of a ac-curateЋ {name} in a Outdoors
+cup;1;a photo of a Large {name} in a Coffee
+cup;2;a photo of a Small {name} in a Tea
+cup;3;a photo of a Sturdy {name} in a Cupboard
+cup;4;a photo of a Delicate {name} in a Kitchen
+cup;5;a photo of a Fancy {name} in a Bar
+fork;1;a photo of a utensil {name} in a Dining
+fork;2;a photo of a eating {name} in a Kitchen
+fork;3;a photo of a spoon {name} in a Outdoor
+fork;4;a photo of a handle {name} in a Buffet
+fork;5;a photo of a tine {name} in a Catering
+keyboard;1;a photo of a Typewriter-like {name} in a Office
+keyboard;2;a photo of a Piano-like {name} in a Home
+keyboard;3;a photo of a Sleek {name} in a Café
+keyboard;4;a photo of a Modern {name} in a School
+keyboard;5;a photo of a Retro {name} in a Library
+knife;1;a photo of a sharp {name} in a Kitchen
+knife;2;a photo of a dangerous {name} in a Camping
+knife;3;a photo of a precise {name} in a Hunting
+knife;4;a photo of a versatile {name} in a Military
+knife;5;a photo of a deumeaning {name} in a Medical
+laptop;1;a photo of a slim {name} in a Home
+laptop;2;a photo of a lightweight {name} in a Office
+laptop;3;a photo of a portable {name} in a Coffee shop
+laptop;4;a photo of a powerful {name} in a Library
+laptop;5;a photo of a versatile {name} in a Travel
+motorcycle;1;a photo of a sleek {name} in a Race Track
+motorcycle;2;a photo of a powerful {name} in a Highway
+motorcycle;3;a photo of a agile {name} in a City
+motorcycle;4;a photo of a Љepic {name} in a Rural Area
+motorcycle;5;a photo of a adventurous {name} in a Mountain
+mouse;1;a photo of a cute {name} in a Lab
+mouse;2;a photo of a small {name} in a Home
+mouse;3;a photo of a quick {name} in a Office
+mouse;4;a photo of a stealthy {name} in a Wild
+mouse;5;a photo of a inquisitive {name} in a Field
+potted_plant;1;a photo of a Green {name} in a Living room
+potted_plant;2;a photo of a Vibrant {name} in a kitchen
+potted_plant;3;a photo of a Fresh {name} in a balcony
+potted_plant;4;a photo of a Lively {name} in a terrace
+potted_plant;5;a photo of a Tropical {name} in a garden
+remote;1;a photo of a far-flung {name} in a Home
+remote;2;a photo of a distant {name} in a Office
+remote;3;a photo of a isolated {name} in a School
+remote;4;a photo of a separate {name} in a Hotel
+remote;5;a photo of a remote {name} in a Coffee Shop
+spoon;1;a photo of a slender {name} in a Kitchen
+spoon;2;a photo of a silver {name} in a Restaurant
+spoon;3;a photo of a wooden {name} in a Hospital
+spoon;4;a photo of a sturdy {name} in a Camping
+spoon;5;a photo of a artЏ {name} in a Desert
+sportsball;1;a photo of a action-packed {name} in a Court
+sportsball;2;a photo of a fast-paced {name} in a Field
+sportsball;3;a photo of a energizing {name} in a Gym
+sportsball;4;a photo of a exciting {name} in a Pool
+sportsball;5;a photo of a thrilling {name} in a Beach
+tie;1;a photo of a Neat {name} in a Business,Formal,Casual,Sports,Fashion
+tie;2;a photo of a {name}
+tie;3;a photo of a {name}
+tie;4;a photo of a {name}
+tie;5;a photo of a {name}
+trafficlight;1;a photo of a Green {name} in a Road
+trafficlight;2;a photo of a Red {name} in a Highway
+trafficlight;3;a photo of a Yellow {name} in a Intersection
+trafficlight;4;a photo of a Traffic {name} in a Roundabout
+trafficlight;5;a photo of a Əutherized {name} in a Pedestrian
+wineglas;1;a photo of a Wineglas {name} in a Wine glass
+wineglas;2;a photo of a BOЋlas {name} in a Glass of wine
+wineglas;3;a photo of a G servant {name} in a Drinking glass
+wineglas;4;a photo of a Sommelier {name} in a Grape glass
+wineglas;5;a photo of a Wine glass {name} in a Vineyard glass
