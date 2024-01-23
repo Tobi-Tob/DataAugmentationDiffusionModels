@@ -111,7 +111,7 @@ class FewShotDataset(Dataset):
         prompts_dict = {}
         if self.use_llm_prompt:
             prompts_dict = self.read_prompts_from_csv()
-
+            print(f"first class of prompts dict (read from csv): {prompts_dict[list(prompts_dict)[0]]}")
         class_occur = {}
 
         for idx, num in tqdm(list(
@@ -130,6 +130,8 @@ class FewShotDataset(Dataset):
                 # This chooses a prompt out of the list according to the occurrence of the class name
                 prompt_idx = class_occur[class_name] % len(prompts_dict[class_name])
                 self.generative_aug.set_augs_prompt(prompts_dict[class_name][prompt_idx])
+
+            print(f"prompt of TextualInv set to: {self.generative_aug.prompt}")
 
             image, label = self.generative_aug(
                 image, label, metadata)
