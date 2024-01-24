@@ -178,10 +178,6 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    # Ensure that the chosen GPU index is valid
-    if args.device >= torch.cuda.device_count():
-        raise ValueError(f"Invalid GPU index {args.device}. Only {torch.cuda.device_count()} GPUs are available.")
-
     tokenizer = AutoTokenizer.from_pretrained(args.model_path, use_auth_token=True)
     pipe = pipeline(
         "text-generation",
