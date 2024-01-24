@@ -173,6 +173,7 @@ if __name__ == '__main__':
     parser.add_argument("--prompts-per-class", type=int, default=1)
     parser.add_argument("--dataset", type=str, default="coco", choices=["coco", "coco_extension", "road_sign"])
     parser.add_argument("--content", type=str, default="setting_adjective", choices=["setting", "adjective", "setting_adjective"])
+    parser.add_argument("--device", type=int, default=0)
     # parser.add_argument("--model-prompt", type=str, default=PROMPT_TEMPLATE)  -> not robust for user input
 
     args = parser.parse_args()
