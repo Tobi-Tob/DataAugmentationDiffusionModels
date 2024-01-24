@@ -104,7 +104,7 @@ def run_experiment(examples_per_class: int = 0,
     np.random.seed(seed)
     random.seed(seed)
 
-    train_new_filter = True
+    train_new_filter = False
     if synthetics_filter_threshold is not None and train_new_filter:
         # Initialize and train the ClassificationFilterModel here and save it in models
         train_filter(examples_per_class=examples_per_class,

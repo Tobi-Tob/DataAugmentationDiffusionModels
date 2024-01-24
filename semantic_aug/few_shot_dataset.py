@@ -1,4 +1,5 @@
 from semantic_aug.generative_augmentation import GenerativeAugmentation
+from models.filter_model import ClassificationFilterModel
 from typing import Tuple
 from torch.utils.data import Dataset
 from collections import defaultdict
@@ -28,8 +29,8 @@ class FewShotDataset(Dataset):
     num_classes: int = None
     class_names: int = None
 
-    def __init__(self, examples_per_class: int = None, 
-                 generative_aug: GenerativeAugmentation = None, 
+    def __init__(self, examples_per_class: int = None,
+                 generative_aug: GenerativeAugmentation = None,
                  synthetic_probability: float = 0.5,
                  synthetic_dir: str = None,
                  synthetics_filter_threshold: float = None,
@@ -62,8 +63,11 @@ class FewShotDataset(Dataset):
             shutil.rmtree(synthetic_dir, ignore_errors=True)
             os.makedirs(synthetic_dir)
             if synthetics_filter_threshold is not None:
-
-                self.filter_model = torch.load("models/ClassificationFilterModel.pth")
+                state_dict = torch.load("models/ClassificationFilterModel.pth")
+                saved_num_classes = int(state_dict["num_classes"].item())
+                self.filter_model = ClassificationFilterModel(saved_num_classes)
+                self.filter_model.load_state_dict(state_dict)
+                self.filter_model.cuda()
                 self.filter_model.eval()
 
                 # Extract the path_to_dir and dir_name, change to new_dir_name and combine to discarded_dir
@@ -144,6 +148,8 @@ class FewShotDataset(Dataset):
                         transformed_image = self.transform(image).unsqueeze(0).cuda()
                         # Run image through model
                         logits = self.filter_model(transformed_image)
+                        # Calibrate logits with temperature scaling
+                        logits = self.filter_model.temperature_scale(logits)
                         # Apply softmax activation to convert logits into probabilities
                         probabilities = F.softmax(logits, dim=1)
                         probabilities_array = probabilities.cpu().detach().numpy()[0]
@@ -153,7 +159,7 @@ class FewShotDataset(Dataset):
                             discard_image = True
                             # Maybe use weighting instead of discarding
 
-                    print_decision = False
+                    print_decision = True
                     if print_decision:
                         print(f'Image: label_{label}-{idx}-{num}.png')
                         predicted_class = np.argmax(probabilities_array)
