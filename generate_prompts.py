@@ -29,9 +29,9 @@ Wrap those words as strings in a python list."
 
 USER_PROMPTS = {
     "setting": "In which different settings can {name}s occur?",
-    "setting_2": "Generate a setting for a {name} that is a realistic and common environment for it to be found in. Include specific details in the setting description that make it visually rich and interesting.",
+    "setting2": "Generate a setting for a {name} that is a realistic and common environment for it to be found in. Include specific details in the setting description that make it visually rich and interesting.",
     "adjective": "What are different descriptive adjectives for {name}?",
-    "adjective_2": "Generate a visually descriptive adjective for a {name} that reflects its physical appearance, such as color, texture, or size, and is contextually appropriate for this object.",
+    "adjective2": "Generate a visually descriptive adjective for a {name} that reflects its physical appearance, such as color, texture, or size, and is contextually appropriate for this object.",
 }
 
 PROMPT_TEMPLATE = f"""<s>[INST] <<SYS>>
@@ -174,7 +174,8 @@ if __name__ == '__main__':
     parser.add_argument("--model-path", type=str, default="meta-llama/Llama-2-7b-chat-hf")
     parser.add_argument("--prompts-per-class", type=int, default=1)
     parser.add_argument("--dataset", type=str, default="coco", choices=["coco", "coco_extension", "road_sign"])
-    parser.add_argument("--content", type=str, default="setting_adjective", choices=["setting", "adjective", "setting_adjective"])
+    parser.add_argument("--content", type=str, default="setting_adjective", choices=["setting", "adjective",
+                                        "setting_adjective", "setting2", "adjective2", "setting2_adjective2"])
     # parser.add_argument("--device", type=int, default=0) -> device = f"cuda:{args.device}" leads to cuda out of memory
     # parser.add_argument("--model-prompt", type=str, default=PROMPT_TEMPLATE)  -> not robust for user input
 
