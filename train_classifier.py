@@ -319,6 +319,8 @@ def run_experiment(examples_per_class: int = 0,
             split="Validation"
         ))
 
+        print(f"epoch: {epoch} | val acc: {validation_accuracy.mean()}")
+
         for i, name in enumerate(train_dataset.class_names):
 
             records.append(dict(
