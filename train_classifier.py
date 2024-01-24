@@ -199,6 +199,12 @@ def run_experiment(examples_per_class: int = 0,
         backbone=classifier_backbone
     ).cuda()
 
+    # Check if the model is on CUDA
+    if next(model.parameters()).is_cuda:
+        print(f"Model is on CUDA and device is: {next(model.parameters()).device}")
+    else:
+        print("Model is NOT on CUDA")
+
     optim = torch.optim.Adam(model.parameters(), lr=0.0001)
 
     records = []

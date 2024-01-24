@@ -605,7 +605,11 @@ def main(args):
 
     # Move vae and unet to device and cast to weight_dtype
     unet.to(accelerator.device, dtype=weight_dtype)
+    device_of_unet = next(unet.parameters()).device
+    print(F"UNet is cuda: {next(unet.parameters()).is_cuda} | and is on device: {device_of_unet}")
     vae.to(accelerator.device, dtype=weight_dtype)
+    device_of_vae = next(vae.parameters()).device
+    print(F"VAE is cuda: {next(vae.parameters()).is_cuda} | and is on device: {device_of_vae}")
 
     # We need to recalculate our total training steps as the size of the training dataloader may have changed.
     num_update_steps_per_epoch = math.ceil(len(train_dataloader) / args.gradient_accumulation_steps)
