@@ -9,7 +9,7 @@ from langchain_community.embeddings import OpenAIEmbeddings
 from langchain.indexes import VectorstoreIndexCreator
 from langchain.indexes.vectorstore import VectorStoreIndexWrapper
 from langchain_community.llms import OpenAI
-from langchain.vectorstores import Chroma
+from langchain_community.vectorstores import Chroma
 
 import constants
 
