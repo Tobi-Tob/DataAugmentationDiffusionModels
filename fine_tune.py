@@ -830,6 +830,7 @@ if __name__ == "__main__":
                     f"compvis-word_{word_name}-method_full-sg_3-ng_1-iter_1000-lr_1e-05/" +
                     f"diffusers-word_{word_name}-method_full-sg_3-ng_1-iter_1000-lr_1e-05.pt")
 
+            print(f"process seed {seed} with classname {class_name}")
             main(args)
 
             shutil.rmtree(args.train_data_dir)
