@@ -29,14 +29,14 @@ if PERSIST and os.path.exists("persist"):
 else:
   #loader = TextLoader("data/data.txt") # Use this line if you only need data.txt
   loader = DirectoryLoader("data/")
-  #MRif PERSIST:
-  #MR  index = VectorstoreIndexCreator(vectorstore_kwargs={"persist_directory":"persist"}).from_loaders([loader])
-  #MRelse:
-  #MR  index = VectorstoreIndexCreator().from_loaders([loader])
+  if PERSIST:
+    index = VectorstoreIndexCreator(vectorstore_kwargs={"persist_directory":"persist"}).from_loaders([loader])
+  else:
+    index = VectorstoreIndexCreator().from_loaders([loader])
 
 chain = ConversationalRetrievalChain.from_llm(
   llm=ChatOpenAI(model="gpt-3.5-turbo"),
-  #MR retriever=index.vectorstore.as_retriever(search_kwargs={"k": 1}),
+  retriever=index.vectorstore.as_retriever(search_kwargs={"k": 1}),
 )
 
 query = "Generate {num_prompts} words to the following question. Only respond with those {num_prompts} words!\n" \
