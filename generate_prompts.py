@@ -28,10 +28,10 @@ You will be asked to generate {num_prompts} words. Only respond with those {num_
 Wrap those words as strings in a python list."
 
 USER_PROMPTS = {
-    # "setting": "In which different settings can {name}s occur?",
-    "setting": "Generate a setting for a {name} that is a realistic and common environment for it to be found in. Include specific details in the setting description that make it visually rich and interesting.",
-    # "adjective": "What are different descriptive adjectives for {name}?",
-    "adjective": "Generate a visually descriptive adjective for a {name} that reflects its physical appearance, such as color, texture, or size, and is contextually appropriate for this object.",
+    "setting": "In which different settings can a {name} occur?",
+    # "setting": "Generate a setting for a {name} that is a realistic and common environment for it to be found in. Include specific details in the setting description that make it visually rich and interesting.",
+    "adjective": "What are different visual and descriptive adjectives for {name}?",
+    # "adjective": "Generate a visually descriptive adjective for a {name} that reflects its physical appearance, such as color, texture, or size, and is contextually appropriate for this object.",
 }
 
 PROMPT_TEMPLATE = f"""<s>[INST] <<SYS>>
