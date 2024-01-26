@@ -1,12 +1,13 @@
 from semantic_aug.datasets.coco import COCODataset
+from semantic_aug.datasets.coco_extension import COCOExtension
 from semantic_aug.datasets.spurge import SpurgeDataset
 from semantic_aug.datasets.imagenet import ImageNetDataset
 from semantic_aug.datasets.pascal import PASCALDataset
 from semantic_aug.datasets.road_sign import RoadSignDataset
 from semantic_aug.datasets.caltech101 import CalTech101Dataset
 from semantic_aug.datasets.flowers102 import Flowers102Dataset
+from models.filter_model import ClassificationFilterModel
 from torch.utils.data import DataLoader, WeightedRandomSampler
-from torchvision.models import resnet50, ResNet50_Weights
 
 import os
 import numpy as np
@@ -16,11 +17,11 @@ from tqdm import tqdm
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import argparse
 
 DATASETS = {
     "spurge": SpurgeDataset,
     "coco": COCODataset,
+    "coco_extension": COCOExtension,
     "pascal": PASCALDataset,
     "imagenet": ImageNetDataset,
     "caltech": CalTech101Dataset,
@@ -40,7 +41,10 @@ def train_filter(examples_per_class,
                  lr: float = 1e-4,
                  weight_decay: float = 1e-2,
                  use_randaugment: bool = True,
-                 early_stopping_threshold: int = 10):  # Number of epochs without improvement trigger early stopping
+                 early_stopping_threshold: int = 10,
+                 optimize_temperature: bool = True,
+                 temp_optimizer_lr: float = 1e-2,
+                 temp_optimizer_iterations: int = 500):
     """
     Trains a classifier on the training data using a weighted sampler to address imbalances in class distribution
     and saves the model version with the best validation loss.
@@ -137,7 +141,7 @@ def train_filter(examples_per_class,
             prediction = logits.argmax(dim=1)
 
             loss = F.cross_entropy(logits, label, reduction="none")
-            if len(label.shape) > 1:label = label.argmax(dim=1)
+            if len(label.shape) > 1: label = label.argmax(dim=1)
 
             accuracy = (prediction == label).float()
 
@@ -244,60 +248,131 @@ def train_filter(examples_per_class,
                 f"No improvement in validation accuracy for {early_stopping_threshold} epochs. Stopping training.")
             break
 
+    # Safe the logs
+    log_path = f"logs/train_filter_{seed}_{epoch + 1}x{iterations_per_epoch}.csv"
+    pd.DataFrame.from_records(records).to_csv(log_path)
+
+    # Load the best model
     filter_model.load_state_dict(best_filter_model)
 
-    os.makedirs(model_dir, exist_ok=True)
-    log_path = f"logs/train_filter_{seed}_{epoch + 1}x{iterations_per_epoch}.csv"
-    model_path = f"{model_dir}/ClassificationFilterModel.pth"
+    if optimize_temperature:
+        """
+        Copyright (c) 2017 Geoff Pleiss
+        https://github.com/gpleiss/temperature_scaling
+        Tune the temperature of the model using the validation set.
+        We're going to set it to optimize NLL.
+        """
+        nll_criterion = nn.CrossEntropyLoss().cuda()
+        ece_criterion = _ECELoss().cuda()
 
-    pd.DataFrame.from_records(records).to_csv(log_path)
-    torch.save(filter_model, model_path)
+        # Collect all the logits and labels for the validation set
+        logits_list = []
+        labels_list = []
+
+        with torch.no_grad():
+            for image, label in val_dataloader:
+                image = image.cuda()
+
+                logits = filter_model(image)
+
+                logits_list.append(logits)
+                labels_list.append(label)
+
+            logits = torch.cat(logits_list).cuda()
+            labels = torch.cat(labels_list).cuda()
+
+        # Calculate NLL and ECE before temperature scaling
+        before_temperature_nll = nll_criterion(logits, labels).item()
+        before_temperature_ece = ece_criterion(logits, labels).item()
+
+        # Next: Optimize the temperature w.r.t. NLL
+        temp_optimizer = torch.optim.LBFGS(
+            [filter_model.temperature], lr=temp_optimizer_lr, max_iter=temp_optimizer_iterations)
+
+        with tqdm(total=temp_optimizer_iterations, desc='Calibrating Filter') as pbar:
+            def temp_eval():
+                temp_optimizer.zero_grad()
+                loss = nll_criterion(filter_model.temperature_scale(logits), labels)
+                loss.backward()
+                pbar.update(1)  # Update the progress bar
+                pbar.set_postfix({'nll_loss': f'{loss.item():.4f}'})
+                return loss
+
+            temp_optimizer.step(temp_eval)
+
+        # Calculate NLL and ECE after temperature scaling
+        after_temperature_nll = nll_criterion(filter_model.temperature_scale(logits), labels).item()
+        after_temperature_ece = ece_criterion(filter_model.temperature_scale(logits), labels).item()
+        print('Optimal Temperature T: %.4f' % filter_model.temperature.item())
+        print(f'Negative Log Likelihood (NLL) Loss improved from {before_temperature_nll:.4f} -> {after_temperature_nll:.4f}')
+        print(f'Expected Calibration Error (ECE) improved from {before_temperature_ece:.4f} -> {after_temperature_ece:.4f}')
+
+    os.makedirs(model_dir, exist_ok=True)
+    model_path = f"{model_dir}/ClassificationFilterModel.pth"
+    torch.save(filter_model.state_dict(), model_path)
 
     print(f"Model saved to {model_path} - Validation loss {best_validation_loss} - Validation accuracy "
           f"{corresponding_validation_accuracy} - Training results saved to {log_path}")
 
 
-class ClassificationFilterModel(nn.Module):
+class _ECELoss(nn.Module):
+    """
+    Calculates the Expected Calibration Error of a model.
+    (This isn't necessary for temperature scaling, just a cool metric).
 
-    def __init__(self, num_classes: int):
-        super(ClassificationFilterModel, self).__init__()
+    The input to this loss is the logits of a model, NOT the softmax scores.
 
-        self.image_processor = None
-        self.base_model = resnet50(weights=ResNet50_Weights.DEFAULT)
-        self.out = nn.Linear(2048, num_classes)
+    This divides the confidence outputs into equally-sized interval bins.
+    In each bin, we compute the confidence gap:
 
-    def forward(self, image):
-        x = image
-        with torch.no_grad():
-            x = self.base_model.conv1(x)
-            x = self.base_model.bn1(x)
-            x = self.base_model.relu(x)
-            x = self.base_model.maxpool(x)
+    bin_gap = | avg_confidence_in_bin - accuracy_in_bin |
 
-            x = self.base_model.layer1(x)
-            x = self.base_model.layer2(x)
-            x = self.base_model.layer3(x)
-            x = self.base_model.layer4(x)
+    We then return a weighted average of the gaps, based on the number
+    of samples in each bin
 
-            x = self.base_model.avgpool(x)
-            x = torch.flatten(x, 1)
+    See: Naeini, Mahdi Pakdaman, Gregory F. Cooper, and Milos Hauskrecht.
+    "Obtaining Well Calibrated Probabilities Using Bayesian Binning." AAAI.
+    2015.
+    """
 
-        return self.out(x)
+    def __init__(self, n_bins=15):
+        """
+        n_bins (int): number of confidence interval bins
+        """
+        super(_ECELoss, self).__init__()
+        bin_boundaries = torch.linspace(0, 1, n_bins + 1)
+        self.bin_lowers = bin_boundaries[:-1]
+        self.bin_uppers = bin_boundaries[1:]
+
+    def forward(self, logits, labels):
+        softmaxes = F.softmax(logits, dim=1)
+        confidences, predictions = torch.max(softmaxes, 1)
+        accuracies = predictions.eq(labels)
+
+        ece = torch.zeros(1, device=logits.device)
+        for bin_lower, bin_upper in zip(self.bin_lowers, self.bin_uppers):
+            # Calculated |confidence - accuracy| in each bin
+            in_bin = confidences.gt(bin_lower.item()) * confidences.le(bin_upper.item())
+            prop_in_bin = in_bin.float().mean()
+            if prop_in_bin.item() > 0:
+                accuracy_in_bin = accuracies[in_bin].float().mean()
+                avg_confidence_in_bin = confidences[in_bin].mean()
+                ece += torch.abs(avg_confidence_in_bin - accuracy_in_bin) * prop_in_bin
+
+        return ece
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser("Train Filter")
 
-    parser.add_argument("--dataset", type=str, default="coco",
-                        choices=["spurge", "coco", "pascal", "flowers", "road_sign"])
-    parser.add_argument("--examples-per-class", type=int, default=8)
-    parser.add_argument("--seed", type=int, default=0)
-    parser.add_argument("--weight-decay", type=float, default=1e-2)
-
-    args = parser.parse_args()
-
-    train_filter(examples_per_class=args.examples_per_class,
-                 seed=args.seed,
-                 dataset=args.dataset,
+    train_filter(examples_per_class=8,
+                 seed=0,
+                 dataset="road_sign",
                  image_size=256,
-                 weight_decay=args.weight_decay)
+                 iterations_per_epoch=200,
+                 max_epochs=50,
+                 weight_decay=1e-2,
+                 use_randaugment=True,
+                 early_stopping_threshold=10,
+                 optimize_temperature=True,
+                 temp_optimizer_lr=1e-2,
+                 temp_optimizer_iterations=500)

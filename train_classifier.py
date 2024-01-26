@@ -13,7 +13,7 @@ from semantic_aug.augmentations.textual_inversion import TextualInversion
 from semantic_aug.augmentations.textual_inversion_upstream \
     import TextualInversion as MultiTokenTextualInversion
 from semantic_aug.few_shot_dataset import DEFAULT_PROMPT_PATH, DEFAULT_PROMPT
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, RandomSampler, SequentialSampler
 from torchvision.models import resnet50, ResNet50_Weights
 from torch.utils.data import DataLoader, WeightedRandomSampler
 from transformers import DeiTModel
@@ -98,13 +98,14 @@ def run_experiment(examples_per_class: int = 0,
                    synthetics_filter_threshold: float = None,
                    filter_mask_area: int = 0,
                    use_llm_prompt: bool = False,
-                   prompt_path: str = DEFAULT_PROMPT_PATH):
+                   prompt_path: str = DEFAULT_PROMPT_PATH,
+                   eval_on_test_set: bool = False):
 
     torch.manual_seed(seed)
     np.random.seed(seed)
     random.seed(seed)
 
-    train_new_filter = True
+    train_new_filter = False
     if synthetics_filter_threshold is not None and train_new_filter:
         # Initialize and train the ClassificationFilterModel here and save it in models
         train_filter(examples_per_class=examples_per_class,
@@ -176,23 +177,23 @@ def run_experiment(examples_per_class: int = 0,
         train_dataset, batch_size=batch_size,
         sampler=weighted_train_sampler, num_workers=4)
 
-    val_dataset = DATASETS[dataset](
+    test_dataset = DATASETS[dataset](
         split="val", seed=seed,
         image_size=(image_size, image_size),
         filter_mask_area=filter_mask_area)
 
     # TL: RuntimeWarning divide by zero can happen, everything will work as it should,
     # but this means that some classes are not present in the validation dataset.
-    class_weights = np.where(val_dataset.class_counts == 0, 0, 1.0 / val_dataset.class_counts)
-    weights = [class_weights[label] for label in val_dataset.all_labels]
+    class_weights = np.where(test_dataset.class_counts == 0, 0, 1.0 / test_dataset.class_counts)
+    weights = [class_weights[label] for label in test_dataset.all_labels]
 
-    weighted_val_sampler = WeightedRandomSampler(
+    test_sampler = WeightedRandomSampler(
         weights, replacement=True,
         num_samples=batch_size * iterations_per_epoch)
 
     val_dataloader = DataLoader(
-        val_dataset, batch_size=batch_size,
-        sampler=weighted_val_sampler, num_workers=4)
+        test_dataset, batch_size=batch_size,
+        sampler=test_sampler, num_workers=4)
 
     model = ClassificationModel(
         train_dataset.num_classes,
@@ -201,6 +202,8 @@ def run_experiment(examples_per_class: int = 0,
 
     optim = torch.optim.Adam(model.parameters(), lr=0.0001)
 
+    best_validation_accuracy = 0
+    best_model = None
     records = []
 
     for epoch in trange(num_epochs, desc="Training Classifier"):
@@ -275,7 +278,12 @@ def run_experiment(examples_per_class: int = 0,
         validation_accuracy = epoch_accuracy / epoch_size.clamp(min=1)
 
         validation_loss = validation_loss.cpu().numpy()
-        validation_accuracy = validation_accuracy.cpu().numpy()
+        validation_accuracy = validation_accuracy.cpu().numpy()  # it is necessary to not only save the mean
+
+        # Check if the current epoch has the best validation accuracy
+        if validation_accuracy.mean() > best_validation_accuracy:
+            best_validation_accuracy = validation_accuracy.mean()
+            best_model = model.state_dict()
 
         records.append(dict(
             seed=seed,
@@ -350,6 +358,39 @@ def run_experiment(examples_per_class: int = 0,
                 metric=f"Accuracy {name.title()}",
                 split="Validation"
             ))
+
+    if eval_on_test_set:
+        # Load the best model for evaluation
+        model.load_state_dict(best_model)
+        model.eval()
+
+        # Build the test dataset
+        test_dataset = DATASETS[dataset](
+            split="test", seed=seed,
+            image_size=(image_size, image_size))
+
+        test_dataloader = DataLoader(
+            test_dataset, batch_size=batch_size, num_workers=4)
+
+        total_accuracy = 0.0
+        class_accuracies = [0.0] * test_dataset.num_classes
+
+        with torch.no_grad():
+            for image, label in test_dataloader:
+                image, label = image.cuda(), label.cuda()
+
+                logits = model(image)
+                prediction = logits.argmax(dim=1)
+
+                total_accuracy += (prediction == label).float().sum().item()
+
+                # TODO Calculate class accuracies
+
+        # Calculate final metrics
+        total_accuracy /= len(test_dataset)
+
+        print(f'Test Accuracy of Classifier model with the highest validation accuracy: {total_accuracy:.4f}')
+        # TODO Save accuracys in well named log file
 
     return records
 
@@ -538,6 +579,8 @@ if __name__ == "__main__":
 
     parser.add_argument("--device", type=int, default=0)
 
+    parser.add_argument("--eval_on_test_set", type=bool, default=False)
+
     args = parser.parse_args()
 
     try:
@@ -590,7 +633,8 @@ if __name__ == "__main__":
             synthetics_filter_threshold=args.synthetics_filter,
             filter_mask_area=args.filter_mask_area,
             use_llm_prompt=args.use_generated_prompts,
-            prompt_path=args.prompt_path)
+            prompt_path=args.prompt_path,
+            eval_on_test_set=args.eval_on_test_set)
 
         synthetic_dir = args.synthetic_dir.format(**hyperparameters)
         embed_path = args.embed_path.format(**hyperparameters)

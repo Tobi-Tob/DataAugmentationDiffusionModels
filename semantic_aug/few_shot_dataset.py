@@ -1,4 +1,5 @@
 from semantic_aug.generative_augmentation import GenerativeAugmentation
+from models.filter_model import ClassificationFilterModel
 from typing import Tuple
 from torch.utils.data import Dataset
 from collections import defaultdict
@@ -14,6 +15,7 @@ import abc
 import random
 import os
 import shutil
+import copy
 
 DEFAULT_PROMPT_PATH = "prompts/prompts.csv"
 DEFAULT_PROMPT = "a photo of a {name}"
@@ -28,8 +30,8 @@ class FewShotDataset(Dataset):
     num_classes: int = None
     class_names: int = None
 
-    def __init__(self, examples_per_class: int = None, 
-                 generative_aug: GenerativeAugmentation = None, 
+    def __init__(self, examples_per_class: int = None,
+                 generative_aug: GenerativeAugmentation = None,
                  synthetic_probability: float = 0.5,
                  synthetic_dir: str = None,
                  synthetics_filter_threshold: float = None,
@@ -53,17 +55,20 @@ class FewShotDataset(Dataset):
         self.transform = transforms.Compose([
             transforms.ToTensor(),
             transforms.ConvertImageDtype(torch.float),
-            transforms.Normalize(mean=[0.5, 0.5, 0.5], 
+            transforms.Normalize(mean=[0.5, 0.5, 0.5],
                                   std=[0.5, 0.5, 0.5]),
         ])
-        
+
         if synthetic_dir is not None:
             # Remove the directory and its contents and create a new one (important if trials > 1 and filter is used)
             shutil.rmtree(synthetic_dir, ignore_errors=True)
             os.makedirs(synthetic_dir)
             if synthetics_filter_threshold is not None:
-
-                self.filter_model = torch.load("models/ClassificationFilterModel.pth")
+                state_dict = torch.load("models/ClassificationFilterModel.pth")
+                saved_num_classes = int(state_dict["num_classes"].item())
+                self.filter_model = ClassificationFilterModel(saved_num_classes)
+                self.filter_model.load_state_dict(state_dict)
+                self.filter_model.cuda()
                 self.filter_model.eval()
 
                 # Extract the path_to_dir and dir_name, change to new_dir_name and combine to discarded_dir
@@ -74,17 +79,17 @@ class FewShotDataset(Dataset):
 
                 shutil.rmtree(self.discarded_dir, ignore_errors=True)
                 os.makedirs(self.discarded_dir)
-    
+
     @abc.abstractmethod
     def get_image_by_idx(self, idx: int) -> Image.Image:
 
         return NotImplemented
-    
+
     @abc.abstractmethod
     def get_label_by_idx(self, idx: int) -> int:
 
         return NotImplemented
-    
+
     @abc.abstractmethod
     def get_metadata_by_idx(self, idx: int) -> dict:
 
@@ -139,29 +144,43 @@ class FewShotDataset(Dataset):
                 discard_image = False
 
                 if self.synthetics_filter_threshold is not None:
+                    num_participants_in_majority_vote = 5
+                    probabilities_array_mean = []
                     with torch.no_grad():
-                        # Add an extra batch dimension as the model expects a batch of images and change device
-                        transformed_image = self.transform(image).unsqueeze(0).cuda()
-                        # Run image through model
-                        logits = self.filter_model(transformed_image)
-                        # Apply softmax activation to convert logits into probabilities
-                        probabilities = F.softmax(logits, dim=1)
-                        probabilities_array = probabilities.cpu().detach().numpy()[0]
+                        for _ in range(num_participants_in_majority_vote):
+                            # Add an extra batch dimension as the model expects a batch of images and change device
+                            transformed_image = copy.deepcopy(image)
+                            # use self.transform of sub class (e.g. road_sign.py)
+                            transformed_image = self.transform(transformed_image).unsqueeze(0).cuda()
+                            # Run image through model
+                            logits = self.filter_model(transformed_image)
+                            # Look at calibrated logits with temperature scaling
+                            logits = self.filter_model.temperature_scale(logits)
+                            # Apply softmax activation to convert logits into probabilities
+                            probabilities = F.softmax(logits, dim=1)
+                            probabilities_array = probabilities.cpu().detach().numpy()[0]
+                            # Write in probabilities_array_mean
+                            probabilities_array_mean.append(probabilities_array)
+
+                        # Convert the list of arrays to a np.array
+                        probabilities_array_mean = np.array(probabilities_array_mean)
+                        # Calculate the mean of the arrays
+                        mean_probabilities = np.mean(probabilities_array_mean, axis=0)
 
                         # Filter criterion:
-                        if probabilities_array[label] < self.synthetics_filter_threshold:
+                        if mean_probabilities[label] < self.synthetics_filter_threshold:
                             discard_image = True
                             # Maybe use weighting instead of discarding
 
                     print_decision = False
                     if print_decision:
                         print(f'Image: label_{label}-{idx}-{num}.png')
-                        predicted_class = np.argmax(probabilities_array)
+                        predicted_class = np.argmax(mean_probabilities)
                         print(f'Highest class: {predicted_class} with probability of: '
-                              f'{np.round(probabilities_array[predicted_class], 3)}')
+                              f'{np.round(mean_probabilities[predicted_class], 3)}')
                         if not np.isclose(predicted_class, label):
                             print(f'Wrong classified, probability of correct label {label}: '
-                                  f'{np.round(probabilities_array[label], 3)}')
+                                  f'{np.round(mean_probabilities[label], 3)}')
                         print(f'Image accepted: {not discard_image}')
 
                 if discard_image:
