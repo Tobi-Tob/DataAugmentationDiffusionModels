@@ -66,28 +66,34 @@ class RoadSignDataset(FewShotDataset):
         # glob.glob is used to retrieve all files with a ".jpg" extension in these directories.
         self.image_paths = {class_name: [] for class_name in self.class_names}
         for class_name in self.class_names:
-            class_dir_path = os.path.join(data_dir, 'train-val', class_name)
+            if split is "test":
+                class_dir_path = os.path.join(data_dir, 'test', class_name)
+            else:
+                class_dir_path = os.path.join(data_dir, 'train-val', class_name)
             class_image_paths = glob.glob(os.path.join(class_dir_path, '*.jpg'))
             self.image_paths[class_name].extend(class_image_paths)
 
         rng = np.random.default_rng(seed)
 
-        # Generate random permutations of indices for the lists absent and apparent
+        # Generate random permutations of indices
         class_ids = {class_name: rng.permutation(len(self.image_paths[class_name]))
                      for class_name in self.class_names}
 
-        # Split the shuffled indices into training and validation sets
-        train_split_proportion = 0.7  # (70%/30%)
-        class_ids_train, class_ids_val = {}, {}
-        for class_name in self.class_names:
-            class_ids_train[class_name], class_ids_val[class_name] = np.array_split(
-                class_ids[class_name], [int(train_split_proportion * len(class_ids[class_name]))])
+        class_ids_train, class_ids_val, class_ids_test = {}, {}, {}
+        if split is "test":
+            class_ids_test = class_ids
+        else:
+            # Split the shuffled indices into training and validation sets
+            train_split_proportion = 0.7  # (70%/30%)
+            for class_name in self.class_names:
+                class_ids_train[class_name], class_ids_val[class_name] = np.array_split(
+                    class_ids[class_name], [int(train_split_proportion * len(class_ids[class_name]))])
 
-        # Select either the training or validation indices based on the provided split parameter
-        selected_class_ids = {"train": class_ids_train, "val": class_ids_val}[split]
+        # Select the training, validation or test indices based on the provided split parameter
+        selected_class_ids = {"train": class_ids_train, "val": class_ids_val, "test": class_ids_test}[split]
 
         # Limits the number of examples per class
-        if examples_per_class is not None:
+        if examples_per_class is not None and split is not "test":
             for class_name in self.class_names:
                 selected_class_ids[class_name] = selected_class_ids[class_name][:examples_per_class]
 
@@ -140,7 +146,7 @@ class RoadSignDataset(FewShotDataset):
                                  std=[0.5, 0.5, 0.5])
         ])
 
-        self.transform = {"train": train_transform, "val": val_transform}[split]
+        self.transform = {"train": train_transform, "val": val_transform, "test": val_transform}[split]
 
     def __len__(self):
 
@@ -173,6 +179,7 @@ class RoadSignDataset(FewShotDataset):
 
 
 if __name__ == "__main__":
-    dataset = RoadSignDataset()
+    dataset = RoadSignDataset(split="test", examples_per_class=8)
+    print('Dataset class counts:', dataset.class_counts)
     idx = 0
     dataset.visualize_by_idx(idx)
