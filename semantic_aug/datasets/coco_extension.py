@@ -46,7 +46,6 @@ class COCOExtension(FewShotDataset):
     classes = ["bench", "bicycle", "book", "bottle", "bowl", "car", "cellphone", "chair", "clock", "cup",
     "fork", "keyboard", "knife", "laptop", "motorcycle", "mouse", "spoon", "potted_plant", "remote", "sportsball",
     "tie", "trafficlight", "wineglas"]
-    classes = ["bottle", "trafficlight", "wineglas"]
     class_names = sorted(classes)
     num_classes: int = len(class_names)
     print(f"num_classes to be evaluated from dataset coco_extension: {num_classes}")
