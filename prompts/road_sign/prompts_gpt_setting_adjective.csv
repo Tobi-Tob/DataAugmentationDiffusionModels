@@ -1,0 +1,211 @@
+class_name;class_idx;prompt
+attention_zone_sign;1;a photo of a bright colors {name} in a busy city intersection
+attention_zone_sign;2;a photo of a flashing lights {name} in a highway construction zone
+attention_zone_sign;3;a photo of a high contrast {name} in a school crossing area
+attention_zone_sign;4;a photo of a bold letters {name} in a railroad crossing
+attention_zone_sign;5;a photo of a reflective surface {name} in a pedestrian heavy street
+attention_zone_sign;6;a photo of a eye catching icons {name} in a sharp turn ahead
+attention_zone_sign;7;a photo of a clear visibility {name} in a narrow bridge entry
+attention_zone_sign;8;a photo of a large text {name} in a wildlife crossing
+attention_zone_sign;9;a photo of a warning symbols {name} in a hospital nearby
+attention_zone_sign;10;a photo of a glow in the dark {name} in a residential area with children
+end_of_restriction_sign;1;a photo of a freedom notice {name} in a crowded city street
+end_of_restriction_sign;2;a photo of a unrestricted entry {name} in a busy highway exit
+end_of_restriction_sign;3;a photo of a open access sign {name} in a public park entrance
+end_of_restriction_sign;4;a photo of a barrier free zone {name} in a school zone start
+end_of_restriction_sign;5;a photo of a limitless passage {name} in a construction site end
+end_of_restriction_sign;6;a photo of a no more restrictions {name} in a suburban residential area
+end_of_restriction_sign;7;a photo of a clear way ahead {name} in a airport departure drop off
+end_of_restriction_sign;8;a photo of a restriction lifted notice {name} in a shopping mall parking lot
+end_of_restriction_sign;9;a photo of a open road sign {name} in a beach access path
+end_of_restriction_sign;10;a photo of a unlocking barrier {name} in a mountain road beginning
+give_way_sign;1;a photo of a triangular shape {name} in a busy intersection
+give_way_sign;2;a photo of a red border {name} in a quiet suburban street
+give_way_sign;3;a photo of a white background {name} in a roundabout entrance
+give_way_sign;4;a photo of a give way text {name} in a construction zone
+give_way_sign;5;a photo of a reflective surface {name} in a school crossing zone
+give_way_sign;6;a photo of a road side placement {name} in a hospital entrance
+give_way_sign;7;a photo of a yield symbol {name} in a shopping center exit
+give_way_sign;8;a photo of a traffic warning indicator {name} in a parking lot exit
+give_way_sign;9;a photo of a visibility at night {name} in a mountain road turnoff
+give_way_sign;10;a photo of a regulatory sign {name} in a railroad crossing approach
+highway_exit_in_100m_sign;1;a photo of a imminent departure notice {name} in a traffic cones
+highway_exit_in_100m_sign;2;a photo of a near approach indicator {name} in a lane markings
+highway_exit_in_100m_sign;3;a photo of a approaching exit warning {name} in a speed limit sign
+highway_exit_in_100m_sign;4;a photo of a upcoming turnoff alert {name} in a exit number sign
+highway_exit_in_100m_sign;5;a photo of a short distance exit sign {name} in a service area sign
+highway_exit_in_100m_sign;6;a photo of a nearby exit advisory {name} in a overhead lighting
+highway_exit_in_100m_sign;7;a photo of a forthcoming egress notice {name} in a roadside vegetation
+highway_exit_in_100m_sign;8;a photo of a impending departure sign {name} in a emergency call box
+highway_exit_in_100m_sign;9;a photo of a proximal egress indicator {name} in a guard rails
+highway_exit_in_100m_sign;10;a photo of a close approach warning {name} in a roadway reflectors
+highway_exit_in_200m_sign;1;a photo of a glowing exit sign {name} in a nearby road marks
+highway_exit_in_200m_sign;2;a photo of a reflective warning {name} in a surrounding trees
+highway_exit_in_200m_sign;3;a photo of a bright yellow background {name} in a adjoining service road
+highway_exit_in_200m_sign;4;a photo of a clear distance marking {name} in a overhead street lights
+highway_exit_in_200m_sign;5;a photo of a bold text display {name} in a passing vehicles
+highway_exit_in_200m_sign;6;a photo of a immediate exit notice {name} in a distant city skyline
+highway_exit_in_200m_sign;7;a photo of a high visibility indicator {name} in a roadside safety barriers
+highway_exit_in_200m_sign;8;a photo of a preemptive exit alert {name} in a directional arrows on pavement
+highway_exit_in_200m_sign;9;a photo of a luminous directional advice {name} in a exit lane separation lines
+highway_exit_in_200m_sign;10;a photo of a distinctive roadside notification {name} in a traffic signs for other exits
+highway_exit_in_300m_sign;1;a photo of a brightly lit {name} in a traffic cones
+highway_exit_in_300m_sign;2;a photo of a high visibility {name} in a road markings
+highway_exit_in_300m_sign;3;a photo of a clearly marked {name} in a vehicles exiting
+highway_exit_in_300m_sign;4;a photo of a reflective surface {name} in a traffic signals
+highway_exit_in_300m_sign;5;a photo of a bold lettering {name} in a pedestrian crossing
+highway_exit_in_300m_sign;6;a photo of a eye catching {name} in a roadside grass
+highway_exit_in_300m_sign;7;a photo of a easily readable {name} in a street lights
+highway_exit_in_300m_sign;8;a photo of a well positioned {name} in a exit direction board
+highway_exit_in_300m_sign;9;a photo of a informative display {name} in a safety barriers
+highway_exit_in_300m_sign;10;a photo of a color contrasted {name} in a overhead sign gantry
+highway_exit_sign;1;a photo of a brightly lit {name} in a sunset over mountains
+highway_exit_sign;2;a photo of a reflective surface {name} in a busy city intersection
+highway_exit_sign;3;a photo of a bold lettering {name} in a rural farm land
+highway_exit_sign;4;a photo of a oversized arrow {name} in a forest tree line
+highway_exit_sign;5;a photo of a clear directions {name} in a desert landscape
+highway_exit_sign;6;a photo of a high contrast {name} in a river crossing bridge
+highway_exit_sign;7;a photo of a weather resistant {name} in a snowy hillside
+highway_exit_sign;8;a photo of a night visible {name} in a coastal beach view
+highway_exit_sign;9;a photo of a color coded {name} in a rolling hills
+highway_exit_sign;10;a photo of a informative text {name} in a industrial area
+mandatory_direction_sign;1;a photo of a bright colors {name} in a highway entrance
+mandatory_direction_sign;2;a photo of a bold text {name} in a urban intersection
+mandatory_direction_sign;3;a photo of a clear arrows {name} in a train station entrance
+mandatory_direction_sign;4;a photo of a high contrast {name} in a airport terminal entry
+mandatory_direction_sign;5;a photo of a large font {name} in a suburban crossroad
+mandatory_direction_sign;6;a photo of a unambiguous language {name} in a hospital driveway
+mandatory_direction_sign;7;a photo of a reflective surface {name} in a school zone crossing
+mandatory_direction_sign;8;a photo of a eye catching shape {name} in a shopping mall parking
+mandatory_direction_sign;9;a photo of a easy to read {name} in a public park entrance
+mandatory_direction_sign;10;a photo of a prominent placement {name} in a city bridge approach
+no_entry_sign;1;a photo of a red circle {name} in a abandoned road
+no_entry_sign;2;a photo of a white bar {name} in a construction site
+no_entry_sign;3;a photo of a bold cross {name} in a private property entrance
+no_entry_sign;4;a photo of a no access {name} in a restricted area military
+no_entry_sign;5;a photo of a restricted entry {name} in a industrial zone
+no_entry_sign;6;a photo of a forbidden passage {name} in a wildlife preserve
+no_entry_sign;7;a photo of a closed path {name} in a closed park
+no_entry_sign;8;a photo of a prohibited access {name} in a damaged bridge
+no_entry_sign;9;a photo of a blocked entrance {name} in a railroad crossing
+no_entry_sign;10;a photo of a denied entry {name} in a hazardous site
+no_overtaking_sign;1;a photo of a red circular background {name} in a highway with multiple lanes
+no_overtaking_sign;2;a photo of a white horizontal bar {name} in a narrow country road
+no_overtaking_sign;3;a photo of a bold black border {name} in a road near a school zone
+no_overtaking_sign;4;a photo of a clear no overtaking symbol {name} in a bridge with limited space
+no_overtaking_sign;5;a photo of a visible both day and night {name} in a tunnel entrance
+no_overtaking_sign;6;a photo of a universal recognition design {name} in a road with sharp bends
+no_overtaking_sign;7;a photo of a high contrast colors {name} in a mountain pass
+no_overtaking_sign;8;a photo of a reflective surface material {name} in a area with frequent pedestrian crossing
+no_overtaking_sign;9;a photo of a roadside mounting {name} in a construction zone
+no_overtaking_sign;10;a photo of a regulatory traffic sign {name} in a road next to a steep drop
+no_parking_sign;1;a photo of a red and white sign {name} in a city street corner
+no_parking_sign;2;a photo of a reflective surface {name} in a residential area driveway
+no_parking_sign;3;a photo of a bold lettering {name} in a hospital entrance
+no_parking_sign;4;a photo of a weather resistant {name} in a school zone crosswalk
+no_parking_sign;5;a photo of a rectangular shape {name} in a fire station access road
+no_parking_sign;6;a photo of a metal frame {name} in a shopping mall exit
+no_parking_sign;7;a photo of a wall mounted {name} in a public park entrance
+no_parking_sign;8;a photo of a ground staked {name} in a government building gate
+no_parking_sign;9;a photo of a high visibility {name} in a bridge approach road
+no_parking_sign;10;a photo of a regulatory notice {name} in a bus stop vicinity
+parking_sign;1;a photo of a reflective coating {name} in a busy street corner
+parking_sign;2;a photo of a weather resistant {name} in a grocery store parking lot
+parking_sign;3;a photo of a high visibility {name} in a underground parking garage
+parking_sign;4;a photo of a double sided {name} in a hospital entrance drive
+parking_sign;5;a photo of a customizable text {name} in a municipal park entrance
+parking_sign;6;a photo of a durable material {name} in a office building drop off area
+parking_sign;7;a photo of a easy installation {name} in a school loading zone
+parking_sign;8;a photo of a rust proof {name} in a shopping mall outer lot
+parking_sign;9;a photo of a vandal resistant {name} in a stadium event parking
+parking_sign;10;a photo of a solar powered illumination {name} in a airport short term parking
+pedestrian_zone_sign;1;a photo of a colorful pedestrian sign {name} in a city square with cafes
+pedestrian_zone_sign;2;a photo of a illuminated walkway sign {name} in a busy downtown sidewalk
+pedestrian_zone_sign;3;a photo of a large crosswalk banner {name} in a shopping street with boutiques
+pedestrian_zone_sign;4;a photo of a animated crossing sign {name} in a tree lined boulevard
+pedestrian_zone_sign;5;a photo of a reflective sidewalk sign {name} in a historic town center
+pedestrian_zone_sign;6;a photo of a vibrant footpath marker {name} in a waterfront promenade
+pedestrian_zone_sign;7;a photo of a informative walker signage {name} in a pedestrian bridge over river
+pedestrian_zone_sign;8;a photo of a durable street post {name} in a university campus walkway
+pedestrian_zone_sign;9;a photo of a visible safety indicator {name} in a paved path through park
+pedestrian_zone_sign;10;a photo of a eye catching zone sign {name} in a cobblestone street in old town
+priority_road_sign;1;a photo of a bold text {name} in a city intersection
+priority_road_sign;2;a photo of a bright colors {name} in a country road
+priority_road_sign;3;a photo of a high visibility {name} in a mountain pass
+priority_road_sign;4;a photo of a clear symbols {name} in a urban street
+priority_road_sign;5;a photo of a reflective surface {name} in a highway entrance
+priority_road_sign;6;a photo of a distinctive shape {name} in a bridge approach
+priority_road_sign;7;a photo of a large letters {name} in a rural road
+priority_road_sign;8;a photo of a contrasting background {name} in a coastal route
+priority_road_sign;9;a photo of a urgent appearance {name} in a suburban lane
+priority_road_sign;10;a photo of a prominent position {name} in a forest path
+slippery_road_sign;1;a photo of a wet surface warning {name} in a rainy highway
+slippery_road_sign;2;a photo of a slippery when wet {name} in a icy mountain pass
+slippery_road_sign;3;a photo of a icy road ahead {name} in a wet city street
+slippery_road_sign;4;a photo of a caution slippery surface {name} in a foggy coastal road
+slippery_road_sign;5;a photo of a slick pavement warning {name} in a snow covered bridge
+slippery_road_sign;6;a photo of a slip hazard {name} in a muddy rural path
+slippery_road_sign;7;a photo of a slippery road conditions {name} in a stormy night road
+slippery_road_sign;8;a photo of a greasy road sign {name} in a flooded river crossing
+slippery_road_sign;9;a photo of a hazardous road surface {name} in a slushy parking lot
+slippery_road_sign;10;a photo of a oily pavement alert {name} in a dewy morning driveway
+speed_limit_30_sign;1;a photo of a small rectangular shape {name} in a residential street
+speed_limit_30_sign;2;a photo of a white background color {name} in a school zone
+speed_limit_30_sign;3;a photo of a black border outline {name} in a small town downtown
+speed_limit_30_sign;4;a photo of a black numbers font {name} in a park area
+speed_limit_30_sign;5;a photo of a reflective surface material {name} in a hospital vicinity
+speed_limit_30_sign;6;a photo of a metal post support {name} in a construction zone
+speed_limit_30_sign;7;a photo of a roadside placement location {name} in a narrow bridge approach
+speed_limit_30_sign;8;a photo of a maximum speed indicator {name} in a sharp curve ahead
+speed_limit_30_sign;9;a photo of a urban area context {name} in a busy pedestrian crossing
+speed_limit_30_sign;10;a photo of a regulatory sign type {name} in a campus road
+speed_limit_80_sign;1;a photo of a high speed limit sign {name} in a highway through desert
+speed_limit_80_sign;2;a photo of a maximum velocity sign {name} in a rural country road
+speed_limit_80_sign;3;a photo of a fast travel zone sign {name} in a long bridge over water
+speed_limit_80_sign;4;a photo of a speed cap eighty sign {name} in a coastal road along the ocean
+speed_limit_80_sign;5;a photo of a accelerated zone notice {name} in a mountain pass
+speed_limit_80_sign;6;a photo of a rapid transit limit post {name} in a suburban outskirts
+speed_limit_80_sign;7;a photo of a eighty mph restriction plate {name} in a expressway through farmland
+speed_limit_80_sign;8;a photo of a swift movement area mark {name} in a forest road with clearings
+speed_limit_80_sign;9;a photo of a acceleration control signage {name} in a toll road section
+speed_limit_80_sign;10;a photo of a speed regulation eighty display {name} in a outer ring road of a city
+speed_limit_100_sign;1;a photo of a bright red border {name} in a highway through desert
+speed_limit_100_sign;2;a photo of a bold white numbers {name} in a rural country road
+speed_limit_100_sign;3;a photo of a circular shape {name} in a coastal freeway
+speed_limit_100_sign;4;a photo of a reflective surface {name} in a open plateau road
+speed_limit_100_sign;5;a photo of a clear visibility {name} in a mountain pass road
+speed_limit_100_sign;6;a photo of a metallic frame {name} in a wide suburban artery
+speed_limit_100_sign;7;a photo of a universally recognized {name} in a bridge over a river
+speed_limit_100_sign;8;a photo of a fixed post mounting {name} in a toll road section
+speed_limit_100_sign;9;a photo of a weather resistant {name} in a long straight farmland road
+speed_limit_100_sign;10;a photo of a high impact design {name} in a tunnel entrance approach
+speed_limit_120_sign;1;a photo of a high speed limit {name} in a highway desert view
+speed_limit_120_sign;2;a photo of a maximum velocity sign {name} in a long straight road
+speed_limit_120_sign;3;a photo of a rapid travel notice {name} in a urban expressway
+speed_limit_120_sign;4;a photo of a accelerated driving zone {name} in a bridge over river
+speed_limit_120_sign;5;a photo of a fast movement board {name} in a mountain pass
+speed_limit_120_sign;6;a photo of a swift transit mark {name} in a tunnel exit
+speed_limit_120_sign;7;a photo of a speedy conveyance indicator {name} in a coastal road
+speed_limit_120_sign;8;a photo of a quick motion post {name} in a border crossing area
+speed_limit_120_sign;9;a photo of a expeditious journey sign {name} in a industrial zone outskirts
+speed_limit_120_sign;10;a photo of a hasty travel warning {name} in a forest road clearing
+traffic_banned_sign;1;a photo of a no entry sign {name} in a quiet city street
+traffic_banned_sign;2;a photo of a red circle crossed {name} in a bicycle lane
+traffic_banned_sign;3;a photo of a stop vehicles symbol {name} in a pedestrian zone
+traffic_banned_sign;4;a photo of a prohibited passage icon {name} in a public park
+traffic_banned_sign;5;a photo of a forbidden entry mark {name} in a narrow alleyway
+traffic_banned_sign;6;a photo of a do not enter signage {name} in a historical town square
+traffic_banned_sign;7;a photo of a vehicle restriction notice {name} in a private driveway
+traffic_banned_sign;8;a photo of a access denied graphic {name} in a school zone
+traffic_banned_sign;9;a photo of a road closed emblem {name} in a shopping precinct
+traffic_banned_sign;10;a photo of a not allowed indicator {name} in a construction site
+work_zone_sign;1;a photo of a reflective surface {name} in a construction site
+work_zone_sign;2;a photo of a bright colors {name} in a road repair area
+work_zone_sign;3;a photo of a bold text {name} in a highway expansion zone
+work_zone_sign;4;a photo of a high visibility {name} in a bridge under construction
+work_zone_sign;5;a photo of a weather resistant {name} in a traffic detour route
+work_zone_sign;6;a photo of a cautionary symbols {name} in a street resurfacing location
+work_zone_sign;7;a photo of a durable material {name} in a utility work area
+work_zone_sign;8;a photo of a easy to read {name} in a sidewalk replacement zone
+work_zone_sign;9;a photo of a nighttime visibility {name} in a pipeline installation project
+work_zone_sign;10;a photo of a impactful message {name} in a landscaping renovation site

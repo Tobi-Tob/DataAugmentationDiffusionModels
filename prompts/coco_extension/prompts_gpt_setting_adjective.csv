@@ -1,0 +1,231 @@
+class_name;class_idx;prompt
+bench;1;a photo of a wooden {name} in a park with autumn leaves
+bench;2;a photo of a metal {name} in a city bus stop
+bench;3;a photo of a rustic {name} in a beach boardwalk
+bench;4;a photo of a modern {name} in a riverside walkway
+bench;5;a photo of a ornate {name} in a mountain viewpoint
+bench;6;a photo of a simple {name} in a garden pathway
+bench;7;a photo of a painting {name} in a school campus
+bench;8;a photo of a garden {name} in a train station platform
+bench;9;a photo of a curved {name} in a lakefront dock
+bench;10;a photo of a straight {name} in a forest clearing
+bicycle;1;a photo of a speedy bike {name} in a city park path
+bicycle;2;a photo of a vintage {name} in a suburban street
+bicycle;3;a photo of a mountain bike {name} in a downtown sidewalk
+bicycle;4;a photo of a racing {name} in a country road
+bicycle;5;a photo of a foldable bike {name} in a mountain trail
+bicycle;6;a photo of a electric {name} in a beach boardwalk
+bicycle;7;a photo of a kids bike {name} in a river walkway
+bicycle;8;a photo of a touring {name} in a college campus
+bicycle;9;a photo of a hybrid bike {name} in a forest path
+bicycle;10;a photo of a custom {name} in a bridge over river
+book;1;a photo of a colorful cover {name} in a a dimly lit alleyway
+book;2;a photo of a hardback edition {name} in a an old victorian mansion
+book;3;a photo of a illustrated pages {name} in a a bustling city square
+book;4;a photo of a dusty jacket {name} in a a quiet seaside town
+book;5;a photo of a vintage binding {name} in a a snow covered forest
+book;6;a photo of a glossy finish {name} in a an ancient ruined temple
+book;7;a photo of a leather bound {name} in a the busy galley of a ship
+book;8;a photo of a thick volume {name} in a a cramped attic room
+book;9;a photo of a compact size {name} in a a lavish royal court
+book;10;a photo of a dog eared pages {name} in a a small deserted island
+bottle;1;a photo of a clear {name} in a kitchen counter
+bottle;2;a photo of a amber {name} in a recycling bin
+bottle;3;a photo of a frosted {name} in a beach picnic
+bottle;4;a photo of a tall {name} in a dinner table
+bottle;5;a photo of a short {name} in a office desk
+bottle;6;a photo of a curvy {name} in a park bench
+bottle;7;a photo of a square {name} in a sidewalk cafe
+bottle;8;a photo of a ribbed {name} in a backyard barbecue
+bottle;9;a photo of a opaque {name} in a supermarket shelf
+bottle;10;a photo of a recycled {name} in a car cup holder
+bowl;1;a photo of a rounded {name} in a kitchen counter
+bowl;2;a photo of a deep {name} in a dining table
+bowl;3;a photo of a colorful {name} in a picnic blanket
+bowl;4;a photo of a ceramic {name} in a restaurant table
+bowl;5;a photo of a glass {name} in a coffee table
+bowl;6;a photo of a wooden {name} in a breakfast nook
+bowl;7;a photo of a decorative {name} in a patio table
+bowl;8;a photo of a large {name} in a buffet line
+bowl;9;a photo of a small {name} in a school cafeteria
+bowl;10;a photo of a textured {name} in a office desk
+car;1;a photo of a luxury sedan {name} in a city street
+car;2;a photo of a sleek sports {name} in a highway
+car;3;a photo of a rugged suv {name} in a country road
+car;4;a photo of a compact city {name} in a mountain pass
+car;5;a photo of a shiny new model {name} in a desert road
+car;6;a photo of a vintage classic {name} in a coastal drive
+car;7;a photo of a electric hatchback {name} in a forest path
+car;8;a photo of a powerful muscle {name} in a bridge over river
+car;9;a photo of a spacious minivan {name} in a parking lot
+car;10;a photo of a off road jeep {name} in a race track
+cellphone;1;a photo of a touch screen {name} in a city skyline at night
+cellphone;2;a photo of a high resolution {name} in a mountain landscape
+cellphone;3;a photo of a lightweight {name} in a beach sunset
+cellphone;4;a photo of a compact design {name} in a forest pathway
+cellphone;5;a photo of a dual sim {name} in a underwater coral reef
+cellphone;6;a photo of a water resistant {name} in a star filled night sky
+cellphone;7;a photo of a long battery life {name} in a flower field
+cellphone;8;a photo of a fast charging {name} in a desert sand dunes
+cellphone;9;a photo of a edge to edge display {name} in a snowy mountain peak
+cellphone;10;a photo of a fingerprint sensor {name} in a autumn leaves park
+chair;1;a photo of a comfortable {name} in a living room
+chair;2;a photo of a wooden {name} in a dining room
+chair;3;a photo of a reclining {name} in a bedroom
+chair;4;a photo of a upholstered {name} in a office space
+chair;5;a photo of a rotating {name} in a patio
+chair;6;a photo of a antique {name} in a balcony
+chair;7;a photo of a folding {name} in a garden
+chair;8;a photo of a armless {name} in a library
+chair;9;a photo of a rocking {name} in a cafe
+chair;10;a photo of a adjustable {name} in a beach
+clock;1;a photo of a antique {name} in a grandfather  in living room
+clock;2;a photo of a digital {name} in a wall  in kitchen
+clock;3;a photo of a grandfather {name} in a alarm  on bedside table
+clock;4;a photo of a wall mounted {name} in a street  in town square
+clock;5;a photo of a round {name} in a cuckoo  in dining room
+clock;6;a photo of a square {name} in a digital  on office desk
+clock;7;a photo of a colorful {name} in a sundial in garden
+clock;8;a photo of a minimalist {name} in a tower  on city hall
+clock;9;a photo of a luminous {name} in a wristwatch on dresser
+clock;10;a photo of a ornate {name} in a stopwatch in gym locker room
+cup;1;a photo of a shiny {name} in a kitchen counter
+cup;2;a photo of a cracked {name} in a coffee table
+cup;3;a photo of a colorful {name} in a office desk
+cup;4;a photo of a insulated {name} in a breakfast nook
+cup;5;a photo of a tall {name} in a outdoor patio
+cup;6;a photo of a small {name} in a bedside table
+cup;7;a photo of a ceramic {name} in a restaurant table
+cup;8;a photo of a glass {name} in a picnic blanket
+cup;9;a photo of a vintage {name} in a library desk
+cup;10;a photo of a decorative {name} in a school cafeteria
+fork;1;a photo of a long tined {name} in a kitchen drawer
+fork;2;a photo of a small dessert {name} in a dining table
+fork;3;a photo of a antique silver {name} in a picnic basket
+fork;4;a photo of a plastic disposable {name} in a restaurant table setting
+fork;5;a photo of a curved salad {name} in a wedding reception table
+fork;6;a photo of a heavy duty {name} in a camping site
+fork;7;a photo of a multi colored {name} in a buffet service area
+fork;8;a photo of a rustic wooden {name} in a dishwasher cutlery basket
+fork;9;a photo of a shiny stainless steel {name} in a silverware organizer
+fork;10;a photo of a broad {name} in a culinary school workstation
+keyboard;1;a photo of a compact {name} in a office desk
+keyboard;2;a photo of a ergonomic {name} in a home study
+keyboard;3;a photo of a mechanical {name} in a recording studio
+keyboard;4;a photo of a illuminated {name} in a gaming setup
+keyboard;5;a photo of a wireless {name} in a library table
+keyboard;6;a photo of a gaming {name} in a coffee shop
+keyboard;7;a photo of a low profile {name} in a classroom desk
+keyboard;8;a photo of a silent {name} in a bedroom desk
+keyboard;9;a photo of a customizable {name} in a co working space
+keyboard;10;a photo of a splash proof {name} in a music production room
+knife;1;a photo of a sharp blade {name} in a kitchen counter
+knife;2;a photo of a serrated edge {name} in a cutting board
+knife;3;a photo of a gleaming metal {name} in a chef s table
+knife;4;a photo of a rusty handle {name} in a outdoor campfire
+knife;5;a photo of a foldable {name} in a butcher shop
+knife;6;a photo of a heavy duty {name} in a dining table
+knife;7;a photo of a lightweight cutter {name} in a picnic basket
+knife;8;a photo of a curved blade {name} in a hunting gear
+knife;9;a photo of a double edged {name} in a fishing tackle box
+knife;10;a photo of a stainless steel {name} in a survival kit
+laptop;1;a photo of a sleek design {name} in a coffee shop table
+laptop;2;a photo of a lightweight frame {name} in a office desk
+laptop;3;a photo of a vivid display {name} in a bedroom nightstand
+laptop;4;a photo of a ultra portable {name} in a library study area
+laptop;5;a photo of a high resolution screen {name} in a public park bench
+laptop;6;a photo of a compact size {name} in a airport lounge
+laptop;7;a photo of a durable build {name} in a living room couch
+laptop;8;a photo of a touchscreen interface {name} in a dorm room desk
+laptop;9;a photo of a long battery life {name} in a kitchen counter
+laptop;10;a photo of a ergonomic keyboard {name} in a hotel room desk
+motorcycle;1;a photo of a sleek design {name} in a mountain road
+motorcycle;2;a photo of a roaring engine {name} in a city street
+motorcycle;3;a photo of a chrome accented {name} in a beach front
+motorcycle;4;a photo of a vintage look {name} in a desert highway
+motorcycle;5;a photo of a lightning fast {name} in a country lane
+motorcycle;6;a photo of a matte finish {name} in a forest path
+motorcycle;7;a photo of a custom painted {name} in a bridge over river
+motorcycle;8;a photo of a thrilling speed {name} in a tunnel through mountain
+motorcycle;9;a photo of a aggressive stance {name} in a abandoned factory
+motorcycle;10;a photo of a heavy duty {name} in a race track
+mouse;1;a photo of a ergonomic design {name} in a office desk
+mouse;2;a photo of a sleek appearance {name} in a computer setup
+mouse;3;a photo of a lightweight structure {name} in a home office
+mouse;4;a photo of a multi button layout {name} in a gaming station
+mouse;5;a photo of a adjustable dpi {name} in a graphic design workspace
+mouse;6;a photo of a wireless connectivity {name} in a programming desk
+mouse;7;a photo of a led lighting {name} in a student dorm room
+mouse;8;a photo of a ambidextrous shape {name} in a corporate meeting room
+mouse;9;a photo of a customizable buttons {name} in a technology expo booth
+mouse;10;a photo of a soft touch finish {name} in a remote work cafe
+potted_plant;1;a photo of a lush {name} in a living room corner
+potted_plant;2;a photo of a flowering {name} in a office desk
+potted_plant;3;a photo of a verdant {name} in a kitchen window
+potted_plant;4;a photo of a tall {name} in a balcony railing
+potted_plant;5;a photo of a vibrant {name} in a bedroom nightstand
+potted_plant;6;a photo of a leafy {name} in a bathroom shelf
+potted_plant;7;a photo of a drought resistant {name} in a entryway table
+potted_plant;8;a photo of a petite {name} in a backyard patio
+potted_plant;9;a photo of a variegated {name} in a hospital room
+potted_plant;10;a photo of a exotic {name} in a school classroom
+remote;1;a photo of a sleek surface {name} in a living room couch
+remote;2;a photo of a button layout {name} in a coffee table
+remote;3;a photo of a compact size {name} in a bedroom nightstand
+remote;4;a photo of a infrared sensor {name} in a home theater setup
+remote;5;a photo of a black housing {name} in a family room recliner
+remote;6;a photo of a ergonomic design {name} in a college dorm desk
+remote;7;a photo of a soft touch buttons {name} in a basement entertainment center
+remote;8;a photo of a battery compartment {name} in a hotel room desk
+remote;9;a photo of a universal compatibility {name} in a rv dinette table
+remote;10;a photo of a led indicator {name} in a backyard patio table
+spoon;1;a photo of a shiny {name} in a kitchen drawer
+spoon;2;a photo of a curved {name} in a dining table
+spoon;3;a photo of a long handle {name} in a coffee cup
+spoon;4;a photo of a stainless steel {name} in a sink with dishes
+spoon;5;a photo of a wooden {name} in a picnic basket
+spoon;6;a photo of a tiny {name} in a restaurant table setting
+spoon;7;a photo of a soup {name} in a cooking pot
+spoon;8;a photo of a flat {name} in a dessert plate
+spoon;9;a photo of a ornate {name} in a breakfast tray
+spoon;10;a photo of a colorful {name} in a dishwasher rack
+sportsball;1;a photo of a round shape {name} in a sports stadium
+sportsball;2;a photo of a bright colors {name} in a training field
+sportsball;3;a photo of a leather texture {name} in a locker room
+sportsball;4;a photo of a vibrant markings {name} in a gymnasium
+sportsball;5;a photo of a smooth surface {name} in a fan zone
+sportsball;6;a photo of a rubber material {name} in a city park
+sportsball;7;a photo of a high bounce {name} in a beach volleyball court
+sportsball;8;a photo of a waterproof coating {name} in a street court
+sportsball;9;a photo of a durable design {name} in a school sport ground
+sportsball;10;a photo of a air filled {name} in a community recreational center
+tie;1;a photo of a striped {name} in a office setting
+tie;2;a photo of a polka dotted {name} in a corporate meeting
+tie;3;a photo of a silk {name} in a job interview
+tie;4;a photo of a wool {name} in a wedding ceremony
+tie;5;a photo of a slim {name} in a formal event
+tie;6;a photo of a wide {name} in a church service
+tie;7;a photo of a colorful {name} in a graduation ceremony
+tie;8;a photo of a knitted {name} in a court appearance
+tie;9;a photo of a paisley {name} in a diplomatic assembly
+tie;10;a photo of a solid color {name} in a funeral service
+trafficlight;1;a photo of a blinking red {name} in a city intersection
+trafficlight;2;a photo of a steady green {name} in a urban street
+trafficlight;3;a photo of a flashing yellow {name} in a suburban crossroads
+trafficlight;4;a photo of a bright lights {name} in a downtown highway exit
+trafficlight;5;a photo of a faded signals {name} in a residential area
+trafficlight;6;a photo of a broken light {name} in a commercial district
+trafficlight;7;a photo of a clear indicators {name} in a school zone
+trafficlight;8;a photo of a visible from afar {name} in a hospital entrance
+trafficlight;9;a photo of a dim glow {name} in a railroad crossing
+trafficlight;10;a photo of a colorful display {name} in a pedestrian crosswalk
+wineglas;1;a photo of a elegant stem {name} in a wine cellar
+wineglas;2;a photo of a crystal clear {name} in a elegant dining room
+wineglas;3;a photo of a full bodied {name} in a vineyard outdoors
+wineglas;4;a photo of a long stemmed {name} in a modern kitchen
+wineglas;5;a photo of a hand blown {name} in a romantic restaurant
+wineglas;6;a photo of a glistening surface {name} in a cozy fireplace room
+wineglas;7;a photo of a vintage style {name} in a luxury bar
+wineglas;8;a photo of a balloon shaped {name} in a picnic basket setting
+wineglas;9;a photo of a tulip bowl {name} in a beach sunset view
+wineglas;10;a photo of a wide brim {name} in a rooftop party

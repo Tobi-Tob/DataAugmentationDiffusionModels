@@ -79,6 +79,7 @@ if __name__ == "__main__":
 
             # Calculate the index for the current prompt (cycle through list)
             prompt_idx = idx % len(args.prompt)
+            print(f"prompts_idx: {prompt_idx} -> chosen prompt: {args.prompt[prompt_idx]}")
 
             image = pipe(
                 args.prompt[prompt_idx],
