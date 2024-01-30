@@ -30,18 +30,18 @@ DATASETS = {
 }
 
 
-def train_filter(examples_per_class,
+def train_filter(examples_per_class: int,
                  seed: int,
                  dataset: str,
                  image_size: int,
                  iterations_per_epoch: int = 200,
-                 max_epochs: int = 100,
+                 max_epochs: int = 50,
                  batch_size: int = 32,
                  model_dir: str = "models",
                  lr: float = 1e-4,
                  weight_decay: float = 1e-2,
                  use_randaugment: bool = True,
-                 early_stopping_threshold: int = 10,
+                 early_stopping_threshold: int = 6,
                  optimize_temperature: bool = True,
                  temp_optimizer_lr: float = 1e-2,
                  temp_optimizer_iterations: int = 500):
@@ -308,7 +308,7 @@ def train_filter(examples_per_class,
         print(f'Expected Calibration Error (ECE) improved from {before_temperature_ece:.4f} -> {after_temperature_ece:.4f}')
 
     os.makedirs(model_dir, exist_ok=True)
-    model_path = f"{model_dir}/ClassificationFilterModel.pth"
+    model_path = f"{model_dir}/filter_{dataset}_{seed}_{examples_per_class}.pth"
     torch.save(filter_model.state_dict(), model_path)
 
     print(f"Model saved to {model_path} - Validation loss {best_validation_loss} - Validation accuracy "

@@ -95,7 +95,7 @@ def run_experiment(examples_per_class: int = 0,
                    erasure_ckpt_path: str = None,
                    image_size: int = 256,
                    classifier_backbone: str = "resnet50",
-                   synthetics_filter_threshold: float = None,
+                   synthetic_filter: str = None,
                    filter_mask_area: int = 0,
                    use_llm_prompt: bool = False,
                    prompt_path: str = DEFAULT_PROMPT_PATH,
@@ -105,8 +105,8 @@ def run_experiment(examples_per_class: int = 0,
     np.random.seed(seed)
     random.seed(seed)
 
-    train_new_filter = False
-    if synthetics_filter_threshold is not None and train_new_filter:
+    use_synthetic_filter = True if synthetic_filter is "train" or "use" else False
+    if synthetic_filter == "train":
         # Initialize and train the ClassificationFilterModel here and save it in models
         train_filter(examples_per_class=examples_per_class,
                      seed=seed,
@@ -144,16 +144,17 @@ def run_experiment(examples_per_class: int = 0,
         use_randaugment=use_randaugment,
         generative_aug=aug, seed=seed,
         image_size=(image_size, image_size),
-        synthetics_filter_threshold=synthetics_filter_threshold,
+        use_synthetic_filter=use_synthetic_filter,
         filter_mask_area=filter_mask_area,
         use_llm_prompt=use_llm_prompt,
         prompt_path=prompt_path)
 
     if num_synthetic > 0 and aug is not None:
+        if use_synthetic_filter:
+            train_dataset.load_filter(path=f"models/filter_{dataset}_{seed}_{examples_per_class}.pth")
         train_dataset.generate_augmentations(num_synthetic)
-        if synthetics_filter_threshold is not None:
-            print('Amount of discarded images of each class:')
-            print(train_dataset.number_of_discarded_images)
+        if use_synthetic_filter:
+            train_dataset.normalize_weights()
 
     cutmix_dataset = None
     if use_cutmix and IS_CUTMIX_INSTALLED:
@@ -496,7 +497,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--prompt-path", type=str, default="prompts/prompts.csv")
 
-    parser.add_argument("--synthetic-probability", type=float, default=0.5)
+    parser.add_argument("--synthetic-probability", type=float, default=0.7)
     # Probability to pick an image from the synthetic dataset while training the downstream model
     parser.add_argument("--synthetic-dir", type=str, default=DEFAULT_SYNTHETIC_DIR)
     # Directory to save the generated synthetic images
@@ -577,11 +578,10 @@ if __name__ == "__main__":
     # A Textual Inversion Parameter
     #   Only used when --aug "multi-token-inversion" selected
 
-    parser.add_argument("--synthetics-filter", type=float, default=None)
+    parser.add_argument("--synthetic_filter", type=str, default=None,
+                        choices=["use", "train", None])
     # Use a classifier as filter to determine the presence of the labelled class in the synthetically
-    # generated images. The filter threshold, set to 0.2, acts as a criterion for image inclusion.
-    # Images with a class score of the label below 0.2 are discarded. A filter threshold of None
-    # implies no filtering, allowing all images to be used in training the downstream model.
+    # generated images. "Use" will use a saved filter, "train" will train a new one.
 
     parser.add_argument("--filter_mask_area", type=int, default=0)
     # Determines how much images per class to filter out by area size of largest bounding box for pseudo word generation
@@ -640,7 +640,7 @@ if __name__ == "__main__":
             erasure_ckpt_path=args.erasure_ckpt_path,
             image_size=args.image_size,
             classifier_backbone=args.classifier_backbone,
-            synthetics_filter_threshold=args.synthetics_filter,
+            synthetic_filter=args.synthetic_filter,
             filter_mask_area=args.filter_mask_area,
             use_llm_prompt=args.use_generated_prompts,
             prompt_path=args.prompt_path,
