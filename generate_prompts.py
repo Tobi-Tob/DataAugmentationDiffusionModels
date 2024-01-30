@@ -233,9 +233,8 @@ def process_gpt_api(client, c_names: list, num_prompts: int, content_: str):
 
 
 def init_gpt_api():
-    api_key_janik = "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"
-    api_key_uni = "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"
-    return OpenAI(api_key=api_key_uni)
+    api_key = "<YOUR API KEY>"
+    return OpenAI(api_key=api_key)
 
 
 if __name__ == '__main__':
