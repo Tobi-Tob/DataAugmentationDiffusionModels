@@ -1,0 +1,15 @@
+Unsinnige Adjektive: "a ac-curateh clock", "a deumeaning knife" "a spoon fork", "adventurous motorcycle"
+
+Prompts die semantisch keinen Sinn ergeben: "cup in a coffee", "cup in a tea" "a photo of a wineglas wineglas in a wine glas"
+
+Eventuell alles kleingeschrieben
+
+Ziemlich gute Klassen: bottle, car, sportsball
+
+Ziemlich schlechte Klassen: cellphone, clock, chair, eigentlich fast alle
+
+Bei Adjektiven evt. nur objektive (grün, groß) statt subjektive (komfortabel, majestätisch) nutzen
+
+Doppeldeutigkeiten: z.B. desert -> Wüste, Nachtisch  /  piano-like keyboard
+
+Nichtsaussagende Adjektive: "round bottle/bowl", "portable cellphone"
