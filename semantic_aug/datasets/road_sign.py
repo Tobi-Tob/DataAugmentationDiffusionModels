@@ -11,7 +11,7 @@ import torch
 import warnings
 import matplotlib.pyplot as plt
 
-ROAD_SIGN_DIR = r"/data/vilab07/Road_Signs"
+ROAD_SIGN_DIR = r"/data/vilab05/CustomDatasets/Road_Signs"
 
 
 class RoadSignDataset(FewShotDataset):
@@ -93,7 +93,7 @@ class RoadSignDataset(FewShotDataset):
         selected_class_ids = {"train": class_ids_train, "val": class_ids_val, "test": class_ids_test}[split]
 
         # Limits the number of examples per class
-        if examples_per_class is not None and split is not "test":
+        if examples_per_class is not None and split is "train":
             for class_name in self.class_names:
                 selected_class_ids[class_name] = selected_class_ids[class_name][:examples_per_class]
 
@@ -179,7 +179,7 @@ class RoadSignDataset(FewShotDataset):
 
 
 if __name__ == "__main__":
-    dataset = RoadSignDataset(split="test", examples_per_class=8)
+    dataset = RoadSignDataset(split="val", examples_per_class=8)
     print('Dataset class counts:', dataset.class_counts)
     idx = 0
     dataset.visualize_by_idx(idx)

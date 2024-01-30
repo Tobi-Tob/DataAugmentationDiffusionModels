@@ -11,7 +11,7 @@ import torch
 import warnings
 import matplotlib.pyplot as plt
 
-COCO_EXTENSION_DIR = r"/data/vilab06/CustomDatasets/Common_Objects"
+COCO_EXTENSION_DIR = r"/data/vilab05/CustomDatasets/Common_Objects"
 # COCO_EXTENSION_DIR = r"D:\Studium\TUDarmstadt\WiSe23_24\DLCV\datasets\common_obj_our\CustomDatasets\Common_Objects"
 
 
@@ -48,7 +48,6 @@ class COCOExtension(FewShotDataset):
     "tie", "trafficlight", "wineglas"]
     class_names = sorted(classes)
     num_classes: int = len(class_names)
-    print(f"num_classes to be evaluated from dataset coco_extension: {num_classes}")
 
     def __init__(self, *args, data_dir: str = COCO_EXTENSION_DIR,
                  split: str = "train", seed: int = 0,
@@ -70,28 +69,35 @@ class COCOExtension(FewShotDataset):
         # glob.glob is used to retrieve all files with a ".jpg" extension in these directories.
         self.image_paths = {class_name: [] for class_name in self.class_names}
         for class_name in self.class_names:
-            class_dir_path = os.path.join(data_dir, 'train-val', class_name)
+            if split is "test":
+                class_dir_path = os.path.join(data_dir, 'test', class_name)
+            else:
+                class_dir_path = os.path.join(data_dir, 'train-val', class_name)
             class_image_paths = glob.glob(os.path.join(class_dir_path, '*.jpg'))
             self.image_paths[class_name].extend(class_image_paths)
 
         rng = np.random.default_rng(seed)
 
-        # Generate random permutations of indices for the lists absent and apparent
+        # Generate random permutations of indices
         class_ids = {class_name: rng.permutation(len(self.image_paths[class_name]))
                      for class_name in self.class_names}
 
-        # Split the shuffled indices into training and validation sets
-        train_split_proportion = 0.7  # (70%/30%)
-        class_ids_train, class_ids_val = {}, {}
-        for class_name in self.class_names:
-            class_ids_train[class_name], class_ids_val[class_name] = np.array_split(
-                class_ids[class_name], [int(train_split_proportion * len(class_ids[class_name]))])
+        class_ids_train, class_ids_val, class_ids_test = {}, {}, {}
+        if split is "test":
+            class_ids_test = class_ids
+        else:
+            # Split the shuffled indices into training and validation sets
+            train_split_proportion = 0.7  # (70%/30%)
 
-        # Select either the training or validation indices based on the provided split parameter
-        selected_class_ids = {"train": class_ids_train, "val": class_ids_val}[split]
+            for class_name in self.class_names:
+                class_ids_train[class_name], class_ids_val[class_name] = np.array_split(
+                    class_ids[class_name], [int(train_split_proportion * len(class_ids[class_name]))])
+
+        # Select the training, validation or test indices based on the provided split parameter
+        selected_class_ids = {"train": class_ids_train, "val": class_ids_val, "test": class_ids_test}[split]
 
         # Limits the number of examples per class
-        if examples_per_class is not None:
+        if examples_per_class is not None and split is "train":
             for class_name in self.class_names:
                 selected_class_ids[class_name] = selected_class_ids[class_name][:examples_per_class]
 
@@ -127,8 +133,8 @@ class COCOExtension(FewShotDataset):
             ])
         else:
             train_transform = transforms.Compose([
-                transforms.Resize(image_size),
-                transforms.RandomHorizontalFlip(p=0.0),  # flips useful for signs?
+                transforms.RandomResizedCrop(size=image_size, scale=(0.7, 1)),
+                transforms.RandomHorizontalFlip(p=0.5),
                 transforms.RandomRotation(degrees=15.0),
                 transforms.ToTensor(),
                 transforms.ConvertImageDtype(torch.float),
@@ -144,7 +150,7 @@ class COCOExtension(FewShotDataset):
                                  std=[0.5, 0.5, 0.5])
         ])
 
-        self.transform = {"train": train_transform, "val": val_transform}[split]
+        self.transform = {"train": train_transform, "val": val_transform, "test": val_transform}[split]
 
     def __len__(self):
 
@@ -177,6 +183,7 @@ class COCOExtension(FewShotDataset):
 
 
 if __name__ == "__main__":
-    dataset = COCOExtension()
+    dataset = COCOExtension(split="val", examples_per_class=2)
+    print('Dataset class counts:', dataset.class_counts)
     idx = 0
     dataset.visualize_by_idx(idx)
