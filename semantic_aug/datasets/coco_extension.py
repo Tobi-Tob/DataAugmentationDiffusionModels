@@ -48,7 +48,6 @@ class COCOExtension(FewShotDataset):
     "tie", "trafficlight", "wineglas"]
     class_names = sorted(classes)
     num_classes: int = len(class_names)
-    print(f"num_classes to be evaluated from dataset coco_extension: {num_classes}")
 
     def __init__(self, *args, data_dir: str = COCO_EXTENSION_DIR,
                  split: str = "train", seed: int = 0,
