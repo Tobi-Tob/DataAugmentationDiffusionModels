@@ -35,10 +35,10 @@ from train_filter import train_filter
 
 try:
     from cutmix.cutmix import CutMix
+
     IS_CUTMIX_INSTALLED = True
 except:
     IS_CUTMIX_INSTALLED = False
-
 
 DEFAULT_MODEL_PATH = "CompVis/stable-diffusion-v1-4"
 
@@ -99,8 +99,8 @@ def run_experiment(examples_per_class: int = 0,
                    filter_mask_area: int = 0,
                    use_llm_prompt: bool = False,
                    prompt_path: str = DEFAULT_PROMPT_PATH,
-                   eval_on_test_set: bool = False):
-
+                   eval_on_test_set: bool = False,
+                   logdir: str = "logs"):
     torch.manual_seed(seed)
     np.random.seed(seed)
     random.seed(seed)
@@ -115,14 +115,13 @@ def run_experiment(examples_per_class: int = 0,
                      image_size=image_size)
 
     if aug is not None:
-
         aug = COMPOSERS[compose]([
 
             AUGMENTATIONS[aug](
-                embed_path=embed_path, 
-                model_path=model_path, 
+                embed_path=embed_path,
+                model_path=model_path,
                 prompt=prompt,  # this is only the initialization with the default prompt
-                strength=strength, 
+                strength=strength,
                 guidance_scale=guidance_scale,
                 mask=mask,
                 inverted=inverted,
@@ -269,7 +268,6 @@ def run_experiment(examples_per_class: int = 0,
             accuracy = (prediction == label).float()
 
             with torch.no_grad():
-
                 epoch_size.scatter_add_(0, label, torch.ones_like(loss))
                 epoch_loss.scatter_add_(0, label, loss)
                 epoch_accuracy.scatter_add_(0, label, accuracy)
@@ -322,7 +320,6 @@ def run_experiment(examples_per_class: int = 0,
         ))
 
         for i, name in enumerate(train_dataset.class_names):
-
             records.append(dict(
                 seed=seed,
                 examples_per_class=examples_per_class,
@@ -365,14 +362,10 @@ def run_experiment(examples_per_class: int = 0,
         model.eval()
 
         # Build the test dataset
-        test_dataset = DATASETS[dataset](
-            split="test", seed=seed,
-            image_size=(image_size, image_size))
+        test_dataset = DATASETS[dataset](split="test", seed=seed, image_size=(image_size, image_size))
+        test_dataloader = DataLoader(test_dataset, batch_size=batch_size, num_workers=4)
 
-        test_dataloader = DataLoader(
-            test_dataset, batch_size=batch_size, num_workers=4)
-
-        total_accuracy = 0.0
+        """total_accuracy = 0.0
         class_accuracies = [0.0] * test_dataset.num_classes
 
         with torch.no_grad():
@@ -390,7 +383,38 @@ def run_experiment(examples_per_class: int = 0,
         total_accuracy /= len(test_dataset)
 
         print(f'Test Accuracy of Classifier model with the highest validation accuracy: {total_accuracy:.4f}')
-        # TODO Save accuracys in well named log file
+        # TODO Save accuracys in well named log file"""
+
+        epoch_loss = torch.zeros(test_dataset.num_classes, dtype=torch.float32, device='cuda')
+        epoch_accuracy = torch.zeros(test_dataset.num_classes, dtype=torch.float32, device='cuda')
+        epoch_size = torch.zeros(test_dataset.num_classes, dtype=torch.float32, device='cuda')
+        for image, label in test_dataloader:
+            image, label = image.cuda(), label.cuda()
+            logits = model(image)
+            prediction = logits.argmax(dim=1)
+            loss = F.cross_entropy(logits, label, reduction="none")
+            accuracy = (prediction == label).float()
+            with torch.no_grad():
+                epoch_size.scatter_add_(0, label, torch.ones_like(loss))
+                epoch_loss.scatter_add_(0, label, loss)
+                epoch_accuracy.scatter_add_(0, label, accuracy)
+        print("Epoch Size:-------------------------------", epoch_size)
+        test_loss = epoch_loss / epoch_size.clamp(min=1)
+        test_accuracy = epoch_accuracy / epoch_size.clamp(min=1)
+        test_loss = test_loss.cpu().numpy()
+        test_accuracy = test_accuracy.cpu().numpy()
+
+        testset_record = []
+        testset_record.append(dict(value=test_loss.mean(), metric=f"Mean Loss"))
+        testset_record.append(dict(value=test_accuracy.mean(), metric=f"Mean Accuracy"))
+        for i, name in enumerate(test_dataset.class_names):
+            testset_record.append(dict(value=test_loss[i], metric=f"Loss {name.title()}"))
+            testset_record.append(dict(value=test_accuracy[i], metric=f"Accuracy {name.title()}"))
+        all_trials = []
+        all_trials.extend(testset_record)
+        path = os.path.join(logdir, f"testset_results.csv")
+        pd.DataFrame.from_records(all_trials).to_csv(path)
+        print(f"testset record saved to: {path}")
 
     return records
 
@@ -402,7 +426,7 @@ class ClassificationModel(nn.Module):
         super(ClassificationModel, self).__init__()
 
         self.backbone = backbone
-        self.image_processor  = None
+        self.image_processor = None
 
         if backbone == "resnet50":
 
@@ -451,21 +475,21 @@ if __name__ == "__main__":
     To run this skript the fine-tuned embeddings are needed in directory coco-tokens (execute step 1 and 2).
     The classifier will be a fine-tuned version of classifier-backbone (resnet50) trained on a combination of real
     and synthetic data.
-    
+
     Run in terminal:
     (test)
     python train_classifier.py --synthetic-dir "synthetics_test" --iterations-per-epoch 10 --num-epochs 2 --batch-size 32 --num-synthetic 2 --examples-per-class 1 --embed-path "coco-tokens/coco-0-2.pt" --aug "textual-inversion" --strength 0.8 --guidance-scale 7.5 --mask 0 --inverted 0
     (values of paper)
     python train_classifier.py --synthetic-dir "synthetics" --iterations-per-epoch 200 --num-epochs 50 --batch-size 32 --num-synthetic 10 --num-trials 2 --examples-per-class 8 --embed-path "coco-tokens/coco-0-8.pt" --aug "textual-inversion" --strength 0.5 --guidance-scale 7.5 --mask 0 --inverted 0
-    
+
     30.11 tried filter run:
     python train_classifier.py --synthetic-dir "synthetics" --iterations-per-epoch 200 --num-epochs 50 --batch-size 32 --num-synthetic 10 --num-trials 2 --examples-per-class 8 --embed-path "coco-tokens/coco-0-8.pt" --aug "textual-inversion" --strength 0.6 --guidance-scale 10 --mask 0 --inverted 0 --synthetics-filter 0.2
     06.12 filter run without bias:
     python train_classifier.py --synthetic-dir "synthetics" --iterations-per-epoch 200 --num-epochs 50 --batch-size 32 --num-synthetic 10 --num-trials 2 --examples-per-class 8 --embed-path "coco-tokens/coco-0-8.pt" --aug "textual-inversion" --strength 0.6 --guidance-scale 10 --mask 0 --inverted 0 --synthetics-filter 0.25
-    
+
     04.01 first road_sign run:
     python train_classifier.py --dataset "road_sign" --synthetic-dir "synthetics" --iterations-per-epoch 200 --num-epochs 50 --batch-size 32 --num-synthetic 10 --num-trials 1 --examples-per-class 8 --embed-path "road_sign-tokens/road_sign-0-8.pt" --aug "textual-inversion" --strength 0.5 --guidance-scale 7.5
-    
+
     MR: COCOExtension:
     python train_classifier.py --dataset "coco_extension" --synthetic-dir "intermediates/coco_ext_test/synthetic_class_concepts" --logdir "intermediates/coco_ext_test/logs" --iterations-per-epoch 200 --num-epochs 50 --batch-size 32 --num-synthetic 5 --num-trials 1 --examples-per-class 8 --embed-path "intermediates/coco_ext_test/coco_extension-tokens/coco_extension-0-2.pt" --aug "textual-inversion" --strength 0.5 --guidance-scale 7.5 --mask 0 --inverted 0 --use-generated-prompts 0
     '''
@@ -517,7 +541,8 @@ if __name__ == "__main__":
     # Path to the trained embeddings of the pseudo words
 
     parser.add_argument("--dataset", type=str, default="coco",
-                        choices=["spurge", "imagenet", "coco", "pascal", "flowers", "caltech", "road_sign", "coco_extension"])
+                        choices=["spurge", "imagenet", "coco", "pascal", "flowers", "caltech", "road_sign",
+                                 "coco_extension"])
     # Select which dataset to use (we only use coco)
 
     parser.add_argument("--aug", nargs="+", type=str, default="textual-inversion",
@@ -605,7 +630,6 @@ if __name__ == "__main__":
     options = np.array_split(options, world_size)[rank]
 
     for seed, examples_per_class in options.tolist():
-
         hyperparameters = dict(
             examples_per_class=examples_per_class,
             seed=seed,
@@ -614,8 +638,8 @@ if __name__ == "__main__":
             iterations_per_epoch=args.iterations_per_epoch,
             batch_size=args.batch_size,
             model_path=args.model_path,
-            synthetic_probability=args.synthetic_probability, 
-            num_synthetic=args.num_synthetic, 
+            synthetic_probability=args.synthetic_probability,
+            num_synthetic=args.num_synthetic,
             prompt=args.prompt,
             tokens_per_class=args.tokens_per_class,
             aug=args.aug,
@@ -634,7 +658,8 @@ if __name__ == "__main__":
             filter_mask_area=args.filter_mask_area,
             use_llm_prompt=args.use_generated_prompts,
             prompt_path=args.prompt_path,
-            eval_on_test_set=args.eval_on_test_set)
+            eval_on_test_set=args.eval_on_test_set,
+            logdir=args.logdir)
 
         synthetic_dir = args.synthetic_dir.format(**hyperparameters)
         embed_path = args.embed_path.format(**hyperparameters)
