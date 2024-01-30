@@ -363,27 +363,7 @@ def run_experiment(examples_per_class: int = 0,
 
         # Build the test dataset
         test_dataset = DATASETS[dataset](split="test", seed=seed, image_size=(image_size, image_size))
-        test_dataloader = DataLoader(test_dataset, batch_size=batch_size, num_workers=4)
-
-        """total_accuracy = 0.0
-        class_accuracies = [0.0] * test_dataset.num_classes
-
-        with torch.no_grad():
-            for image, label in test_dataloader:
-                image, label = image.cuda(), label.cuda()
-
-                logits = model(image)
-                prediction = logits.argmax(dim=1)
-
-                total_accuracy += (prediction == label).float().sum().item()
-
-                # TODO Calculate class accuracies
-
-        # Calculate final metrics
-        total_accuracy /= len(test_dataset)
-
-        print(f'Test Accuracy of Classifier model with the highest validation accuracy: {total_accuracy:.4f}')
-        # TODO Save accuracys in well named log file"""
+        test_dataloader = DataLoader(test_dataset)
 
         epoch_loss = torch.zeros(test_dataset.num_classes, dtype=torch.float32, device='cuda')
         epoch_accuracy = torch.zeros(test_dataset.num_classes, dtype=torch.float32, device='cuda')
@@ -398,23 +378,21 @@ def run_experiment(examples_per_class: int = 0,
                 epoch_size.scatter_add_(0, label, torch.ones_like(loss))
                 epoch_loss.scatter_add_(0, label, loss)
                 epoch_accuracy.scatter_add_(0, label, accuracy)
-        print("Epoch Size:-------------------------------", epoch_size)
+
         test_loss = epoch_loss / epoch_size.clamp(min=1)
         test_accuracy = epoch_accuracy / epoch_size.clamp(min=1)
         test_loss = test_loss.cpu().numpy()
         test_accuracy = test_accuracy.cpu().numpy()
+        print(f'Test Accuracy: {test_accuracy.mean()}')
 
-        testset_record = []
-        testset_record.append(dict(value=test_loss.mean(), metric=f"Mean Loss"))
-        testset_record.append(dict(value=test_accuracy.mean(), metric=f"Mean Accuracy"))
+        testset_record = [dict(value=test_loss.mean(), metric=f"Mean Loss"),
+                          dict(value=test_accuracy.mean(), metric=f"Mean Accuracy")]
         for i, name in enumerate(test_dataset.class_names):
             testset_record.append(dict(value=test_loss[i], metric=f"Loss {name.title()}"))
             testset_record.append(dict(value=test_accuracy[i], metric=f"Accuracy {name.title()}"))
-        all_trials = []
-        all_trials.extend(testset_record)
-        path = os.path.join(logdir, f"testset_results.csv")
-        pd.DataFrame.from_records(all_trials).to_csv(path)
-        print(f"testset record saved to: {path}")
+        test_path = os.path.join(logdir, f"test_results_{dataset}_{seed}_{examples_per_class}.csv")
+        pd.DataFrame.from_records(testset_record).to_csv(test_path)
+        print(f"testset record saved to: {test_path}")
 
     return records
 
@@ -668,7 +646,7 @@ if __name__ == "__main__":
             synthetic_dir=synthetic_dir,
             embed_path=embed_path, **hyperparameters))
 
-        path = f"results_{seed}_{examples_per_class}.csv"
+        path = f"results_{args.dataset}_{seed}_{examples_per_class}.csv"
         path = os.path.join(args.logdir, path)
 
         pd.DataFrame.from_records(all_trials).to_csv(path)
