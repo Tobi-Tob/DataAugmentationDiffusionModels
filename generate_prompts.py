@@ -4,19 +4,18 @@ import ast
 from transformers import AutoTokenizer, pipeline
 import transformers
 import torch
-# from semantic_aug.datasets.coco import COCODataset
-# from semantic_aug.datasets.coco_extension import COCOExtension
-# from semantic_aug.datasets.road_sign import RoadSignDataset
+from semantic_aug.datasets.coco import COCODataset
+from semantic_aug.datasets.coco_extension import COCOExtension
+from semantic_aug.datasets.road_sign import RoadSignDataset
 from typing import Dict
 import os
 import csv
 import re
-# from train_classifier import DEFAULT_PROMPT
 from openai import OpenAI
 
 DEFAULT_PROMPT = "a photo of a {name}"
 
-classes = ["bench", "book", "wineglas"]
+# classes = ["mouse", "remote"]  # this can be used to create prompts for manual classes
 
 # DEFAULT_PROMPT_W_SETTING = "a photo of a {name} in the setting of a {setting}"
 DEFAULT_PROMPT_W_SETTING = "a photo of a {name} in a {setting}"
@@ -34,10 +33,8 @@ Wrap those words as strings in a python list."
 
 USER_PROMPTS = {
     "setting": "In which different settings can a {name} occur?",
-    # "setting": "Generate a setting for a {name} that is a realistic and common environment for it to be found in. Include specific details in the setting description that make it visually rich and interesting.",
     "adjective": "What are different visual and descriptive adjectives for {name}?",
-    # "adjective": "Generate a visually descriptive adjective for a {name} that reflects its physical appearance, such as color, texture, or size, and is contextually appropriate for this object.",
-}
+    }
 
 PROMPT_TEMPLATE = f"""<s>[INST] <<SYS>>
 {SYS_PROMPT}
@@ -46,8 +43,13 @@ PROMPT_TEMPLATE = f"""<s>[INST] <<SYS>>
 [user_prompt] [/INST]
 """
 
-sys_content_temp = "Generate {num_prompts} words to the following question. Only respond with those {num_prompts} words!"
-user_content_temp = "What are realistic background scenes of a {name}? Wrap your answer in a python list."
+# sys_content_temp = "Generate {num_prompts} words to the following question. Only respond with those {num_prompts} words!"
+sys_content_temp = "Generate a list of {num_prompts} python snake_case style strings to answer the following question. Only respond with that list!"
+user_content_temp = {
+    "setting": "What are realistic background scenes of a {name}? Wrap your answer in a python list.",
+    "uncommonSetting": "What are background scenes where you would not expect a {name}? Wrap your answer in a python list.",
+    "adjective": "What are different visual and descriptive adjectives for {name}? Wrap your answer in a python list.",
+}
 
 GPT_PROMP_TEMPLATE = [{"role": "system",
                        "content": sys_content_temp},
@@ -55,13 +57,11 @@ GPT_PROMP_TEMPLATE = [{"role": "system",
                        "content": user_content_temp}
                       ]
 
-"""
 DATASETS = {
     "coco": COCODataset,
     "road_sign": RoadSignDataset,
     "coco_extension": COCOExtension
 }
-"""
 
 
 def call_gpt_api(prompt, client):
@@ -75,9 +75,9 @@ def call_gpt_api(prompt, client):
 
 def extract_list_from_string(s):
     # Finds all substrings that matches Python list syntax
-    matches = re.findall(r"\[.*?\]", s)
+    matches = re.findall(r"\[.*?\]", s, re.DOTALL)
     for match in matches:
-        print(f"list_str: {match}")
+        print(f"Found list in LLM response")
         if "INST" in match:
             continue
         # Safely evaluate the string as a Python list
@@ -120,16 +120,26 @@ def clean_single_prompt(p, c):
 
 
 def clean_response(res: str, num_prompts: int, class_name: str):
-    # TODO: unterstriche in responses entfernen, 5 wörter zu liste konvertieren, wenn nicht bereits geschehen, tostring
     try:
         lst = extract_list_from_string(res)
     except Exception as e:
-        print(Warning(f"No list was found in the Llama 2 response for class: {class_name}"))
-        lst = extract_enum_as_list_from_string(res)
-        if len(lst) <= num_prompts:
-            print(Warning(
-                f"No enum was found in the Llama 2 response for class: {class_name}"))
-            raise Exception()
+        print(Warning(f"No list was found in the LLM response for class: {class_name}"))
+        # Search for num_prompts words (if response was not a proper list)
+        split = res.split(", ")
+        if len(split) == num_prompts:
+            lst = split
+        else:
+            # Search for enumeration
+            lst = extract_enum_as_list_from_string(res)
+            if len(lst) <= num_prompts:
+                print(Warning(f"No enum was found in the LLM response for class: {class_name}"))
+                raise Exception()
+
+    # Remove _, classname and unnecessary spaces in response
+    for i in range(len(lst)):
+        lst[i] = lst[i].replace(class_name, "")
+        lst[i] = lst[i].replace("_", " ")
+        lst[i] = lst[i].strip()
     return lst
 
 
@@ -140,7 +150,7 @@ def construct_prompts(prompt_dict: dict, num_prompts: int, mode: str, classes: l
     if mode == "setting_adjective":
         prompt_skeleton = DEFAULT_PROMPT_W_SETTING_AND_ADJECTIVE
         kws = ["setting", "adjective"]
-    elif mode == "setting":
+    elif mode == "setting" or "uncommonSetting":
         prompt_skeleton = DEFAULT_PROMPT_W_SETTING
     elif mode == "adjective":
         prompt_skeleton = DEFAULT_PROMPT_W_ADJECTIVE
@@ -154,8 +164,11 @@ def construct_prompts(prompt_dict: dict, num_prompts: int, mode: str, classes: l
                 if len(word_list_for_kw) <= i:
                     # set standard prompt if no content word (for setting, ...) was found
                     temp = DEFAULT_PROMPT
+                    print(Warning(f'Something went wrong during the prompt construction for {c}'))
                     break
                 else:
+                    if mode == "uncommonSetting":
+                        temp = temp.replace("{setting}", prompt_dict[kw][c][i])
                     temp = temp.replace("{" + f"{kw}" + "}", prompt_dict[kw][c][i])
             class_prompt_list.append(temp)
         prompts[c] = class_prompt_list
@@ -167,6 +180,10 @@ def write_prompts_to_csv(all_prompts: Dict):
     # all_prompts contains a key for each class and the value are a list containing all prompts
     rows = []
     for class_name, class_prompts in all_prompts.items():
+        if class_name == "computer_mouse":
+            class_name = "mouse"
+            if class_name == "tv_remote":
+                class_name = "remote"
         for prompt_idx, single_prompt in enumerate(class_prompts, start=1):
             row = {'class_name': class_name, 'class_idx': prompt_idx, 'prompt': single_prompt}
             rows.append(row)
@@ -186,25 +203,39 @@ def write_prompts_to_csv(all_prompts: Dict):
         writer.writerows(rows)
 
 
-def process_gpt_api(client, c_names: list, num_prompts: int):
+def process_gpt_api(client, c_names: list, num_prompts: int, content_: str):
     prompt_words_for_class = {}
     for c_name in c_names:
         # Create the prompt for GPT
         sys_content = sys_content_temp.format(num_prompts=num_prompts)
-        user_content = user_content_temp.format(name=c_name)
+        c_name_w_spaces = c_name.replace("_", " ")
+        user_content = user_content_temp[content_].replace("{name}", c_name_w_spaces)
         prompt = GPT_PROMP_TEMPLATE
         prompt[0]['content'] = sys_content
         prompt[1]['content'] = user_content
 
-        # Call GPT and clean the response
-        res = call_gpt_api(prompt, client)
-        prompt_words_for_class[c_name] = clean_response(res, num_prompts, c_name)
+        # Call GPT and clean the response -> try multiple times if no prompt was found in the response
+        temp = []
+        i = 0
+        while i < 10:
+            res = call_gpt_api(prompt, client)
+            print(f"GPT outout: {res}")
+            try:
+                temp = clean_response(res, num_prompts, c_name)
+                break
+            except Exception as ex:
+                print(f"Try calling GPT again!")
+            finally:
+                i += 1
+        prompt_words_for_class[c_name] = temp
+        print(f"{c_name} -----> final prompt words for {content_}:\n{prompt_words_for_class[c_name]}\n")
     return prompt_words_for_class
 
 
 def init_gpt_api():
-    api_key = "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"
-    return OpenAI(api_key=api_key)
+    api_key_janik = "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"
+    api_key_uni = "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"
+    return OpenAI(api_key=api_key_uni)
 
 
 if __name__ == '__main__':
@@ -221,23 +252,28 @@ if __name__ == '__main__':
                         choices=["meta-llama/Llama-2-7b-chat-hf", "meta-llama/Llama-2-13b-chat-hf", "gpt-3.5-turbo", "gpt-4-turbo-preview"])
     parser.add_argument("--prompts-per-class", type=int, default=1)
     parser.add_argument("--dataset", type=str, default="coco", choices=["coco", "coco_extension", "road_sign"])
-    parser.add_argument("--content", type=str, default="setting_adjective", choices=["setting", "adjective", "setting_adjective"])
+    parser.add_argument("--content", type=str, default="setting_adjective", choices=["setting", "adjective", "setting_adjective", "uncommonSetting"])
     # parser.add_argument("--device", type=int, default=0) -> device = f"cuda:{args.device}" leads to cuda out of memory
     # parser.add_argument("--model-prompt", type=str, default=PROMPT_TEMPLATE)  -> not robust for user input
 
     args = parser.parse_args()
 
-    # dataset = DATASETS[args.dataset]
-    # class_names = dataset.class_names
+    dataset = DATASETS[args.dataset]
+    classes = dataset.class_names
     class_names = classes
+    # some words are synonyms -> rename them
+    for i in range(len(classes)):
+        if "mouse" == classes[i]:
+            classes[i] = "computer_mouse"
+        if "remote" == classes[i]:
+            classes[i] = "tv_remote"
     content = args.content.split("_")
     prompt_words_key_word = {}  # stores all words for the final prompt for only settings or only adjective
 
     if "gpt" in args.model:
-        if "adjective" in args.content:
-            raise Warning("Adjectives are not enabled for GPT yet. Continue with setting only")
         client_ = init_gpt_api()
-        prompt_words_key_word["setting"] = process_gpt_api(client_, class_names, args.prompts_per_class)
+        for cont in content:
+            prompt_words_key_word[cont] = process_gpt_api(client_, class_names, args.prompts_per_class, cont)
 
     elif "llama" in args.model:
         tokenizer = AutoTokenizer.from_pretrained(args.model_path, use_auth_token=True)
@@ -305,8 +341,5 @@ if __name__ == '__main__':
 
             prompt_words_key_word[key_word] = prompt_words
 
-    prompt_content = args.content
-    if "gpt" in args.model:
-        prompt_content = "setting"
-    class_prompts = construct_prompts(prompt_words_key_word, args.prompts_per_class, prompt_content, class_names)
+    class_prompts = construct_prompts(prompt_words_key_word, args.prompts_per_class, args.content, class_names)
     write_prompts_to_csv(class_prompts)
