@@ -1,0 +1,211 @@
+class_name;class_idx;prompt
+attention_zone_sign;1;a photo of a {name} in a construction site
+attention_zone_sign;2;a photo of a {name} in a school crossing zone
+attention_zone_sign;3;a photo of a {name} in a high traffic intersection
+attention_zone_sign;4;a photo of a {name} in a wildlife crossing area
+attention_zone_sign;5;a photo of a {name} in a narrow bridge passage
+attention_zone_sign;6;a photo of a {name} in a steep hill descend
+attention_zone_sign;7;a photo of a {name} in a sharp turn ahead
+attention_zone_sign;8;a photo of a {name} in a railway crossing nearby
+attention_zone_sign;9;a photo of a {name} in a wet road conditions
+attention_zone_sign;10;a photo of a {name} in a children at play area
+end_of_restriction_sign;1;a photo of a {name} in a desert highway
+end_of_restriction_sign;2;a photo of a {name} in a city street
+end_of_restriction_sign;3;a photo of a {name} in a country road
+end_of_restriction_sign;4;a photo of a {name} in a mountain pass
+end_of_restriction_sign;5;a photo of a {name} in a beach road
+end_of_restriction_sign;6;a photo of a {name} in a forest path
+end_of_restriction_sign;7;a photo of a {name} in a suburban lane
+end_of_restriction_sign;8;a photo of a {name} in a rural crossroads
+end_of_restriction_sign;9;a photo of a {name} in a bridge over river
+end_of_restriction_sign;10;a photo of a {name} in a tunnel entrance
+give_way_sign;1;a photo of a {name} in a urban intersection
+give_way_sign;2;a photo of a {name} in a rural crossroad
+give_way_sign;3;a photo of a {name} in a construction zone
+give_way_sign;4;a photo of a {name} in a school crossing
+give_way_sign;5;a photo of a {name} in a railway crossing
+give_way_sign;6;a photo of a {name} in a suburban street corner
+give_way_sign;7;a photo of a {name} in a busy highway exit
+give_way_sign;8;a photo of a {name} in a parking lot entrance
+give_way_sign;9;a photo of a {name} in a mountain road junction
+give_way_sign;10;a photo of a {name} in a bridge approach
+highway_exit_in_100m_sign;1;a photo of a {name} in a exit sign
+highway_exit_in_100m_sign;2;a photo of a {name} in a traffic cones
+highway_exit_in_100m_sign;3;a photo of a {name} in a lane markings
+highway_exit_in_100m_sign;4;a photo of a {name} in a roadside grass
+highway_exit_in_100m_sign;5;a photo of a {name} in a overhead street lights
+highway_exit_in_100m_sign;6;a photo of a {name} in a guard rails
+highway_exit_in_100m_sign;7;a photo of a {name} in a informational boards
+highway_exit_in_100m_sign;8;a photo of a {name} in a speed limit sign
+highway_exit_in_100m_sign;9;a photo of a {name} in a exit ramp
+highway_exit_in_100m_sign;10;a photo of a {name} in a distant cars
+highway_exit_in_200m_sign;1;a photo of a {name} in a sparse trees and bushes
+highway_exit_in_200m_sign;2;a photo of a {name} in a roadside advertisement boards
+highway_exit_in_200m_sign;3;a photo of a {name} in a overhead street lights
+highway_exit_in_200m_sign;4;a photo of a {name} in a reflective road markings
+highway_exit_in_200m_sign;5;a photo of a {name} in a connecting service roads
+highway_exit_in_200m_sign;6;a photo of a {name} in a nearby gas station
+highway_exit_in_200m_sign;7;a photo of a {name} in a distant city skyline
+highway_exit_in_200m_sign;8;a photo of a {name} in a traffic signal ahead
+highway_exit_in_200m_sign;9;a photo of a {name} in a pedestrian overpass
+highway_exit_in_200m_sign;10;a photo of a {name} in a roadside emergency phones
+highway_exit_in_300m_sign;1;a photo of a {name} in a overhead signage
+highway_exit_in_300m_sign;2;a photo of a {name} in a lane markings
+highway_exit_in_300m_sign;3;a photo of a {name} in a speed limit signs
+highway_exit_in_300m_sign;4;a photo of a {name} in a roadside grass
+highway_exit_in_300m_sign;5;a photo of a {name} in a exit ramp
+highway_exit_in_300m_sign;6;a photo of a {name} in a traffic cones
+highway_exit_in_300m_sign;7;a photo of a {name} in a nearby vehicles
+highway_exit_in_300m_sign;8;a photo of a {name} in a overpass bridges
+highway_exit_in_300m_sign;9;a photo of a {name} in a roadside trees
+highway_exit_in_300m_sign;10;a photo of a {name} in a street lights
+highway_exit_sign;1;a photo of a {name} in a busy intersection
+highway_exit_sign;2;a photo of a {name} in a long stretch of highway
+highway_exit_sign;3;a photo of a {name} in a gas station nearby
+highway_exit_sign;4;a photo of a {name} in a fast food restaurants
+highway_exit_sign;5;a photo of a {name} in a overhead bridge
+highway_exit_sign;6;a photo of a {name} in a traffic lights
+highway_exit_sign;7;a photo of a {name} in a pedestrian crosswalk
+highway_exit_sign;8;a photo of a {name} in a roadside motel
+highway_exit_sign;9;a photo of a {name} in a billboards
+highway_exit_sign;10;a photo of a {name} in a landscape view
+mandatory_direction_sign;1;a photo of a {name} in a highway entrance
+mandatory_direction_sign;2;a photo of a {name} in a urban intersection
+mandatory_direction_sign;3;a photo of a {name} in a construction zone
+mandatory_direction_sign;4;a photo of a {name} in a airport access road
+mandatory_direction_sign;5;a photo of a {name} in a suburban street corner
+mandatory_direction_sign;6;a photo of a {name} in a public park entrance
+mandatory_direction_sign;7;a photo of a {name} in a hospital driveway
+mandatory_direction_sign;8;a photo of a {name} in a school crossing area
+mandatory_direction_sign;9;a photo of a {name} in a shopping mall exit
+mandatory_direction_sign;10;a photo of a {name} in a train station approach
+no_entry_sign;1;a photo of a {name} in a abandoned road
+no_entry_sign;2;a photo of a {name} in a private property entrance
+no_entry_sign;3;a photo of a {name} in a construction site entrance
+no_entry_sign;4;a photo of a {name} in a closed park gate
+no_entry_sign;5;a photo of a {name} in a fenced off area
+no_entry_sign;6;a photo of a {name} in a private driveway
+no_entry_sign;7;a photo of a {name} in a restricted area entrance
+no_entry_sign;8;a photo of a {name} in a wildlife reserve boundary
+no_entry_sign;9;a photo of a {name} in a damaged bridge entrance
+no_entry_sign;10;a photo of a {name} in a road under repairs
+no_overtaking_sign;1;a photo of a {name} in a highway mountain pass
+no_overtaking_sign;2;a photo of a {name} in a two lane country road
+no_overtaking_sign;3;a photo of a {name} in a urban street with parked cars
+no_overtaking_sign;4;a photo of a {name} in a rural road near farm
+no_overtaking_sign;5;a photo of a {name} in a bridge with narrow lanes
+no_overtaking_sign;6;a photo of a {name} in a road through national park
+no_overtaking_sign;7;a photo of a {name} in a tunnel entrance
+no_overtaking_sign;8;a photo of a {name} in a suburban street with school zone
+no_overtaking_sign;9;a photo of a {name} in a coastal road with sharp curves
+no_overtaking_sign;10;a photo of a {name} in a road adjacent to construction site
+no_parking_sign;1;a photo of a {name} in a busy city street
+no_parking_sign;2;a photo of a {name} in a near school entrance
+no_parking_sign;3;a photo of a {name} in a hospital drop off zone
+no_parking_sign;4;a photo of a {name} in a fire hydrant side
+no_parking_sign;5;a photo of a {name} in a private property driveway
+no_parking_sign;6;a photo of a {name} in a construction site entrance
+no_parking_sign;7;a photo of a {name} in a narrow residential lane
+no_parking_sign;8;a photo of a {name} in a public park entrance
+no_parking_sign;9;a photo of a {name} in a restaurant delivery area
+no_parking_sign;10;a photo of a {name} in a airport loading zone
+parking_sign;1;a photo of a {name} in a shopping mall parking lot
+parking_sign;2;a photo of a {name} in a downtown street parking
+parking_sign;3;a photo of a {name} in a airport parking area
+parking_sign;4;a photo of a {name} in a train station parking space
+parking_sign;5;a photo of a {name} in a hospital parking zone
+parking_sign;6;a photo of a {name} in a school parking ground
+parking_sign;7;a photo of a {name} in a residential apartment parking
+parking_sign;8;a photo of a {name} in a stadium parking facility
+parking_sign;9;a photo of a {name} in a public park parking spot
+parking_sign;10;a photo of a {name} in a hotel parking area
+pedestrian_zone_sign;1;a photo of a {name} in a city street with cafes
+pedestrian_zone_sign;2;a photo of a {name} in a crowded shopping area
+pedestrian_zone_sign;3;a photo of a {name} in a urban park walkway
+pedestrian_zone_sign;4;a photo of a {name} in a historic town square
+pedestrian_zone_sign;5;a photo of a {name} in a riverfront pedestrian path
+pedestrian_zone_sign;6;a photo of a {name} in a downtown business district
+pedestrian_zone_sign;7;a photo of a {name} in a residential area with sidewalks
+pedestrian_zone_sign;8;a photo of a {name} in a beachfront boardwalk
+pedestrian_zone_sign;9;a photo of a {name} in a public garden paths
+pedestrian_zone_sign;10;a photo of a {name} in a outdoor marketplace
+priority_road_sign;1;a photo of a {name} in a rural countryside
+priority_road_sign;2;a photo of a {name} in a mountain pass
+priority_road_sign;3;a photo of a {name} in a urban intersection
+priority_road_sign;4;a photo of a {name} in a suburban street
+priority_road_sign;5;a photo of a {name} in a coastal road
+priority_road_sign;6;a photo of a {name} in a desert highway
+priority_road_sign;7;a photo of a {name} in a forest path
+priority_road_sign;8;a photo of a {name} in a bridge over water
+priority_road_sign;9;a photo of a {name} in a tunnel entrance
+priority_road_sign;10;a photo of a {name} in a industrial area
+slippery_road_sign;1;a photo of a {name} in a wet asphalt road
+slippery_road_sign;2;a photo of a {name} in a snow covered highway
+slippery_road_sign;3;a photo of a {name} in a rainy street
+slippery_road_sign;4;a photo of a {name} in a icy mountain pass
+slippery_road_sign;5;a photo of a {name} in a foggy country road
+slippery_road_sign;6;a photo of a {name} in a muddy gravel path
+slippery_road_sign;7;a photo of a {name} in a slick city street
+slippery_road_sign;8;a photo of a {name} in a dewy morning roadway
+slippery_road_sign;9;a photo of a {name} in a frosty bridge
+slippery_road_sign;10;a photo of a {name} in a oil spill on asphalt
+speed_limit_30_sign;1;a photo of a {name} in a suburban street
+speed_limit_30_sign;2;a photo of a {name} in a school zone
+speed_limit_30_sign;3;a photo of a {name} in a downtown area
+speed_limit_30_sign;4;a photo of a {name} in a small town main street
+speed_limit_30_sign;5;a photo of a {name} in a residential neighborhood
+speed_limit_30_sign;6;a photo of a {name} in a park entrance
+speed_limit_30_sign;7;a photo of a {name} in a hospital zone
+speed_limit_30_sign;8;a photo of a {name} in a shopping center parking lot
+speed_limit_30_sign;9;a photo of a {name} in a quiet country road
+speed_limit_30_sign;10;a photo of a {name} in a construction site nearby
+speed_limit_80_sign;1;a photo of a {name} in a desert highway
+speed_limit_80_sign;2;a photo of a {name} in a urban expressway
+speed_limit_80_sign;3;a photo of a {name} in a coastal road
+speed_limit_80_sign;4;a photo of a {name} in a mountain pass
+speed_limit_80_sign;5;a photo of a {name} in a rural interstate
+speed_limit_80_sign;6;a photo of a {name} in a forest route
+speed_limit_80_sign;7;a photo of a {name} in a bridge approach
+speed_limit_80_sign;8;a photo of a {name} in a tunnel exit
+speed_limit_80_sign;9;a photo of a {name} in a industrial area
+speed_limit_80_sign;10;a photo of a {name} in a suburban thoroughfare
+speed_limit_100_sign;1;a photo of a {name} in a highway desert scene
+speed_limit_100_sign;2;a photo of a {name} in a suburban main road
+speed_limit_100_sign;3;a photo of a {name} in a mountain pass roadway
+speed_limit_100_sign;4;a photo of a {name} in a rural country road
+speed_limit_100_sign;5;a photo of a {name} in a coastal highway segment
+speed_limit_100_sign;6;a photo of a {name} in a open plain freeway
+speed_limit_100_sign;7;a photo of a {name} in a bridge approach section
+speed_limit_100_sign;8;a photo of a {name} in a tunnel exit zone
+speed_limit_100_sign;9;a photo of a {name} in a industrial area outskirts
+speed_limit_100_sign;10;a photo of a {name} in a forest road clearing
+speed_limit_120_sign;1;a photo of a {name} in a highway stretch
+speed_limit_120_sign;2;a photo of a {name} in a bridge approach
+speed_limit_120_sign;3;a photo of a {name} in a tunnel entrance
+speed_limit_120_sign;4;a photo of a {name} in a desert road
+speed_limit_120_sign;5;a photo of a {name} in a mountain pass
+speed_limit_120_sign;6;a photo of a {name} in a coastal highway
+speed_limit_120_sign;7;a photo of a {name} in a city outskirts
+speed_limit_120_sign;8;a photo of a {name} in a open country road
+speed_limit_120_sign;9;a photo of a {name} in a near airport
+speed_limit_120_sign;10;a photo of a {name} in a rural interstate
+traffic_banned_sign;1;a photo of a {name} in a deserted city street
+traffic_banned_sign;2;a photo of a {name} in a busy pedestrian crossing
+traffic_banned_sign;3;a photo of a {name} in a park entrance
+traffic_banned_sign;4;a photo of a {name} in a residential area with children playing
+traffic_banned_sign;5;a photo of a {name} in a narrow alleyway
+traffic_banned_sign;6;a photo of a {name} in a private property driveway
+traffic_banned_sign;7;a photo of a {name} in a bicycle lane
+traffic_banned_sign;8;a photo of a {name} in a school zone
+traffic_banned_sign;9;a photo of a {name} in a public park area
+traffic_banned_sign;10;a photo of a {name} in a historic city center
+work_zone_sign;1;a photo of a {name} in a construction equipment
+work_zone_sign;2;a photo of a {name} in a orange traffic cones
+work_zone_sign;3;a photo of a {name} in a flashing warning lights
+work_zone_sign;4;a photo of a {name} in a barrier tape
+work_zone_sign;5;a photo of a {name} in a paved road under repair
+work_zone_sign;6;a photo of a {name} in a workers wearing safety gear
+work_zone_sign;7;a photo of a {name} in a temporary traffic signals
+work_zone_sign;8;a photo of a {name} in a excavation area
+work_zone_sign;9;a photo of a {name} in a detour signs
+work_zone_sign;10;a photo of a {name} in a pile of gravel
