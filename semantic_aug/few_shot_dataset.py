@@ -12,7 +12,6 @@ import torch.nn.functional as F
 import torch
 import numpy as np
 import abc
-import random
 import os
 import shutil
 import copy
@@ -34,7 +33,7 @@ class FewShotDataset(Dataset):
                  generative_aug: GenerativeAugmentation = None,
                  synthetic_probability: float = 0.5,
                  synthetic_dir: str = None,
-                 synthetics_filter_threshold: float = None,
+                 use_synthetic_filter: bool = False,
                  use_llm_prompt: bool = False,
                  prompt_path: str = DEFAULT_PROMPT_PATH):
 
@@ -42,43 +41,28 @@ class FewShotDataset(Dataset):
         self.generative_aug = generative_aug
 
         self.synthetic_probability = synthetic_probability
+
+        self.use_synthetic_filter = use_synthetic_filter
         self.synthetic_dir = synthetic_dir
         self.synthetic_examples = defaultdict(list)
+        self.synthetic_weights = defaultdict(list)
 
         self.use_llm_prompt = use_llm_prompt
         if prompt_path is None:
             prompt_path = DEFAULT_PROMPT_PATH
         self.prompt_path = prompt_path
 
-        self.synthetics_filter_threshold = synthetics_filter_threshold
-
         self.transform = transforms.Compose([
             transforms.ToTensor(),
             transforms.ConvertImageDtype(torch.float),
             transforms.Normalize(mean=[0.5, 0.5, 0.5],
-                                  std=[0.5, 0.5, 0.5]),
+                                 std=[0.5, 0.5, 0.5]),
         ])
 
         if synthetic_dir is not None:
             # Remove the directory and its contents and create a new one (important if trials > 1 and filter is used)
             shutil.rmtree(synthetic_dir, ignore_errors=True)
             os.makedirs(synthetic_dir)
-            if synthetics_filter_threshold is not None:
-                state_dict = torch.load("models/ClassificationFilterModel.pth")
-                saved_num_classes = int(state_dict["num_classes"].item())
-                self.filter_model = ClassificationFilterModel(saved_num_classes)
-                self.filter_model.load_state_dict(state_dict)
-                self.filter_model.cuda()
-                self.filter_model.eval()
-
-                # Extract the path_to_dir and dir_name, change to new_dir_name and combine to discarded_dir
-                path_to_dir, dir_name = os.path.split(synthetic_dir)
-                new_dir_name = dir_name + "_discarded"
-                self.discarded_dir = os.path.join(path_to_dir, new_dir_name)
-                self.number_of_discarded_images = {}
-
-                shutil.rmtree(self.discarded_dir, ignore_errors=True)
-                os.makedirs(self.discarded_dir)
 
     @abc.abstractmethod
     def get_image_by_idx(self, idx: int) -> Image.Image:
@@ -108,9 +92,24 @@ class FewShotDataset(Dataset):
 
         return prompts_dict
 
+    def load_filter(self, path: str):
+        if self.use_synthetic_filter:
+            state_dict = torch.load(path)
+            saved_num_classes = int(state_dict["num_classes"].item())
+            self.filter_model = ClassificationFilterModel(saved_num_classes)
+            self.filter_model.load_state_dict(state_dict)
+            self.filter_model.cuda()
+            self.filter_model.eval()
+
+    def normalize_weights(self):
+        if self.use_synthetic_filter:
+            for idx in range(len(self.synthetic_weights)):
+                self.synthetic_weights[idx] = [w / sum(self.synthetic_weights[idx]) for w in self.synthetic_weights[idx]]
+
     def generate_augmentations(self, num_repeats: int):
 
         self.synthetic_examples.clear()
+        self.synthetic_weights.clear()
         options = product(range(len(self)), range(num_repeats))
 
         prompts_dict = {}
@@ -141,16 +140,16 @@ class FewShotDataset(Dataset):
 
             if self.synthetic_dir is not None:
                 pil_image = image  # type: PIL.Image.Image
-                discard_image = False
 
-                if self.synthetics_filter_threshold is not None:
-                    num_participants_in_majority_vote = 5
+                if self.use_synthetic_filter:
+                    num_participants_in_majority_vote = 5  # Present augmented variants of the image 5 times and
+                    # calculate the mean over the filter logits
                     probabilities_array_mean = []
                     with torch.no_grad():
                         for _ in range(num_participants_in_majority_vote):
                             # Add an extra batch dimension as the model expects a batch of images and change device
                             transformed_image = copy.deepcopy(image)
-                            # use self.transform of sub class (e.g. road_sign.py)
+                            # use self.transform of subclass (e.g. road_sign.py)
                             transformed_image = self.transform(transformed_image).unsqueeze(0).cuda()
                             # Run image through model
                             logits = self.filter_model(transformed_image)
@@ -167,30 +166,26 @@ class FewShotDataset(Dataset):
                         # Calculate the mean of the arrays
                         mean_probabilities = np.mean(probabilities_array_mean, axis=0)
 
-                        # Filter criterion:
-                        if mean_probabilities[label] < self.synthetics_filter_threshold:
-                            discard_image = True
-                            # Maybe use weighting instead of discarding
+                        # Confidence in [0,1] that the image is correctly labeled
+                        confidence = mean_probabilities[label]
 
-                    print_decision = False
+                        confidence_clip = 0.5  # Images with confidence values higher than that are fully trusted
+                        weight = 1 if confidence >= confidence_clip else 2 * confidence
+
+                    print_decision = True
                     if print_decision:
                         print(f'Image: label_{label}-{idx}-{num}.png')
                         predicted_class = np.argmax(mean_probabilities)
                         print(f'Highest class: {predicted_class} with probability of: '
                               f'{np.round(mean_probabilities[predicted_class], 3)}')
                         if not np.isclose(predicted_class, label):
-                            print(f'Wrong classified, probability of correct label {label}: '
+                            print(f'Different classified, probability of given label {label}: '
                                   f'{np.round(mean_probabilities[label], 3)}')
-                        print(f'Image accepted: {not discard_image}')
+                        print(f'Weight: {weight}')
 
-                if discard_image:
-                    # Save discarded images in self.discarded_dir instead of self.synthetic_dir
-                    image_path = os.path.join(self.discarded_dir, f"label_{label}-{idx}-{num}.png")
-                    self.number_of_discarded_images[label] = self.number_of_discarded_images.get(label, 0) + 1
-                else:
-                    image_path = os.path.join(self.synthetic_dir, f"label_{label}-{idx}-{num}.png")
-                    self.synthetic_examples[idx].append((image_path, label))
-
+                image_path = os.path.join(self.synthetic_dir, f"label_{label}-{idx}-{num}.png")
+                self.synthetic_examples[idx].append((image_path, label))
+                self.synthetic_weights[idx].append(weight)
                 pil_image.save(image_path)
 
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, int]:
@@ -198,11 +193,15 @@ class FewShotDataset(Dataset):
         if len(self.synthetic_examples[idx]) > 0 and \
                 np.random.uniform() < self.synthetic_probability:
 
-            image, label = random.choice(self.synthetic_examples[idx])
-            if isinstance(image, str): image = Image.open(image)
+            # Extract all synthetic images and labels from the list of tuples
+            images, labels = zip(*self.synthetic_examples[idx])
+            # Select an image based on a weighted distribution
+            image = np.random.choice(images, p=self.synthetic_weights[idx])
+            label = labels[0]
+            if isinstance(image, str):
+                image = Image.open(image)
 
         else:
-
             image = self.get_image_by_idx(idx)
             label = self.get_label_by_idx(idx)
 
