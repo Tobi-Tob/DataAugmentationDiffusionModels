@@ -51,6 +51,7 @@ class FewShotDataset(Dataset):
         if prompt_path is None:
             prompt_path = DEFAULT_PROMPT_PATH
         self.prompt_path = prompt_path
+        print(f"prompt path used: {self.prompt_path}")
 
         self.transform = transforms.Compose([
             transforms.ToTensor(),
