@@ -105,7 +105,7 @@ def run_experiment(examples_per_class: int = 0,
     np.random.seed(seed)
     random.seed(seed)
 
-    use_synthetic_filter = True if synthetic_filter is "train" or "use" else False
+    use_synthetic_filter = True if synthetic_filter in ["train", "use"] else False
     if synthetic_filter == "train":
         # Initialize and train the ClassificationFilterModel here and save it in models
         train_filter(examples_per_class=examples_per_class,
