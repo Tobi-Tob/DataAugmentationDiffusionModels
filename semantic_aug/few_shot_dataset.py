@@ -136,8 +136,6 @@ class FewShotDataset(Dataset):
                 prompt_idx = class_occur[class_name] % len(prompts_dict[class_name])
                 self.generative_aug.set_augs_prompt(prompts_dict[class_name][prompt_idx])
 
-            print(f"prompt of TextualInv set to: {self.generative_aug.augs[0].prompt}")
-
             image, label = self.generative_aug(
                 image, label, metadata)
 
