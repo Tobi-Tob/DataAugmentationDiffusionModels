@@ -1,0 +1,18 @@
+coco_extension/_baseline/2epc - 31.01
+python train_classifier.py --dataset "coco_extension" --synthetic-dir "intermediates/coco_extension/_baseline/2epc/synthetics" --logdir "intermediates/coco_extension/_baseline/2epc/logs" --iterations-per-epoch 200 --num-epochs 30 --batch-size 16 --num-synthetic 10 --num-trials 1 --examples-per-class 2 --embed-path "coco_extension-tokens/coco_extension-0-2.pt" --aug "textual-inversion" --strength 0.7 --guidance-scale 15 --device 1
+
+coco_extension/_filter/2epc - 31.01
+python train_classifier.py --dataset "coco_extension" --synthetic-dir "intermediates/coco_extension/_filter/2epc/synthetics" --logdir "intermediates/coco_extension/_filter/2epc/logs" --iterations-per-epoch 200 --num-epochs 30 --batch-size 16 --num-synthetic 10 --num-trials 1 --examples-per-class 2 --embed-path "coco_extension-tokens/coco_extension-0-2.pt" --aug "textual-inversion" --synthetic_filter "train" --strength 0.7 --guidance-scale 15 --device 1
+
+coco_extension/_paper/2epc - 31.01
+python train_classifier.py --dataset "coco_extension" --synthetic-dir "intermediates/coco_extension/_paper/2epc/synthetics" --logdir "intermediates/coco_extension/_paper/2epc/logs" --iterations-per-epoch 200 --num-epochs 30 --batch-size 16 --num-synthetic 10 --num-trials 1 --examples-per-class 2 --embed-path "coco_extension-tokens/coco_extension-0-2.pt" --aug "textual-inversion" --strength 0.5 --guidance-scale 7.5 --device 0
+
+
+road_sign/_paper/2epc - 31.01
+python train_classifier.py --dataset "road_sign" --synthetic-dir "intermediates/road_sign/_paper/2epc/synthetics" --logdir "intermediates/road_sign/_paper/2epc/logs" --iterations-per-epoch 200 --num-epochs 30 --batch-size 16 --num-synthetic 10 --num-trials 1 --examples-per-class 2 --embed-path "road_sign-tokens/road_sign-0-2.pt" --aug "textual-inversion" --strength 0.5 --guidance-scale 7.5 --device 0
+
+road_sign/_baseline/2epc - 31.01
+python train_classifier.py --dataset "road_sign" --synthetic-dir "intermediates/road_sign/_baseline/2epc/synthetics" --logdir "intermediates/road_sign/_baseline/2epc/logs" --iterations-per-epoch 200 --num-epochs 30 --batch-size 16 --num-synthetic 10 --num-trials 1 --examples-per-class 2 --embed-path "road_sign-tokens/road_sign-0-2.pt" --aug "textual-inversion" --strength 0.7 --guidance-scale 15 --device 2
+
+road_sign/_filter/2epc - 31.01
+python train_classifier.py --dataset "road_sign" --synthetic-dir "intermediates/road_sign/_filter/2epc/synthetics" --logdir "intermediates/road_sign/_filter/2epc/logs" --iterations-per-epoch 200 --num-epochs 30 --batch-size 16 --num-synthetic 10 --num-trials 1 --examples-per-class 2 --embed-path "road_sign-tokens/road_sign-0-2.pt" --aug "textual-inversion" --synthetic_filter "train" --strength 0.7 --guidance-scale 15 --device 2
