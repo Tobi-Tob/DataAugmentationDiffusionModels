@@ -9,19 +9,19 @@ bench;7;a photo of a painting {name} in a school campus
 bench;8;a photo of a garden {name} in a train station platform
 bench;9;a photo of a curved {name} in a lakefront dock
 bench;10;a photo of a straight {name} in a forest clearing
-bicycle;1;a photo of a speedy bike {name} in a city park path
+bicycle;1;a photo of a speedy {name} in a city park path
 bicycle;2;a photo of a vintage {name} in a suburban street
-bicycle;3;a photo of a mountain bike {name} in a downtown sidewalk
+bicycle;3;a photo of a mountain {name} in a downtown sidewalk
 bicycle;4;a photo of a racing {name} in a country road
-bicycle;5;a photo of a foldable bike {name} in a mountain trail
+bicycle;5;a photo of a foldable {name} in a mountain trail
 bicycle;6;a photo of a electric {name} in a beach boardwalk
 bicycle;7;a photo of a kids bike {name} in a river walkway
 bicycle;8;a photo of a touring {name} in a college campus
-bicycle;9;a photo of a hybrid bike {name} in a forest path
+bicycle;9;a photo of a hybrid {name} in a forest path
 bicycle;10;a photo of a custom {name} in a bridge over river
-book;1;a photo of a colorful cover {name} in a a dimly lit alleyway
-book;2;a photo of a hardback edition {name} in a an old victorian mansion
-book;3;a photo of a illustrated pages {name} in a a bustling city square
+book;1;a photo of a colorful {name} in a a dimly lit alleyway
+book;2;a photo of a hardback {name} in a an old victorian mansion
+book;3;a photo of a illustrated {name} in a a bustling city square
 book;4;a photo of a dusty jacket {name} in a a quiet seaside town
 book;5;a photo of a vintage binding {name} in a a snow covered forest
 book;6;a photo of a glossy finish {name} in a an ancient ruined temple
@@ -79,16 +79,16 @@ chair;7;a photo of a folding {name} in a garden
 chair;8;a photo of a armless {name} in a library
 chair;9;a photo of a rocking {name} in a cafe
 chair;10;a photo of a adjustable {name} in a beach
-clock;1;a photo of a antique {name} in a grandfather  in living room
-clock;2;a photo of a digital {name} in a wall  in kitchen
-clock;3;a photo of a grandfather {name} in a alarm  on bedside table
-clock;4;a photo of a wall mounted {name} in a street  in town square
-clock;5;a photo of a round {name} in a cuckoo  in dining room
-clock;6;a photo of a square {name} in a digital  on office desk
-clock;7;a photo of a colorful {name} in a sundial in garden
-clock;8;a photo of a minimalist {name} in a tower  on city hall
-clock;9;a photo of a luminous {name} in a wristwatch on dresser
-clock;10;a photo of a ornate {name} in a stopwatch in gym locker room
+clock;1;a photo of a antique {name} in a living room
+clock;2;a photo of a digital {name} in a kitchen
+clock;3;a photo of a grandfather {name} in a bedside table
+clock;4;a photo of a wall mounted {name} in a town square
+clock;5;a photo of a round {name} in a dining room
+clock;6;a photo of a square {name} in a office desk
+clock;7;a photo of a colorful {name} in a garden
+clock;8;a photo of a minimalist {name} in a tower
+clock;9;a photo of a luminous {name} in a wristwatch
+clock;10;a photo of a ornate {name} in a gym locker room
 cup;1;a photo of a shiny {name} in a kitchen counter
 cup;2;a photo of a cracked {name} in a coffee table
 cup;3;a photo of a colorful {name} in a office desk
@@ -102,7 +102,7 @@ cup;10;a photo of a decorative {name} in a school cafeteria
 fork;1;a photo of a long tined {name} in a kitchen drawer
 fork;2;a photo of a small dessert {name} in a dining table
 fork;3;a photo of a antique silver {name} in a picnic basket
-fork;4;a photo of a plastic disposable {name} in a restaurant table setting
+fork;4;a photo of a plastic disposable {name} in a restaurant table
 fork;5;a photo of a curved salad {name} in a wedding reception table
 fork;6;a photo of a heavy duty {name} in a camping site
 fork;7;a photo of a multi colored {name} in a buffet service area
@@ -117,11 +117,11 @@ keyboard;5;a photo of a wireless {name} in a library table
 keyboard;6;a photo of a gaming {name} in a coffee shop
 keyboard;7;a photo of a low profile {name} in a classroom desk
 keyboard;8;a photo of a silent {name} in a bedroom desk
-keyboard;9;a photo of a customizable {name} in a co working space
+keyboard;9;a photo of a customizable {name} in a co-working space
 keyboard;10;a photo of a splash proof {name} in a music production room
 knife;1;a photo of a sharp blade {name} in a kitchen counter
 knife;2;a photo of a serrated edge {name} in a cutting board
-knife;3;a photo of a gleaming metal {name} in a chef s table
+knife;3;a photo of a gleaming metal {name} in a chefs table
 knife;4;a photo of a rusty handle {name} in a outdoor campfire
 knife;5;a photo of a foldable {name} in a butcher shop
 knife;6;a photo of a heavy duty {name} in a dining table
