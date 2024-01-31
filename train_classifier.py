@@ -13,7 +13,6 @@ from semantic_aug.augmentations.textual_inversion import TextualInversion
 from semantic_aug.augmentations.textual_inversion_upstream \
     import TextualInversion as MultiTokenTextualInversion
 from semantic_aug.few_shot_dataset import DEFAULT_PROMPT_PATH, DEFAULT_PROMPT
-from torch.utils.data import DataLoader, RandomSampler, SequentialSampler
 from torchvision.models import resnet50, ResNet50_Weights
 from torch.utils.data import DataLoader, WeightedRandomSampler
 from transformers import DeiTModel
@@ -187,13 +186,13 @@ def run_experiment(examples_per_class: int = 0,
     class_weights = np.where(test_dataset.class_counts == 0, 0, 1.0 / test_dataset.class_counts)
     weights = [class_weights[label] for label in test_dataset.all_labels]
 
-    test_sampler = WeightedRandomSampler(
+    val_sampler = WeightedRandomSampler(
         weights, replacement=True,
         num_samples=batch_size * iterations_per_epoch)
 
     val_dataloader = DataLoader(
         test_dataset, batch_size=batch_size,
-        sampler=test_sampler, num_workers=4)
+        sampler=val_sampler, num_workers=4)
 
     model = ClassificationModel(
         train_dataset.num_classes,
