@@ -509,12 +509,12 @@ if __name__ == "__main__":
     # The pre-trained model to use
     parser.add_argument("--iterations-per-epoch", type=int, default=200)
     # Define how many different batches the classifier is trained on to complete an epoch
-    parser.add_argument("--num-epochs", type=int, default=50)
+    parser.add_argument("--num-epochs", type=int, default=30)
     # Define how many epochs the training is running
-    parser.add_argument("--batch-size", type=int, default=32)
+    parser.add_argument("--batch-size", type=int, default=16)
     # Define how many images (real or synthetic) are in one batch
 
-    parser.add_argument("--num-synthetic", type=int, default=15)
+    parser.add_argument("--num-synthetic", type=int, default=10)
     # Define how many synthetic images should be generated per class
     # Total number of synthetic images: num-synthetic * examples-per-class * 80
     parser.add_argument("--num-trials", type=int, default=1)
@@ -527,7 +527,7 @@ if __name__ == "__main__":
     parser.add_argument("--embed-path", type=str, default=DEFAULT_EMBED_PATH)
     # Path to the trained embeddings of the pseudo words
 
-    parser.add_argument("--dataset", type=str, default="coco",
+    parser.add_argument("--dataset", type=str, default="coco_extension",
                         choices=["spurge", "imagenet", "coco", "pascal", "flowers", "caltech", "road_sign",
                                  "coco_extension"])
     # Select which dataset to use (we only use coco)
@@ -590,7 +590,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--device", type=int, default=0)
 
-    parser.add_argument("--eval_on_test_set", type=bool, default=False)
+    parser.add_argument("--eval_on_test_set", type=bool, default=True)
 
     args = parser.parse_args()
 
