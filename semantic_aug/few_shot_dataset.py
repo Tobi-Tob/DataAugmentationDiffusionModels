@@ -197,7 +197,10 @@ class FewShotDataset(Dataset):
             # Extract all synthetic images and labels from the list of tuples
             images, labels = zip(*self.synthetic_examples[idx])
             # Select an image based on a weighted distribution
-            image = np.random.choice(images, p=self.synthetic_weights[idx])
+            if self.use_synthetic_filter:
+                image = np.random.choice(images, p=self.synthetic_weights[idx])
+            else:
+                image = np.random.choice(images)
             label = labels[0]
             if isinstance(image, str):
                 image = Image.open(image)
