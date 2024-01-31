@@ -69,7 +69,7 @@ class COCOExtension(FewShotDataset):
         # glob.glob is used to retrieve all files with a ".jpg" extension in these directories.
         self.image_paths = {class_name: [] for class_name in self.class_names}
         for class_name in self.class_names:
-            if split is "test":
+            if split == "test":
                 class_dir_path = os.path.join(data_dir, 'test', class_name)
             else:
                 class_dir_path = os.path.join(data_dir, 'train-val', class_name)
@@ -83,7 +83,7 @@ class COCOExtension(FewShotDataset):
                      for class_name in self.class_names}
 
         class_ids_train, class_ids_val, class_ids_test = {}, {}, {}
-        if split is "test":
+        if split == "test":
             class_ids_test = class_ids
         else:
             # Split the shuffled indices into training and validation sets
@@ -97,7 +97,7 @@ class COCOExtension(FewShotDataset):
         selected_class_ids = {"train": class_ids_train, "val": class_ids_val, "test": class_ids_test}[split]
 
         # Limits the number of examples per class
-        if examples_per_class is not None and split is "train":
+        if examples_per_class is not None and split == "train":
             for class_name in self.class_names:
                 selected_class_ids[class_name] = selected_class_ids[class_name][:examples_per_class]
 

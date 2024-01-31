@@ -174,8 +174,9 @@ class FewShotDataset(Dataset):
 
                         confidence_clip = 0.5  # Images with confidence values higher than that are fully trusted
                         weight = 1 if confidence >= confidence_clip else 2 * confidence
+                        self.synthetic_weights[idx].append(weight)
 
-                    print_decision = True
+                    print_decision = False
                     if print_decision:
                         print(f'Image: label_{label}-{idx}-{num}.png')
                         predicted_class = np.argmax(mean_probabilities)
@@ -188,7 +189,6 @@ class FewShotDataset(Dataset):
 
                 image_path = os.path.join(self.synthetic_dir, f"label_{label}-{idx}-{num}.png")
                 self.synthetic_examples[idx].append((image_path, label))
-                self.synthetic_weights[idx].append(weight)
                 pil_image.save(image_path)
 
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, int]:
