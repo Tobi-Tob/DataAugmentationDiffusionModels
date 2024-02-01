@@ -217,6 +217,7 @@ class FewShotDataset(Dataset):
                         print(f'Weight: {weight}')
 
                 image_path = os.path.join(self.synthetic_dir, f"label_{label}-{idx}-{num}.png")
+                print(f"image path: {image_path}")
                 self.synthetic_examples[idx].append((image_path, label))
                 pil_image.save(image_path)
 
