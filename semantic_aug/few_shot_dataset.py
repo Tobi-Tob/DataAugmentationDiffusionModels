@@ -166,7 +166,6 @@ class FewShotDataset(Dataset):
                 # This chooses an embed noise vector out of the list according to the occurrence of the class name
                 embed_name_idx = class_occur[class_name] % len(noise_name_dict[class_name])
                 metadata['name'] = noise_name_dict[class_name][embed_name_idx]
-                print(f"metadata: {metadata}")
 
             image, label = self.generative_aug(
                 image, label, metadata)
