@@ -508,7 +508,7 @@ if __name__ == "__main__":
     # The pre-trained model to use
     parser.add_argument("--iterations-per-epoch", type=int, default=200)
     # Define how many different batches the classifier is trained on to complete an epoch
-    parser.add_argument("--num-epochs", type=int, default=30)
+    parser.add_argument("--num-epochs", type=int, default=50)
     # Define how many epochs the training is running
     parser.add_argument("--batch-size", type=int, default=16)
     # Define how many images (real or synthetic) are in one batch
