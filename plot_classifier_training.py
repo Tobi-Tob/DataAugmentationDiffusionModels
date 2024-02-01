@@ -11,7 +11,8 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser("Plot Accuracy")
 
-    parser.add_argument("--dirs", nargs="+", type=str, default=["results"])
+    parser.add_argument("--dirs", nargs="+", type=str,
+                        default=["plot_results/road_sign_4epc"])
 
     parser.add_argument("--datasets", nargs="+", type=str, default=["COCO"])
 
