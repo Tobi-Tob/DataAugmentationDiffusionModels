@@ -147,7 +147,8 @@ def run_experiment(examples_per_class: int = 0,
         use_synthetic_filter=use_synthetic_filter,
         filter_mask_area=filter_mask_area,
         use_llm_prompt=use_llm_prompt,
-        prompt_path=prompt_path)
+        prompt_path=prompt_path,
+        embed_path=embed_path)
 
     if num_synthetic > 0 and aug is not None:
         if use_synthetic_filter:

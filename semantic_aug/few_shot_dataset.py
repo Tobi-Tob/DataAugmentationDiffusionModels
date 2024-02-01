@@ -16,6 +16,8 @@ import os
 import shutil
 import copy
 
+# DEFAULT_EMBED_PATH = "{dataset}-tokens/{dataset}-{seed}-{examples_per_class}.pt"
+DEFAULT_EMBED_PATH = "coco_extension-tokens.pt"
 DEFAULT_PROMPT_PATH = "prompts/prompts.csv"
 DEFAULT_PROMPT = "a photo of a {name}"
 
@@ -35,7 +37,8 @@ class FewShotDataset(Dataset):
                  synthetic_dir: str = None,
                  use_synthetic_filter: bool = False,
                  use_llm_prompt: bool = False,
-                 prompt_path: str = DEFAULT_PROMPT_PATH):
+                 prompt_path: str = DEFAULT_PROMPT_PATH,
+                 embed_path: str = DEFAULT_EMBED_PATH):
 
         self.examples_per_class = examples_per_class
         self.generative_aug = generative_aug
@@ -52,6 +55,10 @@ class FewShotDataset(Dataset):
             prompt_path = DEFAULT_PROMPT_PATH
         self.prompt_path = prompt_path
         print(f"prompt path used: {self.prompt_path}")
+
+        if embed_path is None:
+            embed_path = DEFAULT_EMBED_PATH
+        self.embed_noise_path = embed_path
 
         self.transform = transforms.Compose([
             transforms.ToTensor(),
@@ -93,6 +100,18 @@ class FewShotDataset(Dataset):
 
         return prompts_dict
 
+    def read_names_from_pt(self):
+        noise_name_dict = {}
+        pt_content = torch.load(self.embed_noise_path)
+
+        # fill the dict with class_names as keys and list of class_name with noise as values
+        # e.g.: "bench": ["bench", "bench_0.05", ...]
+        for idx in range(len(self)):
+            class_name = self.get_metadata_by_idx(idx)['name']
+            noise_name_dict[class_name] = [name for name in pt_content.keys() if class_name in name]
+
+        return noise_name_dict
+
     def load_filter(self, path: str):
         if self.use_synthetic_filter:
             state_dict = torch.load(path)
@@ -118,6 +137,9 @@ class FewShotDataset(Dataset):
             prompts_dict = self.read_prompts_from_csv()
             print(f"first class of prompts dict (read from csv): {prompts_dict[list(prompts_dict)[0]]}")
         class_occur = {}
+
+        noise_name_dict = self.read_names_from_pt()
+        print(noise_name_dict)
 
         for idx, num in tqdm(list(
                 options), desc="Generating Augmentations"):
