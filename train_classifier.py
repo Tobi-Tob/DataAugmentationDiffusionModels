@@ -98,6 +98,7 @@ def run_experiment(examples_per_class: int = 0,
                    filter_mask_area: int = 0,
                    use_llm_prompt: bool = False,
                    prompt_path: str = DEFAULT_PROMPT_PATH,
+                   save_model: bool = True,
                    eval_on_test_set: bool = False,
                    logdir: str = "logs"):
     torch.manual_seed(seed)
@@ -287,6 +288,7 @@ def run_experiment(examples_per_class: int = 0,
         # Check if the current epoch has the best validation accuracy
         if validation_accuracy.mean() > best_validation_accuracy:
             best_validation_accuracy = validation_accuracy.mean()
+            print(f"epoch: {epoch} | new best val acc: {best_validation_accuracy}")
             best_model = model.state_dict()
 
         records.append(dict(
@@ -325,8 +327,6 @@ def run_experiment(examples_per_class: int = 0,
             split="Validation"
         ))
 
-        print(f"epoch: {epoch} | val acc: {validation_accuracy.mean()}")
-
         for i, name in enumerate(train_dataset.class_names):
             records.append(dict(
                 seed=seed,
@@ -363,7 +363,16 @@ def run_experiment(examples_per_class: int = 0,
                 metric=f"Accuracy {name.title()}",
                 split="Validation"
             ))
-
+    if save_model:
+        model_path = f"models/classifier_{dataset}_{seed}_{examples_per_class}"
+        if num_synthetic > 0:
+            model_path = model_path + f"_{strength}_{guidance_scale}"
+        if use_synthetic_filter:
+            model_path = model_path + "_filter"
+        if use_llm_prompt:
+            model_path = model_path + "_llm"
+        model_path = model_path + ".pth"
+        torch.save(best_model, model_path)
     if eval_on_test_set:
         # Load the best model for evaluation
         model.load_state_dict(best_model)
@@ -589,7 +598,10 @@ if __name__ == "__main__":
 
     parser.add_argument("--device", type=int, default=0)
 
+    parser.add_argument("--save_model", type=bool, default=True)
+    # Whether to save the best classifier model or not
     parser.add_argument("--eval_on_test_set", type=bool, default=True)
+    # Whether to eval the best classifier model on the test set or not
 
     args = parser.parse_args()
 
@@ -643,6 +655,7 @@ if __name__ == "__main__":
             filter_mask_area=args.filter_mask_area,
             use_llm_prompt=args.use_generated_prompts,
             prompt_path=args.prompt_path,
+            save_model=args.save_model,
             eval_on_test_set=args.eval_on_test_set,
             logdir=args.logdir)
 
