@@ -100,7 +100,8 @@ def run_experiment(examples_per_class: int = 0,
                    prompt_path: str = DEFAULT_PROMPT_PATH,
                    save_model: bool = True,
                    eval_on_test_set: bool = False,
-                   logdir: str = "logs"):
+                   logdir: str = "logs",
+                   use_embedding_noise: bool = False):
     torch.manual_seed(seed)
     np.random.seed(seed)
     random.seed(seed)
@@ -148,7 +149,8 @@ def run_experiment(examples_per_class: int = 0,
         filter_mask_area=filter_mask_area,
         use_llm_prompt=use_llm_prompt,
         prompt_path=prompt_path,
-        embed_path=embed_path)
+        embed_path=embed_path,
+        use_embedding_noise=use_embedding_noise)
 
     if num_synthetic > 0 and aug is not None:
         if use_synthetic_filter:
@@ -506,6 +508,9 @@ if __name__ == "__main__":
 
     parser.add_argument("--prompt-path", type=str, default="prompts/prompts.csv")
 
+    parser.add_argument("--use-embedding-noise", type=int, default=False)
+    # Determines if noisy embeddings are used
+
     parser.add_argument("--synthetic-probability", type=float, default=0.7)
     # Probability to pick an image from the synthetic dataset while training the downstream model
     parser.add_argument("--synthetic-dir", type=str, default=DEFAULT_SYNTHETIC_DIR)
@@ -658,7 +663,8 @@ if __name__ == "__main__":
             prompt_path=args.prompt_path,
             save_model=args.save_model,
             eval_on_test_set=args.eval_on_test_set,
-            logdir=args.logdir)
+            logdir=args.logdir,
+            use_embedding_noise=args.use_embedding_noise)
 
         synthetic_dir = args.synthetic_dir.format(**hyperparameters)
         embed_path = args.embed_path.format(**hyperparameters)

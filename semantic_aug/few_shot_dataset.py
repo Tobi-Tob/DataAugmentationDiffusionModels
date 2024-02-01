@@ -38,7 +38,8 @@ class FewShotDataset(Dataset):
                  use_synthetic_filter: bool = False,
                  use_llm_prompt: bool = False,
                  prompt_path: str = DEFAULT_PROMPT_PATH,
-                 embed_path: str = DEFAULT_EMBED_PATH):
+                 embed_path: str = DEFAULT_EMBED_PATH,
+                 use_embedding_noise: bool = False):
 
         self.examples_per_class = examples_per_class
         self.generative_aug = generative_aug
@@ -56,6 +57,7 @@ class FewShotDataset(Dataset):
         self.prompt_path = prompt_path
         print(f"prompt path used: {self.prompt_path}")
 
+        self.use_embedding_noise = use_embedding_noise
         if embed_path is None:
             embed_path = DEFAULT_EMBED_PATH
         self.embed_noise_path = embed_path
@@ -138,8 +140,9 @@ class FewShotDataset(Dataset):
             print(f"first class of prompts dict (read from csv): {prompts_dict[list(prompts_dict)[0]]}")
         class_occur = {}
 
-        noise_name_dict = self.read_names_from_pt()
-        print(noise_name_dict)
+        if self.use_embedding_noise:
+            noise_name_dict = self.read_names_from_pt()
+            print(noise_name_dict)
 
         for idx, num in tqdm(list(
                 options), desc="Generating Augmentations"):
