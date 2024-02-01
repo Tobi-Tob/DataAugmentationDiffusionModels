@@ -55,7 +55,7 @@ class FewShotDataset(Dataset):
         if prompt_path is None:
             prompt_path = DEFAULT_PROMPT_PATH
         self.prompt_path = prompt_path
-        print(f"prompt path used: {self.prompt_path}")
+        # print(f"prompt path used: {self.prompt_path}")
 
         self.use_embedding_noise = use_embedding_noise
         if embed_path is None:
@@ -217,7 +217,6 @@ class FewShotDataset(Dataset):
                         print(f'Weight: {weight}')
 
                 image_path = os.path.join(self.synthetic_dir, f"label_{label}-{idx}-{num}.png")
-                print(f"image path: {image_path}")
                 self.synthetic_examples[idx].append((image_path, label))
                 pil_image.save(image_path)
 

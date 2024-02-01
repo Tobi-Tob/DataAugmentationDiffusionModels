@@ -374,6 +374,8 @@ def run_experiment(examples_per_class: int = 0,
             model_path = model_path + "_filter"
         if use_llm_prompt:
             model_path = model_path + "_llm"
+        if use_embedding_noise:
+            model_path = model_path + "_noise"
         model_path = model_path + ".pth"
         torch.save(best_model, model_path)
     if eval_on_test_set:
