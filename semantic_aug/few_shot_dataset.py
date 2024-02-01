@@ -111,7 +111,6 @@ class FewShotDataset(Dataset):
         for idx in range(len(self)):
             class_name = self.get_metadata_by_idx(idx)['name']
             noise_name_dict[class_name] = [name[1:-1] for name in pt_content.keys() if class_name in name]
-                # [name[name.find("<") + 1:name.find(">")] for name in pt_content.keys() if class_name in name]
 
         return noise_name_dict
 
@@ -141,9 +140,10 @@ class FewShotDataset(Dataset):
             print(f"first class of prompts dict (read from csv): {prompts_dict[list(prompts_dict)[0]]}")
         class_occur = {}
 
+        noise_name_dict = {}
         if self.use_embedding_noise:
             noise_name_dict = self.read_names_from_pt()
-            print(noise_name_dict)
+            print(f"use those embedding names (and gaussian scales): {noise_name_dict}")
 
         for idx, num in tqdm(list(
                 options), desc="Generating Augmentations"):
@@ -161,6 +161,12 @@ class FewShotDataset(Dataset):
                 # This chooses a prompt out of the list according to the occurrence of the class name
                 prompt_idx = class_occur[class_name] % len(prompts_dict[class_name])
                 self.generative_aug.set_augs_prompt(prompts_dict[class_name][prompt_idx])
+
+            if self.use_embedding_noise:
+                # This chooses an embed noise vector out of the list according to the occurrence of the class name
+                embed_name_idx = class_occur[class_name] % len(noise_name_dict[class_name])
+                metadata['name'] = noise_name_dict[class_name][embed_name_idx]
+                print(f"metadata: {metadata}")
 
             image, label = self.generative_aug(
                 image, label, metadata)
