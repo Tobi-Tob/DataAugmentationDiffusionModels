@@ -110,7 +110,8 @@ class FewShotDataset(Dataset):
         # e.g.: "bench": ["bench", "bench_0.05", ...]
         for idx in range(len(self)):
             class_name = self.get_metadata_by_idx(idx)['name']
-            noise_name_dict[class_name] = [name for name in pt_content.keys() if class_name in name]
+            noise_name_dict[class_name] = [name[1:-1] for name in pt_content.keys() if class_name in name]
+                # [name[name.find("<") + 1:name.find(">")] for name in pt_content.keys() if class_name in name]
 
         return noise_name_dict
 
