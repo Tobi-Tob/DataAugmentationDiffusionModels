@@ -10,6 +10,7 @@ import torchvision.transforms as transforms
 import torch
 import warnings
 import matplotlib.pyplot as plt
+import csv
 
 COCO_EXTENSION_DIR = r"/data/vilab05/CustomDatasets/Common_Objects"
 # COCO_EXTENSION_DIR = r"D:\Studium\TUDarmstadt\WiSe23_24\DLCV\datasets\common_obj_our\CustomDatasets\Common_Objects"
@@ -120,6 +121,35 @@ class COCOExtension(FewShotDataset):
 
         # Enumeration of the occurrences of each class in the data set
         self.class_counts = np.bincount(self.all_labels)
+
+        # Writing image paths of training data to CSV
+        out_dir = "source_images"
+        if not os.path.exists(out_dir):
+            os.makedirs(out_dir)
+            out_dir = "source_images/coco_extension"
+            if not os.path.exists(out_dir):
+                os.makedirs(out_dir)
+        out_dir = "source_images/coco_extension"
+
+        out_path = os.path.join(out_dir, f"img_paths_{seed}_{examples_per_class}.csv")
+
+        # Finding the maximum number of paths
+        # max_paths = max(len(paths) for paths in self.class_to_images.values())
+
+        # Creating the CSV file
+        with open(out_path, 'w', newline='') as file:
+            writer = csv.writer(file)
+
+            # Writing the header
+            header = ['path']
+            # writer.writerow(header)
+
+            # Writing the data
+            for paths in self.all_images:
+                row = [paths]
+                writer.writerow(row)
+
+        print(f"Wrote images paths of training data to csv: {out_path}")
 
         if use_randaugment:
             train_transform = transforms.Compose([

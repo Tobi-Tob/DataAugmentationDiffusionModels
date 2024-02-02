@@ -193,7 +193,7 @@ class COCODataset(FewShotDataset):
 
         # Writing image paths of training data to CSV
         # TODO: enable this for all datasets and create parameter to activate and deactivate this
-        out_dir = "prompts"
+        out_dir = "source_images/coco"
         if not os.path.exists(out_dir):
             os.makedirs(out_dir)
 
