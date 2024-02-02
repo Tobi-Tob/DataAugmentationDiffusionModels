@@ -132,26 +132,16 @@ class COCOExtension(FewShotDataset):
         elif not os.path.exists(out_dir):
             os.makedirs(out_dir)
 
-
         out_path = os.path.join(out_dir, f"img_paths_{seed}_{examples_per_class}_{split}.csv")
 
-        # Finding the maximum number of paths
-        # max_paths = max(len(paths) for paths in self.class_to_images.values())
-
-        # Creating the CSV file
+        # Creating the CSV file and writing the paths to it
         with open(out_path, 'w', newline='') as file:
             writer = csv.writer(file)
-
-            # Writing the header
-            header = ['path']
-            # writer.writerow(header)
-
-            # Writing the data
             for paths in self.all_images:
                 row = [paths]
                 writer.writerow(row)
 
-        print(f"Wrote images paths of coco_extensin {split}-split to csv: {out_path}")
+        print(f"Wrote images paths of coco_extension {split}-split to csv: {out_path}")
 
         if use_randaugment:
             train_transform = transforms.Compose([

@@ -10,6 +10,7 @@ import torchvision.transforms as transforms
 import torch
 import warnings
 import matplotlib.pyplot as plt
+import csv
 
 ROAD_SIGN_DIR = r"/data/vilab05/CustomDatasets/Road_Signs"
 
@@ -116,6 +117,27 @@ class RoadSignDataset(FewShotDataset):
 
         # Enumeration of the occurrences of each class in the data set
         self.class_counts = np.bincount(self.all_labels)
+
+        # Writing image paths of training data to CSV
+        out_dir_1 = "source_images"
+        out_dir = "source_images/road_sign"
+        if not os.path.exists(out_dir_1):
+            os.makedirs(out_dir_1)
+            if not os.path.exists(out_dir):
+                os.makedirs(out_dir)
+        elif not os.path.exists(out_dir):
+            os.makedirs(out_dir)
+
+        out_path = os.path.join(out_dir, f"img_paths_{seed}_{examples_per_class}_{split}.csv")
+
+        # Creating the CSV file and writing the paths to it
+        with open(out_path, 'w', newline='') as file:
+            writer = csv.writer(file)
+            for paths in self.all_images:
+                row = [paths]
+                writer.writerow(row)
+
+        print(f"Wrote images paths of road_sign {split}-split to csv: {out_path}")
 
         if use_randaugment:
             train_transform = transforms.Compose([
