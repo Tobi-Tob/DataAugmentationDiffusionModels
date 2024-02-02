@@ -123,15 +123,17 @@ class COCOExtension(FewShotDataset):
         self.class_counts = np.bincount(self.all_labels)
 
         # Writing image paths of training data to CSV
-        out_dir = "source_images"
-        if not os.path.exists(out_dir):
-            os.makedirs(out_dir)
-            out_dir = "source_images/coco_extension"
+        out_dir_1 = "source_images"
+        out_dir = "source_images/coco_extension"
+        if not os.path.exists(out_dir_1):
+            os.makedirs(out_dir_1)
             if not os.path.exists(out_dir):
                 os.makedirs(out_dir)
-        out_dir = "source_images/coco_extension"
+        elif not os.path.exists(out_dir):
+            os.makedirs(out_dir)
 
-        out_path = os.path.join(out_dir, f"img_paths_{seed}_{examples_per_class}.csv")
+
+        out_path = os.path.join(out_dir, f"img_paths_{seed}_{examples_per_class}_{split}.csv")
 
         # Finding the maximum number of paths
         # max_paths = max(len(paths) for paths in self.class_to_images.values())
@@ -149,7 +151,7 @@ class COCOExtension(FewShotDataset):
                 row = [paths]
                 writer.writerow(row)
 
-        print(f"Wrote images paths of training data to csv: {out_path}")
+        print(f"Wrote images paths of coco_extensin {split}-split to csv: {out_path}")
 
         if use_randaugment:
             train_transform = transforms.Compose([
