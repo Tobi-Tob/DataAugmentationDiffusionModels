@@ -11,18 +11,18 @@ examples_per_class = np.array([2, 4, 8])
 plt.figure(figsize=(8, 6))
 
 # COCO General Plot
-standard_aug = np.array([0.7, 0.78, 0.85])
-paper = np.array([0.837, 0.854, 0.858])
-baseline = np.array([0.858, 0.867, 0.871])
-all_3 = np.array([0.87, 0.884, 0.902])
-plt.title('COCO Extension', fontsize=22)
+# standard_aug = np.array([0.842, 0.869, 0.907])
+# paper = np.array([0.837, 0.897, 0.908])
+# baseline = np.array([0.858, 0.918, 0.918])
+# all_3 = np.array([0.859, 0.880, 0.913])
+# plt.title('COCO Extension', fontsize=22)
 
 # RS General Plot
-# standard_aug = np.array([0.38, 0.42, 0.445])
-# paper = np.array([0.416, 0.431, 0.455])
-# baseline = np.array([0.405, 0.439, 0.478])
-# all_3 = np.array([0.464, 0.485, 0.493])
-# plt.title('Road Sign', fontsize=22)
+standard_aug = np.array([0.440, 0.518, 0.625])
+paper = np.array([0.417, 0.530, 0.667])
+baseline = np.array([0.405, 0.553, 0.553])
+all_3 = np.array([0.405, 0.518, 0.518])
+plt.title('Road Sign', fontsize=22)
 
 # COCO & RS General Plot
 plt.plot(examples_per_class, standard_aug, label='Standard Augmentation', color='blue', linewidth=4)
@@ -45,7 +45,7 @@ plt.legend(fontsize=18)
 plt.tight_layout()
 
 # Save the plot as a file
-plt.savefig('plots/test_lineplot_cocoext_v2.pdf', format='pdf')
+plt.savefig('plots/test_lineplot_rs_v3.pdf', format='pdf')
 
 # Show the plot
 plt.show()
