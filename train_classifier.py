@@ -99,7 +99,7 @@ def run_experiment(examples_per_class: int = 0,
                    use_llm_prompt: bool = False,
                    prompt_path: str = DEFAULT_PROMPT_PATH,
                    save_model: bool = True,
-                   eval_on_test_set: bool = False,
+                   eval_on_test_set: List[str] = [],
                    logdir: str = "logs",
                    use_embedding_noise: bool = False):
     torch.manual_seed(seed)
@@ -376,45 +376,49 @@ def run_experiment(examples_per_class: int = 0,
             model_path = model_path + "_llm"
         if use_embedding_noise:
             model_path = model_path + "_noise"
+        if "test_uncommon" in eval_on_test_set:
+            model_path = model_path + "_uncommon"
         model_path = model_path + ".pth"
         torch.save(best_model, model_path)
-    if eval_on_test_set:
+    if len(eval_on_test_set) > 0:
         # Load the best model for evaluation
         model.load_state_dict(best_model)
         model.eval()
 
-        # Build the test dataset
-        test_dataset = DATASETS[dataset](split="test", seed=seed, image_size=(image_size, image_size))
-        test_dataloader = DataLoader(test_dataset)
+        for test_set in eval_on_test_set:
+            print(f'Evaluating {test_set} dataset...')
+            # Build the test dataset
+            test_dataset = DATASETS[dataset](split=test_set, seed=seed, image_size=(image_size, image_size))
+            test_dataloader = DataLoader(test_dataset)
 
-        epoch_loss = torch.zeros(test_dataset.num_classes, dtype=torch.float32, device='cuda')
-        epoch_accuracy = torch.zeros(test_dataset.num_classes, dtype=torch.float32, device='cuda')
-        epoch_size = torch.zeros(test_dataset.num_classes, dtype=torch.float32, device='cuda')
-        for image, label in test_dataloader:
-            image, label = image.cuda(), label.cuda()
-            logits = model(image)
-            prediction = logits.argmax(dim=1)
-            loss = F.cross_entropy(logits, label, reduction="none")
-            accuracy = (prediction == label).float()
-            with torch.no_grad():
-                epoch_size.scatter_add_(0, label, torch.ones_like(loss))
-                epoch_loss.scatter_add_(0, label, loss)
-                epoch_accuracy.scatter_add_(0, label, accuracy)
+            epoch_loss = torch.zeros(test_dataset.num_classes, dtype=torch.float32, device='cuda')
+            epoch_accuracy = torch.zeros(test_dataset.num_classes, dtype=torch.float32, device='cuda')
+            epoch_size = torch.zeros(test_dataset.num_classes, dtype=torch.float32, device='cuda')
+            for image, label in test_dataloader:
+                image, label = image.cuda(), label.cuda()
+                logits = model(image)
+                prediction = logits.argmax(dim=1)
+                loss = F.cross_entropy(logits, label, reduction="none")
+                accuracy = (prediction == label).float()
+                with torch.no_grad():
+                    epoch_size.scatter_add_(0, label, torch.ones_like(loss))
+                    epoch_loss.scatter_add_(0, label, loss)
+                    epoch_accuracy.scatter_add_(0, label, accuracy)
 
-        test_loss = epoch_loss / epoch_size.clamp(min=1)
-        test_accuracy = epoch_accuracy / epoch_size.clamp(min=1)
-        test_loss = test_loss.cpu().numpy()
-        test_accuracy = test_accuracy.cpu().numpy()
-        print(f'Test Accuracy: {test_accuracy.mean()}')
+            test_loss = epoch_loss / epoch_size.clamp(min=1)
+            test_accuracy = epoch_accuracy / epoch_size.clamp(min=1)
+            test_loss = test_loss.cpu().numpy()
+            test_accuracy = test_accuracy.cpu().numpy()
+            print(f'{test_set} accuracy: {test_accuracy.mean()}')
 
-        testset_record = [dict(value=test_loss.mean(), metric=f"Mean Loss"),
-                          dict(value=test_accuracy.mean(), metric=f"Mean Accuracy")]
-        for i, name in enumerate(test_dataset.class_names):
-            testset_record.append(dict(value=test_loss[i], metric=f"Loss {name.title()}"))
-            testset_record.append(dict(value=test_accuracy[i], metric=f"Accuracy {name.title()}"))
-        test_path = os.path.join(logdir, f"test_results_{dataset}_{seed}_{examples_per_class}.csv")
-        pd.DataFrame.from_records(testset_record).to_csv(test_path)
-        print(f"testset record saved to: {test_path}")
+            testset_record = [dict(value=test_loss.mean(), metric=f"Mean Loss"),
+                              dict(value=test_accuracy.mean(), metric=f"Mean Accuracy")]
+            for i, name in enumerate(test_dataset.class_names):
+                testset_record.append(dict(value=test_loss[i], metric=f"Loss {name.title()}"))
+                testset_record.append(dict(value=test_accuracy[i], metric=f"Accuracy {name.title()}"))
+            test_path = os.path.join(logdir, f"{test_set}_results_{dataset}_{seed}_{examples_per_class}.csv")
+            pd.DataFrame.from_records(testset_record).to_csv(test_path)
+            print(f"{test_set} record saved to: {test_path}")
 
     return records
 
@@ -608,8 +612,8 @@ if __name__ == "__main__":
 
     parser.add_argument("--save_model", type=bool, default=True)
     # Whether to save the best classifier model or not
-    parser.add_argument("--eval_on_test_set", type=bool, default=True)
-    # Whether to eval the best classifier model on the test set or not
+    parser.add_argument("--eval_on_test_set", nargs="+", type=str, default=[])
+    # On which datasets the best classifier model should be evaluated
 
     args = parser.parse_args()
 

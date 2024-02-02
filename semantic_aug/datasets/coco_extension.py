@@ -13,6 +13,8 @@ import matplotlib.pyplot as plt
 import csv
 
 COCO_EXTENSION_DIR = r"/data/vilab05/CustomDatasets/Common_Objects"
+
+
 # COCO_EXTENSION_DIR = r"D:\Studium\TUDarmstadt\WiSe23_24\DLCV\datasets\common_obj_our\CustomDatasets\Common_Objects"
 
 
@@ -45,8 +47,9 @@ class COCOExtension(FewShotDataset):
     """
 
     classes = ["bench", "bicycle", "book", "bottle", "bowl", "car", "cellphone", "chair", "clock", "cup",
-    "fork", "keyboard", "knife", "laptop", "motorcycle", "mouse", "spoon", "potted_plant", "remote", "sportsball",
-    "tie", "trafficlight", "wineglas"]
+               "fork", "keyboard", "knife", "laptop", "motorcycle", "mouse", "spoon", "potted_plant", "remote",
+               "sportsball",
+               "tie", "trafficlight", "wineglas"]
     class_names = sorted(classes)
     num_classes: int = len(class_names)
 
@@ -72,7 +75,12 @@ class COCOExtension(FewShotDataset):
         for class_name in self.class_names:
             if split == "test":
                 class_dir_path = os.path.join(data_dir, 'test', class_name)
+            elif split == "test_uncommon":
+                class_dir_path = os.path.join(data_dir, 'test_uncommon_context', class_name)
+            elif split == "train" or split == "val":
+                class_dir_path = os.path.join(data_dir, 'train-val', class_name)
             else:
+                warnings.warn(f"Unknown split value: {split}. Using default train-val.", UserWarning)
                 class_dir_path = os.path.join(data_dir, 'train-val', class_name)
             class_image_paths = glob.glob(os.path.join(class_dir_path, '*.jpg'))
             self.image_paths[class_name].extend(class_image_paths)
@@ -84,7 +92,7 @@ class COCOExtension(FewShotDataset):
                      for class_name in self.class_names}
 
         class_ids_train, class_ids_val, class_ids_test = {}, {}, {}
-        if split == "test":
+        if split == "test" or split == "test_uncommon":
             class_ids_test = class_ids
         else:
             # Split the shuffled indices into training and validation sets
@@ -95,7 +103,7 @@ class COCOExtension(FewShotDataset):
                     class_ids[class_name], [int(train_split_proportion * len(class_ids[class_name]))])
 
         # Select the training, validation or test indices based on the provided split parameter
-        selected_class_ids = {"train": class_ids_train, "val": class_ids_val, "test": class_ids_test}[split]
+        selected_class_ids = {"train": class_ids_train, "val": class_ids_val, "test": class_ids_test, "test_uncommon": class_ids_test}[split]
 
         # Limits the number of examples per class
         if examples_per_class is not None and split == "train":
@@ -172,7 +180,7 @@ class COCOExtension(FewShotDataset):
                                  std=[0.5, 0.5, 0.5])
         ])
 
-        self.transform = {"train": train_transform, "val": val_transform, "test": val_transform}[split]
+        self.transform = {"train": train_transform, "val": val_transform, "test": val_transform, "test_uncommon": val_transform}[split]
 
     def __len__(self):
 
@@ -205,7 +213,7 @@ class COCOExtension(FewShotDataset):
 
 
 if __name__ == "__main__":
-    dataset = COCOExtension(split="val", examples_per_class=2)
+    dataset = COCOExtension(split="test_uncommon", examples_per_class=2)
     print('Dataset class counts:', dataset.class_counts)
     idx = 0
     dataset.visualize_by_idx(idx)
