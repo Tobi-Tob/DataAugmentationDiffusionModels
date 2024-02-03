@@ -82,49 +82,34 @@ cup;4;a photo of a {name} in a on top of a moving train
 cup;5;a photo of a {name} in a inside a volcano
 cup;6;a photo of a {name} in a prehistoric jungle
 cup;7;a photo of a {name} in a in the middle of a desert
-cup;8;a photo of a {name} in a deep underground cave
-cup;9;a photo of a {name} in a on the moon
-cup;10;a photo of a {name} in a inside a computer
+cup;8;a photo of a {name} in a on the moon
 fork;1;a photo of a {name} in a underwater reef scene
-fork;2;a photo of a {name} in a space station module
-fork;3;a photo of a {name} in a desert dunes
-fork;4;a photo of a {name} in a snowy mountain peak
-fork;5;a photo of a {name} in a jungle canopy
-fork;6;a photo of a {name} in a volcanic lava flow
-fork;7;a photo of a {name} in a antarctic ice shelf
-fork;8;a photo of a {name} in a mid air skydiving
-fork;9;a photo of a {name} in a deep cave system
-fork;10;a photo of a {name} in a mars surface exploration
+fork;2;a photo of a {name} in a desert dunes
+fork;3;a photo of a {name} in a snowy mountain peak
+fork;4;a photo of a {name} in a antarctic ice shelf
+fork;5;a photo of a {name} in a mid air skydiving
+fork;6;a photo of a {name} in a mars surface exploration
 keyboard;1;a photo of a {name} in a underwater coral reef
 keyboard;2;a photo of a {name} in a medieval battlefield
-keyboard;3;a photo of a {name} in a prehistoric jungle
-keyboard;4;a photo of a {name} in a moon landing site
-keyboard;5;a photo of a {name} in a active volcano crater
-keyboard;6;a photo of a {name} in a sahara desert oasis
-keyboard;7;a photo of a {name} in a antarctic ice sheet
-keyboard;8;a photo of a {name} in a amazon rainforest canopy
-keyboard;9;a photo of a {name} in a deep space satellite
-keyboard;10;a photo of a {name} in a siberian tundra winter
+keyboard;3;a photo of a {name} in a moon landing site
+keyboard;4;a photo of a {name} in a sahara desert oasis
+keyboard;5;a photo of a {name} in a antarctic ice sheet
+keyboard;6;a photo of a {name} in a siberian tundra winter
 knife;1;a photo of a {name} in a childrens birthday party
-knife;2;a photo of a {name} in a public swimming pool
-knife;3;a photo of a {name} in a high school graduation
-knife;4;a photo of a {name} in a sunday church service
-knife;5;a photo of a {name} in a public library reading room
-knife;6;a photo of a {name} in a kindergarten classroom
-knife;7;a photo of a {name} in a wedding ceremony
-knife;8;a photo of a {name} in a ballet dance studio
-knife;9;a photo of a {name} in a daycare center
-knife;10;a photo of a {name} in a flower shop
+knife;2;a photo of a {name} in a kindergarten classroom
+knife;3;a photo of a {name} in a wedding ceremony
+knife;4;a photo of a {name} in a ballet dance studio
+knife;5;a photo of a {name} in a daycare center
+knife;6;a photo of a {name} in a flower shop
 laptop;1;a photo of a {name} in a medieval castle
 laptop;2;a photo of a {name} in a prehistoric cave
 laptop;3;a photo of a {name} in a underwater coral reef
 laptop;4;a photo of a {name} in a ancient pyramid interior
 laptop;5;a photo of a {name} in a deep space voyage
 laptop;6;a photo of a {name} in a desert island
-laptop;7;a photo of a {name} in a dinosaur jungle
-laptop;8;a photo of a {name} in a viking longboat
-laptop;9;a photo of a {name} in a mount everest summit
-laptop;10;a photo of a {name} in a sahara desert oasis
+laptop;7;a photo of a {name} in a viking longboat
+laptop;8;a photo of a {name} in a mount everest summit
+laptop;9;a photo of a {name} in a sahara desert oasis
 motorcycle;1;a photo of a {name} in a underwater reef
 motorcycle;2;a photo of a {name} in a moon surface
 motorcycle;3;a photo of a {name} in a medieval castle
@@ -133,38 +118,24 @@ motorcycle;5;a photo of a {name} in a ancient pyramid interior
 motorcycle;6;a photo of a {name} in a roman colosseum
 motorcycle;7;a photo of a {name} in a antarctic ice field
 motorcycle;8;a photo of a {name} in a active volcano crater
-motorcycle;9;a photo of a {name} in a amazon rainforest canopy
-motorcycle;10;a photo of a {name} in a sahara desert oasis
+motorcycle;9;a photo of a {name} in a sahara desert oasis
 mouse;1;a photo of a {name} in a underwater coral reef
 mouse;2;a photo of a {name} in a medieval battlefield
 mouse;3;a photo of a {name} in a saharan desert
 mouse;4;a photo of a {name} in a prehistoric jungle
-mouse;5;a photo of a {name} in a deep space station
-mouse;6;a photo of a {name} in a ancient pyramid interior
-mouse;7;a photo of a {name} in a abandoned ghost town
-mouse;8;a photo of a {name} in a mount everest summit
-mouse;9;a photo of a {name} in a antarctic ice field
-mouse;10;a photo of a {name} in a amazonian tribal village
+mouse;5;a photo of a {name} in a ancient pyramid interior
+mouse;6;a photo of a {name} in a abandoned ghost town
+mouse;7;a photo of a {name} in a mount everest summit
+mouse;8;a photo of a {name} in a antarctic ice field
 potted_plant;1;a photo of a {name} in a antarctic research station
 potted_plant;2;a photo of a {name} in a deep space satellite
-potted_plant;3;a photo of a {name} in a underwater volcanic vent
-potted_plant;4;a photo of a {name} in a desert oasis mirage
-potted_plant;5;a photo of a {name} in a abandoned nuclear silo
-potted_plant;6;a photo of a {name} in a zero gravity space station
-potted_plant;7;a photo of a {name} in a arctic ice cave
-potted_plant;8;a photo of a {name} in a active volcano crater
-potted_plant;9;a photo of a {name} in a high security prison cell
-potted_plant;10;a photo of a {name} in a post apocalyptic wasteland
-remote;1;a photo of a {name} in a beach sand dunes
-remote;2;a photo of a {name} in a mountain peak
-remote;3;a photo of a {name} in a rainforest canopy
-remote;4;a photo of a {name} in a desert oasis
-remote;5;a photo of a {name} in a antarctic ice field
-remote;6;a photo of a {name} in a deep sea trench
-remote;7;a photo of a {name} in a medieval battlefield
-remote;8;a photo of a {name} in a space station
-remote;9;a photo of a {name} in a prehistoric jungle
-remote;10;a photo of a {name} in a underground cave system
+potted_plant;3;a photo of a {name} in a desert oasis mirage
+potted_plant;4;a photo of a {name} in a zero gravity space station
+potted_plant;5;a photo of a {name} in a high security prison cell
+potted_plant;6;a photo of a {name} in a post apocalyptic wasteland
+remote;1;a photo of a {name} in a mountain peak
+remote;2;a photo of a {name} in a antarctic ice field
+remote;3;a photo of a {name} in a deep sea trench
 spoon;1;a photo of a {name} in a desert island
 spoon;2;a photo of a {name} in a moon surface
 spoon;3;a photo of a {name} in a volcanic eruption
@@ -179,32 +150,27 @@ sportsball;1;a photo of a {name} in a underwater research lab
 sportsball;2;a photo of a {name} in a international space station
 sportsball;3;a photo of a {name} in a active volcano crater
 sportsball;4;a photo of a {name} in a antarctic research station
-sportsball;5;a photo of a {name} in a medieval castle dungeon
-sportsball;6;a photo of a {name} in a deep amazon rainforest
-sportsball;7;a photo of a {name} in a sahara desert oasis
-sportsball;8;a photo of a {name} in a nuclear reactor core
-sportsball;9;a photo of a {name} in a ancient pyramid interior
-sportsball;10;a photo of a {name} in a high security prison cell
-tie;1;a photo of a {name} in a beach volleyball match
-tie;2;a photo of a {name} in a underwater scuba diving
-tie;3;a photo of a {name} in a mountain hiking trip
-tie;4;a photo of a {name} in a home sleeping time
-tie;5;a photo of a {name} in a gym workout session
-tie;6;a photo of a {name} in a hot spring soak
-tie;7;a photo of a {name} in a yoga meditation retreat
-tie;8;a photo of a {name} in a desert safari adventure
-tie;9;a photo of a {name} in a jungle exploration expedition
-tie;10;a photo of a {name} in a space station mission
+sportsball;5;a photo of a {name} in a deep amazon rainforest
+sportsball;6;a photo of a {name} in a sahara desert oasis
+sportsball;7;a photo of a {name} in a nuclear reactor core
+sportsball;8;a photo of a {name} in a ancient pyramid interior
+sportsball;9;a photo of a {name} in a high security prison cell
+tie;1;a photo of a {name} in a underwater scuba diving
+tie;2;a photo of a {name} in a mountain hiking trip
+tie;3;a photo of a {name} in a home sleeping time
+tie;4;a photo of a {name} in a gym workout session
+tie;5;a photo of a {name} in a yoga meditation retreat
+tie;6;a photo of a {name} in a desert safari adventure
+tie;7;a photo of a {name} in a jungle exploration expedition
+tie;8;a photo of a {name} in a space station mission
 trafficlight;1;a photo of a {name} in a underwater coral reef
 trafficlight;2;a photo of a {name} in a middle of a desert
 trafficlight;3;a photo of a {name} in a deep space orbiting planet
-trafficlight;4;a photo of a {name} in a inside volcanic crater
-trafficlight;5;a photo of a {name} in a remote jungle clearing
-trafficlight;6;a photo of a {name} in a antarctic ice field
-trafficlight;7;a photo of a {name} in a medieval castle dungeon
-trafficlight;8;a photo of a {name} in a top of mount everest
-trafficlight;9;a photo of a {name} in a abandoned island
-trafficlight;10;a photo of a {name} in a distant future mars colony
+trafficlight;4;a photo of a {name} in a remote jungle clearing
+trafficlight;5;a photo of a {name} in a antarctic ice field
+trafficlight;6;a photo of a {name} in a medieval castle dungeon
+trafficlight;7;a photo of a {name} in a top of mount everest
+trafficlight;8;a photo of a {name} in a abandoned island
 wineglas;1;a photo of a {name} in a desert oasis
 wineglas;2;a photo of a {name} in a underwater research lab
 wineglas;3;a photo of a {name} in a space station galley
