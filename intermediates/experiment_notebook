@@ -101,9 +101,6 @@ MR:
 -> 01.02 - coco_extension/_combined/8epc
 python train_classifier.py --dataset "coco_extension" --synthetic-dir "intermediates/coco_extension/_combined/8epc/synthetics" --logdir "intermediates/coco_extension/_combined/8epc/logs" --aug "textual-inversion" --iterations-per-epoch 200 --num-epochs 50 --batch-size 16 --num-synthetic 10 --num-trials 1 --examples-per-class 8 --embed-path "coco_extension-tokens/noise/coco_extension-0-8.pt" --strength 0.7 --guidance-scale 15 --use-generated-prompts 1 --prompt-path "prompts/coco_extension/prompts_gpt_setting_adjective.csv" --use-embedding-noise 1 --synthetic_filter "train" --synthetic-probability 0.7 --device 1
 
--> 02.02 - coco_extension/_combined_uncommon/2epc
-python train_classifier.py --dataset "coco_extension" --synthetic-dir "intermediates/coco_extension/_combined_uncommon/2epc/synthetics" --logdir "intermediates/coco_extension/_combined_uncommon/2epc/logs" --aug "textual-inversion" --iterations-per-epoch 200 --num-epochs 50 --batch-size 16 --num-synthetic 10 --num-trials 1 --examples-per-class 2 --embed-path "coco_extension-tokens/noise/coco_extension-0-2.pt" --strength 0.7 --guidance-scale 15 --use-generated-prompts 1 --prompt-path "prompts/coco_extension/prompts_gpt_uncommon_setting_reduced.csv" --use-embedding-noise 1 --synthetic_filter "use" --synthetic-probability 0.7 --device 1
-
 
 DG:
 02.02 - coco_extension/_noise/2epc
@@ -158,3 +155,10 @@ python train_classifier.py --dataset "coco_extension" --synthetic-dir "intermedi
 
 coco_extension/_llm_noise_uncommon/8epc - 03.02
 python train_classifier.py --dataset "coco_extension" --synthetic-dir "intermediates/coco_extension/_llm_noise_uncommon/8epc/synthetics" --logdir "intermediates/coco_extension/_llm_noise_uncommon/8epc/logs" --aug "textual-inversion" --iterations-per-epoch 200 --num-epochs 50 --batch-size 16 --num-synthetic 10 --num-trials 1 --examples-per-class 8 --embed-path "coco_extension-tokens/noise/coco_extension-0-8.pt" --strength 0.7 --guidance-scale 15 --use-generated-prompts 1 --prompt-path "prompts/coco_extension/prompts_gpt_uncommon_setting_reduced.csv" --use-embedding-noise 1 --synthetic-probability 0.7 --eval_on_test_set "test" "test_uncommon" --device 3
+
+MR:
+coco_extension/_baseline/2epc 2seeds - 03.01
+python train_classifier.py --dataset "coco_extension" --synthetic-dir "intermediates/coco_extension/_baseline_v2/2epc/synthetics" --logdir "intermediates/coco_extension/_baseline_v2/2epc/logs" --aug "textual-inversion" --iterations-per-epoch 200 --num-epochs 50 --batch-size 16 --num-synthetic 10 --num-trials 2 --examples-per-class 2 --embed-path "coco_extension-tokens/coco_extension-0-2.pt" --strength 0.7 --guidance-scale 15 --synthetic-probability 0.7 --eval_on_test_set "test" "test_uncommon" --device 1
+
+coco_extension/_baseline/4epc 2seeds - 03.02
+python train_classifier.py --dataset "coco_extension" --synthetic-dir "intermediates/coco_extension/_baseline_v2/4epc/synthetics" --logdir "intermediates/coco_extension/_baseline_v2/4epc/logs" --aug "textual-inversion" --iterations-per-epoch 200 --num-epochs 50 --batch-size 16 --num-synthetic 10 --num-trials 2 --examples-per-class 4 --embed-path "coco_extension-tokens/coco_extension-0-4.pt" --strength 0.7 --guidance-scale 15 --synthetic-probability 0.7 --eval_on_test_set "test" "test_uncommon" --device 2
