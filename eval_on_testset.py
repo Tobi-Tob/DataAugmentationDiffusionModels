@@ -10,6 +10,7 @@ from train_classifier import ClassificationModel
 import torch
 from torch.utils.data import DataLoader
 import torch.nn.functional as F
+import argparse
 
 
 DATASETS = {
@@ -19,31 +20,48 @@ DATASETS = {
 }
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser("Eval on Testset")
+
+    parser.add_argument("--dataset", type=str, default="coco_extension")
+    parser.add_argument("--split", type=str, default="test")
+
+    parser.add_argument("--model", type=str, default="models/classifier_coco_extension_0_8_[0.7]_[15.0].pth")
+    parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument("--epc", type=int, default=0)
+
+    parser.add_argument("--logdir", type=str, default="logs")
+
+    """
+    python eval_on_testset.py --dataset "coco_extension" --split "test_uncommon" --model "models/classifier_coco_extension_0_8_[0.7]_[15.0].pth" --seed 0 --epc 8 --logdir "logs"
+    
+    """
+
+    args = parser.parse_args()
     # Model:
     # Should be ClassificationModel as defined in train_classifier
-    model_path = "models/classifier_coco_extension_0_2_[0.7]_[15.0]_llm_noise_uncommon.pth"
-    num_classes = 23
+    model_path = args.model
     # Dataset:
-    dataset = "coco_extension"
-    split = "test_uncommon"
-    seed = 0
+    dataset = args.dataset
+    split = args.split
+    epc = args.epc
+    seed = args.epc
     image_size = 256
     # Log dir
-    logdir = "logs"
+    logdir = args.logdir
+
+    # Build the test dataset
+    test_dataset = DATASETS[dataset](split=split, seed=seed, image_size=(image_size, image_size))
+    test_dataloader = DataLoader(test_dataset)
 
     print(f'Loading model...')
-    print(f'from {model_path}''')
-    model = ClassificationModel(num_classes, backbone="resnet50")
+    print(model_path)
+    model = ClassificationModel(test_dataset.num_classes, backbone="resnet50")
     model_state_dict = torch.load(model_path)
     model.load_state_dict(model_state_dict)
     model.cuda()
     model.eval()
 
     print(f'Evaluating on {split} dataset...')
-    # Build the test dataset
-    test_dataset = DATASETS[dataset](split=split, seed=seed, image_size=(image_size, image_size))
-    test_dataloader = DataLoader(test_dataset)
-
     epoch_loss = torch.zeros(test_dataset.num_classes, dtype=torch.float32, device='cuda')
     epoch_accuracy = torch.zeros(test_dataset.num_classes, dtype=torch.float32, device='cuda')
     epoch_size = torch.zeros(test_dataset.num_classes, dtype=torch.float32, device='cuda')
@@ -69,7 +87,7 @@ if __name__ == "__main__":
     for i, name in enumerate(test_dataset.class_names):
         testset_record.append(dict(value=test_loss[i], metric=f"Loss {name.title()}"))
         testset_record.append(dict(value=test_accuracy[i], metric=f"Accuracy {name.title()}"))
-    test_path = os.path.join(logdir, f"evaluation_on_{dataset}_{split}_{seed}.csv")
+    test_path = os.path.join(logdir, f"evaluation_on_{dataset}_{split}_{seed}_{epc}.csv")
     pd.DataFrame.from_records(testset_record).to_csv(test_path)
     print(f"Evaluation saved to: {test_path}")
 
