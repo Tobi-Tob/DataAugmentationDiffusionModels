@@ -12,7 +12,7 @@ import warnings
 import matplotlib.pyplot as plt
 import csv
 
-COCO_EXTENSION_DIR = r"/data/vilab05/CustomDatasets/Common_Objects"
+COCO_EXTENSION_DIR = r"/data/vilab07/CustomDatasets/Common_Objects"
 
 
 # COCO_EXTENSION_DIR = r"D:\Studium\TUDarmstadt\WiSe23_24\DLCV\datasets\common_obj_our\CustomDatasets\Common_Objects"
@@ -74,15 +74,15 @@ class COCOExtension(FewShotDataset):
         self.image_paths = {class_name: [] for class_name in self.class_names}
         for class_name in self.class_names:
             if split == "test":
-                class_dir_path = os.path.join(data_dir, 'test', class_name)
+                class_dir_path = os.path.join(data_dir, 'test', class_name, '*.jpg')
             elif split == "test_uncommon":
-                class_dir_path = os.path.join(data_dir, 'test_uncommon_context', class_name)
+                class_dir_path = os.path.join(data_dir, 'test_uncommon_context', class_name, '*.png')
             elif split == "train" or split == "val":
-                class_dir_path = os.path.join(data_dir, 'train-val', class_name)
+                class_dir_path = os.path.join(data_dir, 'train-val', class_name, '*.jpg')
             else:
                 warnings.warn(f"Unknown split value: {split}. Using default train-val.", UserWarning)
-                class_dir_path = os.path.join(data_dir, 'train-val', class_name)
-            class_image_paths = glob.glob(os.path.join(class_dir_path, '*.jpg'))
+                class_dir_path = os.path.join(data_dir, 'train-val', class_name, '*.jpg')
+            class_image_paths = glob.glob(class_dir_path)
             self.image_paths[class_name].extend(class_image_paths)
 
         rng = np.random.default_rng(seed)
@@ -216,4 +216,5 @@ if __name__ == "__main__":
     dataset = COCOExtension(split="test_uncommon", examples_per_class=2)
     print('Dataset class counts:', dataset.class_counts)
     idx = 0
+    dataset.visualize_by_idx(idx)
     dataset.visualize_by_idx(idx)
