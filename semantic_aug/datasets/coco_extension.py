@@ -12,7 +12,7 @@ import warnings
 import matplotlib.pyplot as plt
 import csv
 
-COCO_EXTENSION_DIR = r"/data/vilab07/CustomDatasets/Common_Objects"
+COCO_EXTENSION_DIR = r"/data/vilab05/CustomDatasets/Common_Objects"
 
 
 # COCO_EXTENSION_DIR = r"D:\Studium\TUDarmstadt\WiSe23_24\DLCV\datasets\common_obj_our\CustomDatasets\Common_Objects"
@@ -216,5 +216,4 @@ if __name__ == "__main__":
     dataset = COCOExtension(split="test_uncommon", examples_per_class=2)
     print('Dataset class counts:', dataset.class_counts)
     idx = 0
-    dataset.visualize_by_idx(idx)
     dataset.visualize_by_idx(idx)
