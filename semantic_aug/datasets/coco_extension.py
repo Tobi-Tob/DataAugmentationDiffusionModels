@@ -50,7 +50,7 @@ class COCOExtension(FewShotDataset):
                "fork", "keyboard", "knife", "laptop", "motorcycle", "mouse", "spoon", "potted_plant", "remote",
                "sportsball",
                "tie", "trafficlight", "wineglas"]
-    classes = ["car"]
+    classes = ["bench"]
     class_names = sorted(classes)
     num_classes: int = len(class_names)
 
