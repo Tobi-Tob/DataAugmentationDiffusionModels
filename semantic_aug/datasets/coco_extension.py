@@ -50,7 +50,7 @@ class COCOExtension(FewShotDataset):
                "fork", "keyboard", "knife", "laptop", "motorcycle", "mouse", "spoon", "potted_plant", "remote",
                "sportsball",
                "tie", "trafficlight", "wineglas"]
-    classes = ["bench"]
+    # classes = ["bench"]
     class_names = sorted(classes)
     num_classes: int = len(class_names)
 
@@ -188,8 +188,8 @@ class COCOExtension(FewShotDataset):
         return len(self.all_images)
 
     def get_image_by_idx(self, idx: int) -> torch.Tensor:
-        return Image.open("/data/vilab05/CustomDatasets/Common_Objects/train-val/bench/photo_5267111192328001845_y.jpg").convert('RGB')
-        # return Image.open(self.all_images[idx]).convert('RGB')
+        # return Image.open("/data/vilab05/CustomDatasets/Common_Objects/train-val/bench/photo_5267111192328001845_y.jpg").convert('RGB')
+        return Image.open(self.all_images[idx]).convert('RGB')
 
     def get_label_by_idx(self, idx: int) -> torch.Tensor:
 
