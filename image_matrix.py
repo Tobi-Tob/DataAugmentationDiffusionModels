@@ -4,8 +4,9 @@ import numpy as np
 import os
 
 # Define your directory path
-run = "llm"  # "baseline", "llm"
-directory_path = f'D:/Studium/TUDarmstadt/WiSe23_24/DLCV/Abschlusspräsentation/image_matrix/bottle_{run}'
+run = "baseline"  # "baseline", "llm"
+class_name = "car"
+directory_path = f'D:/Studium/TUDarmstadt/WiSe23_24/DLCV/Abschlusspräsentation/image_matrix/{class_name}_{run}'
 
 # Get everything in the directory
 all_files = os.listdir(directory_path)
@@ -29,5 +30,5 @@ for img_path, ax in zip(image_paths, axs_flat):
 
 plt.tight_layout()
 
-plt.savefig(f'plots/image_matrix_{run}.pdf', format='pdf')
+plt.savefig(f'plots/image_matrix_{class_name}_{run}.pdf', format='pdf')
 plt.show()
