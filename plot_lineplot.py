@@ -10,6 +10,7 @@ examples_per_class = np.array([2, 4, 8])
 # Plotting the data
 plt.figure(figsize=(8, 6))
 
+"""
 # COCO General Plot
 standard_aug = np.array([0.842, 0.869, 0.907])
 paper = np.array([0.837, 0.897, 0.908])
@@ -20,6 +21,7 @@ noise = np.array([0.853, 0.891, 0.902])
 filter = np.array([0.869, 0.902, 0.908])
 best_values = np.array([0.869, 0.902, 0.908])
 plt.title('COCO Extension', fontsize=22)
+"""
 
 """
 # RS General Plot
@@ -34,9 +36,15 @@ best_values = np.array([0.464, 0.601, 0.684])
 plt.title('Road Sign', fontsize=22)
 """
 
+# COCO Uncommon Plot
+standard_aug = np.array([0.475, 0.536, 0.550])
+baseline = np.array([0.495, 0.579, 0.531])
+best_values = np.array([0.564, 0.604, 0.606])
+plt.title('COCO Extension Uncommon', fontsize=22)
+
 # COCO & RS General Plot
 plt.plot(examples_per_class, standard_aug, label='Standard Augmentation', color='blue', linewidth=4)
-plt.plot(examples_per_class, paper, label='DA-Fusion (Paper params)', color='orange', linewidth=4)
+# plt.plot(examples_per_class, paper, label='DA-Fusion (Paper params)', color='orange', linewidth=4)
 plt.plot(examples_per_class, baseline, label='DA-Fusion (Our params)', color='green', linewidth=4)
 plt.plot(examples_per_class, best_values, label='Our Best (LLM + Noise)', color='red', linewidth=4)
 
@@ -55,7 +63,7 @@ plt.legend(fontsize=18)
 plt.tight_layout()
 
 # Save the plot as a file
-plt.savefig('plots/test_lineplot_coco_best_values.pdf', format='pdf')
+plt.savefig('plots/test_lineplot_coco_uncommon_best_values.pdf', format='pdf')
 
 # Show the plot
 plt.show()
