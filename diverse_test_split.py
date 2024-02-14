@@ -1,31 +1,53 @@
-"""
-What do we need
-1. Generate Feature Vectors and save them as dict -> key = image path, value = feature vector
-2. Calculate matrix containing the euclidean distance between all pairs of images in the feature space
-3. Extract the image with the smallest euclidean distance sum as starting point for the following algorithm.
-Save the corresponding distance vector in a temp variable. Save the found images in a testset_images variable
-4. Now find the diverse images in an iterative process:
-    a) Look into the temp variable and choose the image as next image that has the maximum distance value.
-    b) Save this image in testset_images
-    c) Add the found image distance vector from the matrix to the temp variable.
-5. stop the process after x iterations where x is a parameter that needs to be set by the user
-"""
-
-
-"""Step 1"""
-
 import torch
-import torchvision.models as models
 import torchvision.transforms as transforms
+from torchvision.models.resnet import resnet50, ResNet50_Weights
 from torch.utils.data import DataLoader, Dataset
+from scipy.spatial.distance import cdist
 from PIL import Image
 import numpy as np
 import os
+import warnings
 
-class ImageDataset(Dataset):
-    def __init__(self, image_paths, transform=None):
-        self.image_paths = image_paths
-        self.transform = transform
+"""
+This script generates feature vectors for images in a specified directory, calculates the Euclidean distance matrix
+between these feature vectors, and extracts diverse images based on the calculated distances.
+
+Steps:
+1. Generate Feature Vectors: Feature vectors are extracted for each image in the given directory and saved as a dictionary.
+The keys represent image paths and the values represent feature vectors.
+2. Calculate Distance Matrix: The script computes a similarity measure between all pairs of images in the feature space,
+resulting in a distance matrix.
+3. Select Starting Image: The image with the smallest distance sum to all other images is chosen as the starting point.
+The corresponding distance vector is saved in a temporary variable temp_max_distances.
+4. Find Diverse Images: The script iteratively selects diverse images based on their maximum distance value from the
+temporary variable.
+    a) For each iteration, it selects the image with the maximum distance value.
+    b) The selected image is added to the list of diverse images.
+    c) The distance vector of the selected image from the matrix is added to the temporary variable.
+5. The process stops after n iterations, where n is a parameter set by the user.
+
+Usage: Specify the directory containing the images (image_dir) and the number of images to find (n).
+Note: The chosen similarity metric should satisfy the condition that smaller values imply greater similarity between images.
+"""
+
+class CustomDataset(Dataset):
+    def __init__(self, image_dir: str):
+        self.image_dir = image_dir
+
+        self.image_paths = []
+        for filename in os.listdir(image_dir):
+            path = os.path.join(image_dir, filename)
+            if os.path.isfile(path) and os.path.splitext(filename)[1].lower() in ['.jpg', '.jpeg', '.png']:
+                # Check if path points to a file and if it has an image extension
+                self.image_paths.append(path)
+
+        self.transform = transforms.Compose([
+            transforms.Resize((256, 256)),
+            transforms.ToTensor(),
+            transforms.ConvertImageDtype(torch.float),
+            transforms.Normalize(mean=[0.5, 0.5, 0.5],
+                                 std=[0.5, 0.5, 0.5])
+        ])
 
     def __len__(self):
         return len(self.image_paths)
@@ -33,75 +55,70 @@ class ImageDataset(Dataset):
     def __getitem__(self, index):
         image_path = self.image_paths[index]
         image = Image.open(image_path).convert('RGB')
-        if self.transform is not None:
-            image = self.transform(image)
+        image = self.transform(image)
         return image, image_path
 
-# Load your dataset
-image_paths = ['path/to/image1.jpg', 'path/to/image2.jpg'] # Add your image paths here
-transform = transforms.Compose([
-    transforms.Resize((224, 224)),
-    transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-])
+if __name__ == "__main__":
 
-# Initialize the dataset and dataloader
-dataset = ImageDataset(image_paths, transform)
-dataloader = DataLoader(dataset, batch_size=64, shuffle=False)
+    image_dir = r'D:/Uni/DLCV/CustomDatasets/Common_Objects/train-val/bench'
+    n = 10  # Number of images to find, including the starting image
 
-# Load a pre-trained model and remove its final layer
-model = models.resnet50(pretrained=True)
-model = torch.nn.Sequential(*(list(model.children())[:-1]))
-model.eval()
+    # Initialize the dataset and dataloader
+    custom_dataset = CustomDataset(image_dir)
+    dataloader = DataLoader(custom_dataset, shuffle=False)
 
-# Generate feature vectors
-feature_vectors = {}
-with torch.no_grad():
-    for images, paths in dataloader:
-        outputs = model(images).squeeze()
-        for i, path in enumerate(paths):
-            feature_vectors[path] = outputs[i].numpy()
+    # Load a pre-trained model and remove its final layer
+    feature_extractor = resnet50(weights=ResNet50_Weights.DEFAULT)
+    feature_extractor = torch.nn.Sequential(*(list(feature_extractor.children())[:-1]))
+    feature_extractor.eval()
 
-# Save feature vectors
-np.save('feature_vectors.npy', feature_vectors)
+    print("Generating feature vectors...")
+    feature_vectors = {}
+    with torch.no_grad():
+        for images, paths in dataloader:
+            for image, path in zip(images, paths):
+                # Add batch dimension to the input image
+                image = image.unsqueeze(0)
+                output = feature_extractor(image).squeeze()
+                feature_vectors[path] = output.numpy()
 
+    num_feature_vectors = len(feature_vectors)
+    if num_feature_vectors > 0:
+        # Get the size of the feature vector for the first image
+        feature_dim_size = len(feature_vectors[next(iter(feature_vectors))])
+        print("Size of the feature dimension:", feature_dim_size)
+        print("Number of feature vectors:", num_feature_vectors)
+    else:
+        print("No feature vectors generated.")
+    if n > num_feature_vectors:
+        warnings.warn(f"The number of requested images n={n} is greater than the number of available images.", Warning, stacklevel=2)
 
-"""Step 2"""
+    # Extract the vectors and calculate the distance matrix
+    vectors = np.array(list(feature_vectors.values()))
+    distance_matrix = cdist(vectors, vectors, 'euclidean')  # TODO: Try different methods
 
-from scipy.spatial.distance import cdist
+    # Extract the image with the smallest distance to all other images as starting point
+    distance_sums = distance_matrix.sum(axis=1)
+    starting_index = np.argmin(distance_sums)
+    starting_image_path = list(feature_vectors.keys())[starting_index]
+    testset_images = [os.path.basename(starting_image_path)]
+    temp_max_distances = distance_matrix[starting_index]
+    selected_indices = [starting_index]
 
-# Load feature vectors
-# feature_vectors = np.load('feature_vectors.npy', allow_pickle=True).item()
+    print("Selecting images in feature space...")
+    for _ in range(1, n):
+        for idx in selected_indices:
+            # Set to negative infinity to ignore selected
+            temp_max_distances[idx] = -np.inf
+        next_index = np.argmax(temp_max_distances)
+        selected_indices.append(next_index)
+        next_image_path = list(feature_vectors.keys())[next_index]
+        testset_images.append(os.path.basename(next_image_path))
+        # Update the temp variable by adding the distance vector of the newly found image
+        # temp_max_distances now allways contains the cumulative distances of all selected images to every other image
+        temp_max_distances += distance_matrix[next_index]
 
-# Extract the vectors and calculate the distance matrix
-vectors = np.array(list(feature_vectors.values()))
-distance_matrix = cdist(vectors, vectors, 'euclidean')  # TODO: Try different methods
+    print("Selected images in", image_dir)
+    print(testset_images)
 
-
-"""Step 3"""
-
-distance_sums = distance_matrix.sum(axis=1)
-starting_index = np.argmin(distance_sums)
-starting_image_path = list(feature_vectors.keys())[starting_index]
-testset_images = [starting_image_path]
-temp_max_distances = distance_matrix[starting_index]
-
-
-"""Step 4"""
-
-x = 5  # Number of images to find, including the starting image
-selected_indices = [starting_index]
-
-for _ in range(1, x):
-    for idx in selected_indices:
-        # Set to negative infinity to ignore selected
-        temp_max_distances[idx] = -np.inf
-    next_index = np.argmax(temp_max_distances)
-    selected_indices.append(next_index)
-    next_image_path = list(feature_vectors.keys())[next_index]
-    testset_images.append(next_image_path)
-    # Update the temp variable by adding the distance vector of the newly found image
-    temp_max_distances += distance_matrix[next_index]
-
-# testset_images now contains the starting image and (x-1) diverse images.
 
