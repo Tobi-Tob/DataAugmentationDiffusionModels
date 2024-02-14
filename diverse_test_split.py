@@ -9,8 +9,7 @@ import os
 import warnings
 
 """
-This script generates feature vectors for images in a specified directory, calculates the Euclidean distance matrix
-between these feature vectors, and extracts diverse images based on the calculated distances.
+This script performs diverse image selection based on similarity calculations in a ResNet50 feature space.
 
 Steps:
 1. Generate Feature Vectors: Feature vectors are extracted for each image in the given directory and saved as a dictionary.
