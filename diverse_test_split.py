@@ -1,6 +1,8 @@
 import torch
 import torchvision.transforms as transforms
 from torchvision.models.resnet import resnet50, ResNet50_Weights
+from torchvision.models import efficientnet_b0
+from torchvision.models.efficientnet import EfficientNet_B0_Weights
 from torch.utils.data import DataLoader, Dataset
 from scipy.spatial.distance import cdist
 from PIL import Image
@@ -59,15 +61,21 @@ class CustomDataset(Dataset):
 
 if __name__ == "__main__":
 
-    image_dir = r'D:/Uni/DLCV/CustomDatasets/Common_Objects/train-val/bench'
-    n = 10  # Number of images to find, including the starting image
+    # image_dir = r'D:/Uni/DLCV/CustomDatasets/Common_Objects/train-val/bench'
+    image_dir = r'D:\Studium\TUDarmstadt\WiSe23_24\DLCV\datasets\merged_images_custom_dataset\train-val\test_algo2'
+    n = 5  # Number of images to find, including the starting image
 
     # Initialize the dataset and dataloader
     custom_dataset = CustomDataset(image_dir)
     dataloader = DataLoader(custom_dataset, shuffle=False)
 
     # Load a pre-trained model and remove its final layer
-    feature_extractor = resnet50(weights=ResNet50_Weights.DEFAULT)
+    #feature_extractor = resnet50(weights=ResNet50_Weights.DEFAULT)
+    #feature_extractor = torch.nn.Sequential(*(list(feature_extractor.children())[:-1]))
+    #feature_extractor.eval()
+
+    # Load a pre-trained model and remove its final layer
+    feature_extractor = efficientnet_b0(weights=EfficientNet_B0_Weights.DEFAULT)
     feature_extractor = torch.nn.Sequential(*(list(feature_extractor.children())[:-1]))
     feature_extractor.eval()
 
@@ -80,6 +88,23 @@ if __name__ == "__main__":
                 image = image.unsqueeze(0)
                 output = feature_extractor(image).squeeze()
                 feature_vectors[path] = output.numpy()
+
+    # Evaluating the feature space
+    all_feature_vectors = np.array(list(feature_vectors.values()))
+    # Calculate the mean and standard deviation across the 0th axis (i.e., for each feature dimension)
+    mean_vector = np.mean(all_feature_vectors, axis=0)
+    std_dev_vector = np.std(all_feature_vectors, axis=0)
+    print("Mean of feature vectors:", mean_vector)
+    print("Standard deviation of feature vectors:", std_dev_vector)
+    print("feature vectors", feature_vectors.values())
+
+    # Normalize each feature vector
+    normalized_feature_vectors = {}
+    for path, vector in feature_vectors.items():
+        normalized_vector = (vector - mean_vector) / std_dev_vector
+        normalized_feature_vectors[path] = normalized_vector
+    print("normalized feature vectors", normalized_feature_vectors.values())
+    feature_vectors = normalized_feature_vectors
 
     num_feature_vectors = len(feature_vectors)
     if num_feature_vectors > 0:
@@ -94,7 +119,12 @@ if __name__ == "__main__":
 
     # Extract the vectors and calculate the distance matrix
     vectors = np.array(list(feature_vectors.values()))
-    distance_matrix = cdist(vectors, vectors, 'euclidean')  # TODO: Try different methods
+    # distance_matrix = cdist(vectors, vectors, 'euclidean')  # TODO: Try different methods
+
+    distance_matrix = cdist(vectors, vectors, 'cosine')
+    # -Convert cosine distances to cosine similarities
+    cosine_similarity_matrix = 1 - distance_matrix
+    distance_matrix = cosine_similarity_matrix
 
     # Extract the image with the smallest distance to all other images as starting point
     distance_sums = distance_matrix.sum(axis=1)
