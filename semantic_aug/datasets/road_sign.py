@@ -13,16 +13,10 @@ import matplotlib.pyplot as plt
 import csv
 
 ROAD_SIGN_DIR = r"/data/vilab05/CustomDatasets/Road_Signs"
+# ROAD_SIGN_DIR = r"D:\Studium\TUDarmstadt\WiSe23_24\DLCV\datasets\common_obj_our\CustomDatasets\Road_Signs"
 
 
 class RoadSignDataset(FewShotDataset):
-
-    # classes = []
-    # for class_name in os.listdir(ROAD_SIGN_DIR_TRAIN_VAL):
-    #     class_dir_path = os.path.join(ROAD_SIGN_DIR_TRAIN_VAL, class_name)  # path to class dir
-    #     if os.path.isdir(class_dir_path) and any(os.listdir(class_dir_path)):
-    #         # only if path points to a directory and directory is not empty
-    #         classes.append(class_name)
 
     class_names = ["attention_zone_sign",
                    "end_of_restriction_sign",
@@ -84,11 +78,22 @@ class RoadSignDataset(FewShotDataset):
         if split == "test":
             class_ids_test = class_ids
         else:
+            max_size_trainset = 8
+            min_size_valset = 8
             # Split the shuffled indices into training and validation sets
-            train_split_proportion = 0.7  # (70%/30%)
             for class_name in self.class_names:
-                class_ids_train[class_name], class_ids_val[class_name] = np.array_split(
-                    class_ids[class_name], [int(train_split_proportion * len(class_ids[class_name]))])
+                if len(class_ids[class_name]) > max_size_trainset:
+                    # First max_size_trainset images go to the training set
+                    class_ids_train[class_name] = class_ids[class_name][:max_size_trainset]
+                    # The rest go to the validation set
+                    class_ids_val[class_name] = class_ids[class_name][max_size_trainset:]
+                    if len(class_ids_val[class_name]) < min_size_valset:
+                        warnings.warn(
+                            f"Only {len(class_ids_val[class_name])} images in validation split for class {class_name}!",
+                            UserWarning)
+                else:
+                    warnings.warn(f"Only {len(class_ids[class_name])} images in train-val for class {class_name}!",
+                                  UserWarning)
 
         # Select the training, validation or test indices based on the provided split parameter
         selected_class_ids = {"train": class_ids_train, "val": class_ids_val, "test": class_ids_test}[split]
@@ -201,7 +206,7 @@ class RoadSignDataset(FewShotDataset):
 
 
 if __name__ == "__main__":
-    dataset = RoadSignDataset(split="val", examples_per_class=8)
+    dataset = RoadSignDataset(split="val", examples_per_class=8, seed=1)
     print('Dataset class counts:', dataset.class_counts)
     idx = 0
     dataset.visualize_by_idx(idx)

@@ -13,44 +13,14 @@ import matplotlib.pyplot as plt
 import csv
 
 COCO_EXTENSION_DIR = r"/data/vilab05/CustomDatasets/Common_Objects"
-
-
 # COCO_EXTENSION_DIR = r"D:\Studium\TUDarmstadt\WiSe23_24\DLCV\datasets\common_obj_our\CustomDatasets\Common_Objects"
 
 
 class COCOExtension(FewShotDataset):
-    """
-    bench
-    bicycle
-    book
-    bottle
-    bowl
-    car
-    cellphone
-    chair
-    clock
-    cup
-    fork
-    keyboard
-    knife
-    laptop
-    motorcycle
-    mouse
-    spoon
-    potted_plant
-    remote
-    spoon
-    sportsball
-    tie
-    traffic light
-    wineglas
-    """
-
-    classes = ["bench", "bicycle", "book", "bottle", "bowl", "car", "cellphone", "chair", "clock", "cup",
-               "fork", "keyboard", "knife", "laptop", "motorcycle", "mouse", "spoon", "potted_plant", "remote",
-               "sportsball",
-               "tie", "trafficlight", "wineglas"]
-    # classes = ["bench"]
+    classes = ["bench", "bicycle", "book", "bottle", "bowl", "car", "cell_phone", "chair", "clock", "computer_mouse",
+               "cup", "fork", "keyboard", "knife", "laptop", "motorcycle", "spoon", "potted_plant", "sports_ball",
+               "tie", "traffic_light", "tv_remote", "wine_glass"]
+    # classes = ["bench"]  # for debugging purposes
     class_names = sorted(classes)
     num_classes: int = len(class_names)
 
@@ -96,15 +66,27 @@ class COCOExtension(FewShotDataset):
         if split == "test" or split == "test_uncommon":
             class_ids_test = class_ids
         else:
+            max_size_trainset = 8
+            min_size_valset = 8
             # Split the shuffled indices into training and validation sets
-            train_split_proportion = 0.7  # (70%/30%)
-
             for class_name in self.class_names:
-                class_ids_train[class_name], class_ids_val[class_name] = np.array_split(
-                    class_ids[class_name], [int(train_split_proportion * len(class_ids[class_name]))])
+                if len(class_ids[class_name]) > max_size_trainset:
+                    # First max_size_trainset images go to the training set
+                    class_ids_train[class_name] = class_ids[class_name][:max_size_trainset]
+                    # The rest go to the validation set
+                    class_ids_val[class_name] = class_ids[class_name][max_size_trainset:]
+                    if len(class_ids_val[class_name]) < min_size_valset:
+                        warnings.warn(
+                            f"Only {len(class_ids_val[class_name])} images in validation split for class {class_name}!",
+                            UserWarning)
+                else:
+                    warnings.warn(f"Only {len(class_ids[class_name])} images in train-val for class {class_name}!",
+                                  UserWarning)
 
         # Select the training, validation or test indices based on the provided split parameter
-        selected_class_ids = {"train": class_ids_train, "val": class_ids_val, "test": class_ids_test, "test_uncommon": class_ids_test}[split]
+        selected_class_ids = \
+            {"train": class_ids_train, "val": class_ids_val, "test": class_ids_test, "test_uncommon": class_ids_test}[
+                split]
 
         # Limits the number of examples per class
         if examples_per_class is not None and split == "train":
@@ -181,7 +163,9 @@ class COCOExtension(FewShotDataset):
                                  std=[0.5, 0.5, 0.5])
         ])
 
-        self.transform = {"train": train_transform, "val": val_transform, "test": val_transform, "test_uncommon": val_transform}[split]
+        self.transform = \
+            {"train": train_transform, "val": val_transform, "test": val_transform, "test_uncommon": val_transform}[
+                split]
 
     def __len__(self):
 
@@ -214,7 +198,7 @@ class COCOExtension(FewShotDataset):
 
 
 if __name__ == "__main__":
-    dataset = COCOExtension(split="test_uncommon", examples_per_class=2)
+    dataset = COCOExtension(split="test", examples_per_class=4, seed=2)
     print('Dataset class counts:', dataset.class_counts)
     idx = 0
     dataset.visualize_by_idx(idx)
