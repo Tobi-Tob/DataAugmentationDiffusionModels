@@ -63,6 +63,8 @@ from semantic_aug.datasets.imagenet import ImageNetDataset
 from semantic_aug.datasets.pascal import PASCALDataset
 from semantic_aug.datasets.caltech101 import CalTech101Dataset
 from semantic_aug.datasets.flowers102 import Flowers102Dataset
+from semantic_aug.datasets.road_sign import RoadSignDataset
+from semantic_aug.datasets.coco_extension import COCOExtension
 
 
 DATASETS = {
@@ -71,7 +73,9 @@ DATASETS = {
     "pascal": PASCALDataset,
     "imagenet": ImageNetDataset,
     "caltech": CalTech101Dataset,
-    "flowers": Flowers102Dataset
+    "flowers": Flowers102Dataset,
+    "road_sign": RoadSignDataset,
+    "coco_extension": COCOExtension
 }
 
 
@@ -436,6 +440,11 @@ def parse_args():
     parser.add_argument("--erase-concepts", action="store_true", 
                         help="erase text inversion concepts first")
 
+    parser.add_argument("--flip_p", type=float, default=0.5,
+                        help="Probability to augment the learning process through horizontal flips.")
+    parser.add_argument("--device", type=int, default=0,
+                        help="Which GPU device to use.")
+
     args = parser.parse_args()
     env_local_rank = int(os.environ.get("LOCAL_RANK", -1))
     if env_local_rank != -1 and env_local_rank != args.local_rank:
@@ -739,6 +748,7 @@ def main(args):
         learnable_property=args.learnable_property,
         center_crop=args.center_crop,
         set="train",
+        flip_p=args.flip_p,
     )
     train_dataloader = torch.utils.data.DataLoader(
         train_dataset, batch_size=args.train_batch_size, shuffle=True, num_workers=args.dataloader_num_workers
@@ -988,7 +998,11 @@ def main(args):
 
 
 if __name__ == "__main__":
-    #  TL: Similar to fine_tune.py - both are doing the Textual Inversion part, which one to use?
+    # TL: Similar to fine_tune.py - this script is the newer version
+    # It includes a validation step and enables to push the whole model zu huggingface hub
+    '''
+    python fine_tune_upstream.py --dataset="road_sign" --output_dir=./test --push_to_hub --pretrained_model_name_or_path="CompVis/stable-diffusion-v1-4" --resolution=512 --flip_p=0 --train_batch_size=4 --lr_warmup_steps=0 --gradient_accumulation_steps=1 --max_train_steps=1000 --learning_rate=5.0e-04 --scale_lr --lr_scheduler="constant" --mixed_precision=fp16 --revision=fp16 --initializer_token "the" --gradient_checkpointing --checkpointing_steps 100 --save_as_full_pipeline --validation_prompt "a photo of a {name}/*???" --num-trials=1 --examples-per-class=4 --device 1
+    '''
 
     args = parse_args()
     output_dir = args.output_dir
@@ -996,10 +1010,12 @@ if __name__ == "__main__":
     rank = int(os.environ.pop("RANK", 0))
     world_size = int(os.environ.pop("WORLD_SIZE", 1))
 
-    device_id = rank % torch.cuda.device_count()
-    torch.cuda.set_device(rank % torch.cuda.device_count())
+    # device_id = rank % torch.cuda.device_count()
+    # torch.cuda.set_device(rank % torch.cuda.device_count())
+    device_id = args.device
+    torch.cuda.set_device(device_id)
 
-    print(f'Initialized process {rank} / {world_size}')
+    print(f'Initialized process {rank} / {world_size} on current device(gpu) {torch.cuda.current_device()}')
 
     class_names = DATASETS[args.dataset].class_names
 
