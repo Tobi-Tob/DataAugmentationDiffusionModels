@@ -61,9 +61,10 @@ class CustomDataset(Dataset):
 
 if __name__ == "__main__":
 
-    image_dir = r'D:\Uni\DLCV\CustomDatasets\Common_Objects\train-val\test'
-    # image_dir = r'D:\Studium\TUDarmstadt\WiSe23_24\DLCV\datasets\merged_images_custom_dataset\train-val\test_algo2'
-    n = 5  # Number of images to find, including the starting image
+    # TODO: Als args übergeben
+    # image_dir = r'D:\Uni\DLCV\CustomDatasets\Common_Objects\train-val\test'
+    image_dir = r'D:\Studium\TUDarmstadt\WiSe23_24\DLCV\datasets\merged_images_custom_dataset\train-val\bench'
+    n = 16  # Number of images to find, including the starting image
 
     # Initialize the dataset and dataloader
     custom_dataset = CustomDataset(image_dir)
