@@ -20,7 +20,9 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser("Merge token files")
 
-    parser.add_argument("--num-trials", type=int, default=8)
+    # Replaced --num-trials with --seeds. To enable custom seed setting
+    # parser.add_argument("--num-trials", type=int, default=8)
+    parser.add_argument("--seeds", nargs='+', type=int, default=[0, 1, 2])
     parser.add_argument("--examples-per-class", nargs='+', type=int, default=[1, 2, 4, 8, 16])
     parser.add_argument("--embed-path", type=str, default=DEFAULT_EMBED_PATH)
     parser.add_argument("--input-path", type=str, default="./fine-tuned")
@@ -31,7 +33,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    for seed, examples_per_class in product(range(args.num_trials), args.examples_per_class):
+    for seed, examples_per_class in product(args.seeds, args.examples_per_class):
 
         path = os.path.join(args.input_path, f"{args.dataset}-{seed}-{examples_per_class}/*/learned_embeds.bin")
 
