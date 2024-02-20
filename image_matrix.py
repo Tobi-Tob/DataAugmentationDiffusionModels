@@ -4,8 +4,8 @@ import numpy as np
 import os
 
 # Define your directory path
-run = "baseline"  # "baseline", "llm"
-class_name = "car"
+run = "llm"  # "baseline", "llm"
+class_name = "300m"
 directory_path = f'D:/Studium/TUDarmstadt/WiSe23_24/DLCV/Abschlusspräsentation/image_matrix/{class_name}_{run}'
 
 # Get everything in the directory

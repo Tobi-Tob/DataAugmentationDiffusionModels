@@ -537,8 +537,12 @@ if __name__ == "__main__":
     parser.add_argument("--num-synthetic", type=int, default=10)
     # Define how many synthetic images should be generated per class
     # Total number of synthetic images: num-synthetic * examples-per-class * 80
-    parser.add_argument("--num-trials", type=int, default=1)
+
+    parser.add_argument("--seeds", nargs='+', type=int, default=[0, 1, 2])
     # Define how often the entire experiment should be run with different seeds
+    # Replaced --num-trials with --seeds. To enable custom seed setting
+    # parser.add_argument("--num-trials", type=int, default=8)
+
     parser.add_argument("--examples-per-class", nargs='+', type=int, default=[1, 2, 4, 8, 16])
     # Define how many different images per class from the train data are used as guiding image
     # in the image generating process
@@ -634,7 +638,7 @@ if __name__ == "__main__":
 
     all_trials = []
 
-    options = product(range(args.num_trials), args.examples_per_class)
+    options = product(args.seeds, args.examples_per_class)
     options = np.array(list(options))
     options = np.array_split(options, world_size)[rank]
 

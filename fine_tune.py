@@ -258,7 +258,9 @@ def parse_args():
         "--enable_xformers_memory_efficient_attention", action="store_true", help="Whether or not to use xformers."
     )
 
-    parser.add_argument("--num-trials", type=int, default=8)
+    # Replaced --num-trials with --seeds. To enable custom seed setting
+    # parser.add_argument("--num-trials", type=int, default=8)
+    parser.add_argument("--seeds", nargs='+', type=int, default=[0, 1, 2])
     parser.add_argument("--examples-per-class", nargs='+', type=int, default=[1, 2, 4, 8, 16])
 
     parser.add_argument("--dataset", type=str, default="coco",
@@ -772,7 +774,7 @@ if __name__ == "__main__":
     rank = int(os.environ.pop("RANK", 0))
     world_size = int(os.environ.pop("WORLD_SIZE", 1))
 
-    #MR enabled custom divice_id
+    # MR enabled custom divice_id
     # device_id = rank % torch.cuda.device_count()  # TL: torch.cuda.device_count() is 0 on my lokal machine
     # torch.cuda.set_device(rank % torch.cuda.device_count())
     device_id = args.device
@@ -780,11 +782,14 @@ if __name__ == "__main__":
 
     print(f'Initialized process {rank} / {world_size} on current device(gpu) {torch.cuda.current_device()}')
 
-    options = product(range(args.num_trials), args.examples_per_class)
+    # options = product(range(args.num_trials), args.examples_per_class)
+    options = product(args.seeds, args.examples_per_class)
     options = np.array(list(options))
     options = np.array_split(options, world_size)[rank]
 
     for seed, examples_per_class in options.tolist():
+
+        print(f"Seed: {seed}, Examples per Class: {examples_per_class}")
 
         os.makedirs(os.path.join(output_dir, "extracted"), exist_ok=True)
 

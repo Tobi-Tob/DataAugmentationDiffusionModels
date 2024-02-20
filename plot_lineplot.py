@@ -21,7 +21,8 @@ baseline = np.array([0.859, 0.891, 0.908])
 # llm = np.array([0.859, 0.864, 0.902])
 # noise = np.array([0.853, 0.891, 0.902])
 # filter = np.array([0.870, 0.902, 0.908])
-best_values = np.array([0.859, 0.908, 0.913])  # llm, llm_noise_uncommon, llm_noise_uncommon
+# best_values = np.array([0.859, 0.908, 0.913])  # llm, llm_noise_uncommon, llm_noise_uncommon
+best_values = np.array([0.860, 0.890, 0.902])  # llm, noise, noise
 plt.title('COCO Extension', fontsize=22)
 """
 
@@ -53,7 +54,7 @@ plt.title('COCO Extension Uncommon', fontsize=22)
 
 # COCO & RS General Plot
 plt.plot(examples_per_class, standard_aug, label='Standard Augmentation', color='blue', linewidth=4)
-# plt.plot(examples_per_class, paper, label='DA-Fusion (Paper params)', color='orange', linewidth=4)
+plt.plot(examples_per_class, paper, label='DA-Fusion (Paper params)', color='orange', linewidth=4)
 plt.plot(examples_per_class, baseline, label='DA-Fusion (Our params)', color='green', linewidth=4)
 plt.plot(examples_per_class, best_values, label='Our Best (LLM + Noise)', color='red', linewidth=4)
 
