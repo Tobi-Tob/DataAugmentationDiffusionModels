@@ -838,4 +838,4 @@ if __name__ == "__main__":
             print(f"process seed {seed} with classname {class_name}")
             main(args)
 
-            # shutil.rmtree(args.train_data_dir)
+            shutil.rmtree(args.train_data_dir)
