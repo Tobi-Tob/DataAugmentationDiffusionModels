@@ -61,6 +61,13 @@ class BGVarDB:
         results = self._cursor.execute(query)
         yield from results
 
+    @staticmethod
+    def stringify(values):
+        if len(values) == 1:
+            return f"('{values[0]}')"
+        else:
+            return str(tuple(values))
+
 
 if __name__ == "__main__":
     # Initialize a dictionary to hold the class names as keys and lists of file paths as values
