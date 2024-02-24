@@ -16,6 +16,7 @@ if __name__ == "__main__":
     python aggregate_embeddings.py --num-trials 1 --examples-per-class 2 --dataset coco
     python aggregate_embeddings.py --num-trials 1 --examples-per-class 8 --dataset "road_sign"
     python aggregate_embeddings.py --num-trials 1 --examples-per-class 2 --dataset "coco_extension" --input-path "./fine-tuned"
+    python aggregate_embeddings.py --num-trials 1 --examples-per-class 2 --dataset "focus" --input-path "./fine-tuned"
     '''
 
     parser = argparse.ArgumentParser("Merge token files")
@@ -27,7 +28,7 @@ if __name__ == "__main__":
     parser.add_argument("--embed-path", type=str, default=DEFAULT_EMBED_PATH)
     parser.add_argument("--input-path", type=str, default="./fine-tuned")
     parser.add_argument("--dataset", type=str, default="coco",
-                        choices=["spurge", "imagenet", "coco", "pascal", "road_sign", "coco_extension"])
+                        choices=["spurge", "imagenet", "coco", "pascal", "road_sign", "coco_extension", "focus"])
     parser.add_argument("--augment-embeddings", default=False, help="Whether to augment the embeddings")
     parser.add_argument("--std-deviation", nargs='+', type=float, default=[0.005, 0.01, 0.025], help="How much std-dev to use")
 

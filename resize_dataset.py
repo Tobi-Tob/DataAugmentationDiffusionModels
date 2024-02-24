@@ -13,7 +13,7 @@ if __name__ == '__main__':
 
     parser.add_argument("--input-dir", type=str, default=r"/data/vilab05/CustomDatasets/Common_Objects/test")
     parser.add_argument("--outdir", type=str, default=r"/data/vilab05/CustomDatasets/Common_Objects/test_resized")
-    parser.add_argument("--dataset", type=str, default="coco_extension", choices=["coco", "coco_extension", "road_sign"])
+    parser.add_argument("--dataset", type=str, default="coco_extension", choices=["coco", "coco_extension", "road_sign", "focus"])
     parser.add_argument("--size", type=int, default=512
                         , help="Desired size of the image (given int is dimension of one axis -> quadratic output)")
 

@@ -4,6 +4,7 @@ from semantic_aug.datasets.imagenet import ImageNetDataset
 from semantic_aug.datasets.pascal import PASCALDataset
 from semantic_aug.datasets.road_sign import RoadSignDataset
 from semantic_aug.datasets.coco_extension import COCOExtension
+from semantic_aug.datasets.focus import FOCUS
 from semantic_aug.datasets.caltech101 import CalTech101Dataset
 from semantic_aug.datasets.flowers102 import Flowers102Dataset
 from semantic_aug.augmentations.compose import ComposeParallel
@@ -54,7 +55,8 @@ DATASETS = {
     "caltech": CalTech101Dataset,
     "flowers": Flowers102Dataset,
     "road_sign": RoadSignDataset,
-    "coco_extension": COCOExtension
+    "coco_extension": COCOExtension,
+    "focus": FOCUS,
 }
 
 COMPOSERS = {

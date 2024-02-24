@@ -4,6 +4,7 @@ from semantic_aug.datasets.imagenet import ImageNetDataset
 from semantic_aug.datasets.pascal import PASCALDataset
 from semantic_aug.datasets.road_sign import RoadSignDataset
 from semantic_aug.datasets.coco_extension import COCOExtension
+from semantic_aug.datasets.focus import FOCUS
 from semantic_aug.augmentations.compose import ComposeParallel
 from semantic_aug.augmentations.compose import ComposeSequential
 from semantic_aug.augmentations.real_guidance import RealGuidance
@@ -27,7 +28,8 @@ DATASETS = {
     "pascal": PASCALDataset,
     "imagenet": ImageNetDataset,
     "road_sign": RoadSignDataset,
-    "coco_extension": COCOExtension
+    "coco_extension": COCOExtension,
+    "focus": FOCUS,
 }
 
 COMPOSE = {

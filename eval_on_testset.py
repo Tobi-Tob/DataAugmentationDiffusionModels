@@ -5,6 +5,7 @@ import pandas as pd
 from semantic_aug.datasets.coco import COCODataset
 from semantic_aug.datasets.road_sign import RoadSignDataset
 from semantic_aug.datasets.coco_extension import COCOExtension
+from semantic_aug.datasets.focus import FOCUS
 from train_classifier import ClassificationModel
 
 import torch
@@ -16,13 +17,14 @@ import argparse
 DATASETS = {
     "coco": COCODataset,
     "road_sign": RoadSignDataset,
-    "coco_extension": COCOExtension
+    "coco_extension": COCOExtension,
+    "focus": FOCUS,
 }
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("Eval on Testset")
 
-    parser.add_argument("--dataset", type=str, default="coco_extension")
+    parser.add_argument("--dataset", type=str, default="coco_extension", choices=DATASETS.keys())
     parser.add_argument("--split", type=str, default="test")
 
     parser.add_argument("--model", type=str, default="models/classifier_coco_extension_0_8_[0.7]_[15.0].pth")

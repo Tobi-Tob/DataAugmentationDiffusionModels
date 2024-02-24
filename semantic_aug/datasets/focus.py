@@ -12,30 +12,28 @@ import warnings
 import matplotlib.pyplot as plt
 import csv
 
-COCO_EXTENSION_DIR = r"/data/vilab05/CustomDatasets/Common_Objects"
-# COCO_EXTENSION_DIR = r"D:\Studium\TUDarmstadt\WiSe23_24\DLCV\datasets\common_obj_our\CustomDatasets\Common_Objects"
+FOCUS_DIR = r"/data/vilab06/focus"
+# FOCUS_DIR = r"D:\Studium\TUDarmstadt\WiSe23_24\DLCV\datasets\focus\focus"
 
 
-class COCOExtension(FewShotDataset):
-    classes = ["bench", "bicycle", "book", "bottle", "bowl", "car", "cell_phone", "chair", "clock", "computer_mouse",
-               "cup", "fork", "keyboard", "knife", "laptop", "motorcycle", "spoon", "potted_plant", "sports_ball",
-               "tie", "traffic_light", "tv_remote", "wine_glass"]
-    # classes = ["bench", "bicycle"]  # for debugging purposes
+class FOCUS(FewShotDataset):
+    classes = ["bird", "car", "cat", "deer", "dog", "frog", "horse", "plane", "ship", "truck"]
+    # classes = ["bird"]  # for debugging purposes
     class_names = sorted(classes)
     num_classes: int = len(class_names)
 
-    def __init__(self, *args, data_dir: str = COCO_EXTENSION_DIR,
+    def __init__(self, *args, data_dir: str = FOCUS_DIR,
                  split: str = "train", seed: int = 0,
                  examples_per_class: int = None,
                  generative_aug: GenerativeAugmentation = None,
                  synthetic_probability: float = 0.5,
                  use_randaugment: bool = False,
                  image_size: Tuple[int] = (256, 256),
-                 filter_mask_area: int = 0,  # Not used, but needs to change call of COCODataset to be removed
+                 filter_mask_area: int = 0,  # Not used, but needs to change call of FOCUS to be removed
                  use_manual_list: bool = False,  # Not used
                  **kwargs):
 
-        super(COCOExtension, self).__init__(
+        super(FOCUS, self).__init__(
             *args, examples_per_class=examples_per_class,
             synthetic_probability=synthetic_probability,
             generative_aug=generative_aug, **kwargs)
@@ -45,14 +43,12 @@ class COCOExtension(FewShotDataset):
         self.image_paths = {class_name: [] for class_name in self.class_names}
         for class_name in self.class_names:
             if split == "test":
-                class_dir_path = os.path.join(data_dir, 'test', class_name, '*.jpg')
-            elif split == "test_uncommon":
-                class_dir_path = os.path.join(data_dir, 'test_uncommon_context', class_name, '*.png')
+                class_dir_path = os.path.join(data_dir, 'test', class_name, '*.jpeg')
             elif split == "train" or split == "val":
-                class_dir_path = os.path.join(data_dir, 'train-val', class_name, '*.jpg')
+                class_dir_path = os.path.join(data_dir, 'train-val', class_name, '*.jpeg')
             else:
                 warnings.warn(f"Unknown split value: {split}. Using default train-val.", UserWarning)
-                class_dir_path = os.path.join(data_dir, 'train-val', class_name, '*.jpg')
+                class_dir_path = os.path.join(data_dir, 'train-val', class_name, '*.jpeg')
             class_image_paths = glob.glob(class_dir_path)
             self.image_paths[class_name].extend(class_image_paths)
 
@@ -63,11 +59,11 @@ class COCOExtension(FewShotDataset):
                      for class_name in self.class_names}
 
         class_ids_train, class_ids_val, class_ids_test = {}, {}, {}
-        if split == "test" or split == "test_uncommon":
+        if split == "test":
             class_ids_test = class_ids
         else:
             max_size_trainset = 8
-            min_size_valset = 8
+            min_size_valset = 20
             # Split the shuffled indices into training and validation sets
             for class_name in self.class_names:
                 if len(class_ids[class_name]) > max_size_trainset:
@@ -80,15 +76,14 @@ class COCOExtension(FewShotDataset):
                             f"Only {len(class_ids_val[class_name])} images in validation split for class {class_name}!",
                             UserWarning)
                 else:
-                    warnings.warn(f"Only {len(class_ids[class_name])} images in train-val for class {class_name}!",
-                                  UserWarning)
+                    warnings.warn(
+                        f"Only {len(class_ids[class_name])} images in train-val for class {class_name}! NO VAL SET!",
+                        UserWarning)
                     # Move all images to training since there are less than max_size_trainset images in the dir
                     class_ids_train[class_name] = class_ids[class_name]
 
         # Select the training, validation or test indices based on the provided split parameter
-        selected_class_ids = \
-            {"train": class_ids_train, "val": class_ids_val, "test": class_ids_test, "test_uncommon": class_ids_test}[
-                split]
+        selected_class_ids = {"train": class_ids_train, "val": class_ids_val, "test": class_ids_test}[split]
 
         # Limits the number of examples per class
         if examples_per_class is not None and split == "train":
@@ -117,7 +112,7 @@ class COCOExtension(FewShotDataset):
 
         # Writing image paths of training data to CSV
         out_dir_1 = "source_images"
-        out_dir = "source_images/coco_extension"
+        out_dir = "source_images/focus"
         if not os.path.exists(out_dir_1):
             os.makedirs(out_dir_1)
             if not os.path.exists(out_dir):
@@ -134,7 +129,7 @@ class COCOExtension(FewShotDataset):
                 row = [paths]
                 writer.writerow(row)
 
-        print(f"Wrote images paths of coco_extension {split}-split to csv: {out_path}")
+        print(f"Wrote images paths of focus {split}-split to csv: {out_path}")
 
         if use_randaugment:
             train_transform = transforms.Compose([
@@ -200,7 +195,7 @@ class COCOExtension(FewShotDataset):
 
 
 if __name__ == "__main__":
-    dataset = COCOExtension(split="test", examples_per_class=4, seed=2)
+    dataset = FOCUS(split="test", examples_per_class=4, seed=2)
     print('Dataset class counts:', dataset.class_counts)
     idx = 0
     dataset.visualize_by_idx(idx)

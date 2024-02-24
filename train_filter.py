@@ -1,5 +1,6 @@
 from semantic_aug.datasets.coco import COCODataset
 from semantic_aug.datasets.coco_extension import COCOExtension
+from semantic_aug.datasets.focus import FOCUS
 from semantic_aug.datasets.spurge import SpurgeDataset
 from semantic_aug.datasets.imagenet import ImageNetDataset
 from semantic_aug.datasets.pascal import PASCALDataset
@@ -26,7 +27,8 @@ DATASETS = {
     "imagenet": ImageNetDataset,
     "caltech": CalTech101Dataset,
     "flowers": Flowers102Dataset,
-    "road_sign": RoadSignDataset
+    "road_sign": RoadSignDataset,
+    "focus": FOCUS,
 }
 
 

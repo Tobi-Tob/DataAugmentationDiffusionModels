@@ -6,6 +6,7 @@ import transformers
 import torch
 from semantic_aug.datasets.coco import COCODataset
 from semantic_aug.datasets.coco_extension import COCOExtension
+from semantic_aug.datasets.focus import FOCUS
 from semantic_aug.datasets.road_sign import RoadSignDataset
 from typing import Dict
 import os
@@ -60,7 +61,8 @@ GPT_PROMP_TEMPLATE = [{"role": "system",
 DATASETS = {
     "coco": COCODataset,
     "road_sign": RoadSignDataset,
-    "coco_extension": COCOExtension
+    "coco_extension": COCOExtension,
+    "focus": FOCUS,
 }
 
 
@@ -250,7 +252,7 @@ if __name__ == '__main__':
     parser.add_argument("--model", type=str, default="meta-llama/Llama-2-7b-chat-hf",
                         choices=["meta-llama/Llama-2-7b-chat-hf", "meta-llama/Llama-2-13b-chat-hf", "gpt-3.5-turbo", "gpt-4-turbo-preview"])
     parser.add_argument("--prompts-per-class", type=int, default=1)
-    parser.add_argument("--dataset", type=str, default="coco", choices=["coco", "coco_extension", "road_sign"])
+    parser.add_argument("--dataset", type=str, default="coco", choices=["coco", "coco_extension", "road_sign", "focus"])
     parser.add_argument("--content", type=str, default="setting_adjective", choices=["setting", "adjective", "setting_adjective", "uncommonSetting"])
     # parser.add_argument("--device", type=int, default=0) -> device = f"cuda:{args.device}" leads to cuda out of memory
     # parser.add_argument("--model-prompt", type=str, default=PROMPT_TEMPLATE)  -> not robust for user input
