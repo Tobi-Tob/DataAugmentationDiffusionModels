@@ -31,8 +31,8 @@ Führe nochmal das selbe durch, aber diesmal für alle Bilder
 """
 
 # Root of focus as it comes from the download
-# focus_root = "/data/vilab06/focus"
-focus_root = r"D:\Studium\TUDarmstadt\WiSe23_24\DLCV\datasets\focus\focus"
+focus_root = "/data/vilab06/focus"
+# focus_root = r"D:\Studium\TUDarmstadt\WiSe23_24\DLCV\datasets\focus\focus"
 
 # Should the correctly sorted images be saved in a new dir?
 save_images_to_new_focus_dir = True
