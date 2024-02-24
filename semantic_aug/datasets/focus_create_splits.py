@@ -1,43 +1,16 @@
-import numpy as np
 import os
 import sqlite3
 import shutil
-
-"""
-Wie Dataset splitten?
-
-DIES IST NUR EIN EINMAL SCRIPT (siehe Beschreibung)
-
-1. Common Split:
-Wir wollen nur auf common trainieren und dann zeigen, dass unsere Variante auch uncommon besser klassifizieren kann.
-
-1.1 Speichere alle Bildpfade von <classname>-<common_setting> in einer Liste ab
-1.2 Suche in den Annotations, ob ein Bild dieser Liste eigentlich eine andere Klasse ist und speichre das Bild entsprechend um
---> Bsp. Wenn in "dog-indoors" ein "cat-water" enthalten ist, dann entferne den Pfad einfach aus "dog_common" (cat-water ist uncommon)
---> Bsp. Wenn in "dog-indoors" ein "cat-indoors" enthalten, ist, dann schiebe den Pfad in "cat_common" (cat-indoors ist common)
-
-1.3. Speichere dieses dict als csv Datei ab unter "classes_common" (dann muss das nicht jedes Mal gemacht werden)
-
-1.4 Split vor jedem Lauf:  -> das wird in focus.py gemacht, da es jedes Mal aufgerufen werden muss!!
-1.4.1 Lese die csv Datei mit dem dict aus
-1.4.2 Führe den random shuffle mit seed aus für die Pfadliste jeder Klasse
-1.4.3 Die ersten 8 Bilder gehen in den train_split (je nach 2, 4, 8 epc werden nur die ersten 2, 4, 8 Bilder zum Training benutzt). Für die verbleibenden Bilder führe 30/70 (oder so) Val/Test-Split durch
-
-2. Uncommon Split:
-Auf diesem Split wird nur getestet! Führe deshalb die gleiche Prozedur wie in 1 durch bis inkl. 1.3 jedoch nur für uncommon Klassen
-
-3. common + uncommon split:
-Führe nochmal das selbe durch, aber diesmal für alle Bilder
-"""
+import random
 
 # Root of focus as it comes from the download
-focus_root = "/data/vilab06/focus"
+focus_root = "/data/vilab06/focus_original"
 # focus_root = r"D:\Studium\TUDarmstadt\WiSe23_24\DLCV\datasets\focus\focus"
 
 # Should the correctly sorted images be saved in a new dir?
 save_images_to_new_focus_dir = True
 # Location of new dir
-focus_new_root = "/data/vilab06/focus_our"
+focus_new_root = "/data/vilab06/focus"
 
 categories = {
         "truck": 0,
@@ -52,92 +25,11 @@ categories = {
         "bird": 9,
     }
 
-# Settings in .../focus
+# Settings in focus dataset
 settings = ['desert', 'fog', 'forest', 'grass', 'indoors', 'night', 'rain', 'snow', 'street', 'water']
 
-times = {
-    "day": 0,
-    "night": 1,
-    "none": 2,
-}
 
-weathers = {
-    "cloudy": 0,
-    "foggy": 1,
-    "partly cloudy": 2,
-    "raining": 3,
-    "snowing": 4,
-    "sunny": 5,
-    "none": 6,
-}
-
-locations = {
-    "forest": 0,
-    "grass": 1,
-    "indoors": 2,
-    "rocks": 3,
-    "sand": 4,
-    "street": 5,
-    "snow": 6,
-    "water": 7,
-    "none": 8,
-}
-
-uncommon = {
-    0: {  # truck
-        "time": {1},
-        "weather": {1, 3, 4},
-        "locations": {2, 3, 6, 7},
-    },
-    1: {  # car
-        "time": {1},
-        "weather": {1, 3, 4},
-        "locations": {2, 3, 6, 7},
-    },
-    2: {  # plane
-        "time": {1},
-        "weather": {1, 3, 4},
-        "locations": {0, 2, 3, 4, 6, 7},
-    },
-    3: {  # ship
-        "time": {1},
-        "weather": {1, 3, 4},
-        "locations": {0, 1, 2, 3, 4, 5, 6},
-    },
-    4: {  # cat
-        "time": {1},
-        "weather": {1, 3, 4},
-        "locations": {0, 3, 4, 6, 7},
-    },
-    5: {  # dog
-        "time": {1},
-        "weather": {1, 3, 4},
-        "locations": {0, 3, 6},
-    },
-    6: {  # horse
-        "time": {1},
-        "weather": {1, 3, 4},
-        "locations": {2, 3, 5, 6, 7},
-    },
-    7: {  # deer
-        "time": {1},
-        "weather": {1, 3, 4},
-        "locations": {2, 3, 4, 5, 6, 7},
-    },
-    8: {  # frog
-        "time": {},
-        "weather": {1, 3, 4},
-        "locations": {2, 5, 6},
-    },
-    9: {  # bird
-        "time": {1},
-        "weather": {1, 3, 4},
-        "locations": {2, 5, 6},
-    },
-}
-
-
-# This is just a helper class for the annotations.db
+# This is just a helper class to read the annotations.db
 class BGVarDB:
 
     ANNOTATIONS_TABLE = "annotations"
@@ -168,42 +60,6 @@ class BGVarDB:
         query += " AND ".join(conditions)
         results = self._cursor.execute(query)
         yield from results
-
-    @staticmethod
-    def stringify(values):
-        if len(values) == 1:
-            return f"('{values[0]}')"
-        else:
-            return str(tuple(values))
-
-
-def is_time_uncommon(category_label, time_label):
-    uncommon_settings = uncommon[category_label.item()]
-    return time_label.item() in uncommon_settings["time"]
-
-
-def is_weather_uncommon(category_label, weather_label):
-    uncommon_settings = uncommon[category_label.item()]
-    return weather_label.item() in uncommon_settings["weather"]
-
-
-def is_locations_uncommon(category_label, locations_label):
-    uncommon_settings = uncommon[category_label.item()]
-    return not set(np.nonzero(locations_label.tolist())[0]).isdisjoint(
-        uncommon_settings["locations"]
-    )
-
-
-def count_uncommon_attributes(
-        category_label, time_label, weather_label, locations_label
-):
-    return sum(
-        [
-            is_time_uncommon(category_label, time_label),
-            is_weather_uncommon(category_label, weather_label),
-            is_locations_uncommon(category_label, locations_label),
-        ]
-    )
 
 
 if __name__ == "__main__":
@@ -240,17 +96,36 @@ if __name__ == "__main__":
                 class_images_dict[wrong_label].remove(img_path)
                 class_images_dict[actual_class].appen(img_path)
 
-    # Save all images of a class to a new folder
+    # Create train-val and test split for all 10 classes. Save the images to a new directory
     if save_images_to_new_focus_dir:
-        os.makedirs(focus_new_root, exist_ok=True)
+        os.makedirs(focus_new_root, exist_ok=True)  # new root dir
+        train_val_dir = os.path.join(focus_new_root, "train-val")
+        test_dir = os.path.join(focus_new_root, "test")
+        os.makedirs(train_val_dir, exist_ok=True)
+        os.makedirs(test_dir, exist_ok=True)
 
         for class_name, file_paths in class_images_dict.items():
-            class_dir = os.path.join(focus_new_root, class_name)
-            os.makedirs(class_dir, exist_ok=True)
+            # Shuffle the list of file paths
+            random.shuffle(file_paths)
 
-            for i, file_path in enumerate(file_paths):
+            # Split the list into train-val and test
+            train_val_paths = file_paths[:108]
+            test_paths = file_paths[108:]
+
+            # Create directories for train-val and test inside each class directory
+            class_train_val_dir = os.path.join(train_val_dir, class_name)
+            class_test_dir = os.path.join(test_dir, class_name)
+            os.makedirs(class_train_val_dir, exist_ok=True)
+            os.makedirs(class_test_dir, exist_ok=True)
+
+            # Copy the first 108 files to the train-val directory
+            for i, file_path in enumerate(train_val_paths):
                 original_file_path = os.path.join(focus_root, file_path)
-                new_file_path = os.path.join(class_dir, f"{i}.jpeg")
+                new_file_path = os.path.join(class_train_val_dir, f"{class_name}_{i}.jpeg")
+                shutil.copy(file_path, new_file_path)
 
-                # Copy the file to the new location
+            # Copy the rest of the files to the test directory
+            for i, file_path in enumerate(test_paths):
+                original_file_path = os.path.join(focus_root, file_path)
+                new_file_path = os.path.join(class_test_dir, f"{class_name}_{len(train_val_paths) + i}.jpeg")
                 shutil.copy(file_path, new_file_path)
