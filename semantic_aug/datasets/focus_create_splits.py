@@ -11,6 +11,11 @@ focus_root = "/data/vilab06/focus_original"
 save_images_to_new_focus_dir = True
 # Location of new dir
 focus_new_root = "/data/vilab06/focus"
+# focus_new_root = r"D:\Studium\TUDarmstadt\WiSe23_24\DLCV\datasets\focus_split\focus_new"
+
+# Locations of annotations DB
+annotations_db = "/data/vilab06/focus_original/annotations.db"
+# annotations_db_path = r"D:\Studium\TUDarmstadt\WiSe23_24\DLCV\datasets\focus\focus\annotations.db"
 
 categories = {
         "truck": 0,
@@ -78,16 +83,18 @@ if __name__ == "__main__":
         for setting in settings:
 
             folder_name = f"{class_name}-{setting}"
-            folder_path = os.path.join(focus_root, folder_name)
+            # normpath is important to make paths comparable later
+            folder_path = os.path.normpath(os.path.join(focus_root, folder_name))
             if os.path.exists(folder_path):
                 for file in os.listdir(folder_path):
                     if file.endswith('.jpeg'):
-                        file_path = os.path.join(folder_path, file)
+                        file_path = os.path.normpath(os.path.join(folder_path, file))
                         # Add the image path to the corresponding class in the dictionary
                         class_images_dict[class_name].append(file_path)
 
     # Relocate files if they have other annotation
-    annotations_db = BGVarDB(r"D:\Studium\TUDarmstadt\WiSe23_24\DLCV\datasets\focus\focus\annotations.db")
+    annotations_db = BGVarDB(annotations_db_path)
+    count_moves = 0
     for class_name in categories.keys():
         rows = annotations_db.read_entries(categories=[class_name])
         for img_path, actual_class, *_ in rows:
@@ -97,11 +104,23 @@ if __name__ == "__main__":
                 for c in categories.keys():
                     if c in img_path:
                         wrong_label = c
+                        break
                 if wrong_label == "none":
                     raise ValueError(f"Unknown class label in: {img_path}")
                 # Move file paths of falsely located image to correct class label
-                class_images_dict[wrong_label].remove(img_path)
-                class_images_dict[actual_class].appen(img_path)
+                before_move_wrong_label = class_images_dict[wrong_label].copy()
+                before_move_actual_class = class_images_dict[actual_class].copy()
+                # normpath is important to make paths comparable
+                full_img_path = os.path.normpath(os.path.join(focus_root, img_path[1:]))  # remove leading / in img_path
+                class_images_dict[wrong_label].remove(full_img_path)
+                class_images_dict[actual_class].append(full_img_path)
+                count_moves += 1
+                print(f"Moved {list(set(before_move_wrong_label) - set(class_images_dict[wrong_label]))}"
+                      f"from {wrong_label} to {actual_class}"
+                      f"-> {list(set(class_images_dict[actual_class]) - set(before_move_actual_class))}"
+                      f"(both paths should be filled)")
+
+    print(f"--------------------------------------------------------------\nMove count: {count_moves}\n")
 
     # Create train-val and test split for all 10 classes. Save the images to a new directory
     if save_images_to_new_focus_dir:
