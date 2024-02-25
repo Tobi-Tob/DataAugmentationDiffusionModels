@@ -14,7 +14,7 @@ focus_new_root = "/data/vilab06/focus"
 # focus_new_root = r"D:\Studium\TUDarmstadt\WiSe23_24\DLCV\datasets\focus_split\focus_new"
 
 # Locations of annotations DB
-annotations_db = "/data/vilab06/focus_original/annotations.db"
+annotations_db_path = "/data/vilab06/focus_original/annotations.db"
 # annotations_db_path = r"D:\Studium\TUDarmstadt\WiSe23_24\DLCV\datasets\focus\focus\annotations.db"
 
 categories = {
