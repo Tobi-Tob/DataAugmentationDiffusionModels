@@ -8,9 +8,9 @@ focus_root = "/data/vilab06/focus_original"
 # focus_root = r"D:\Studium\TUDarmstadt\WiSe23_24\DLCV\datasets\focus\focus"
 
 # Should the correctly sorted images be saved in a new dir?
-save_images_to_new_focus_dir = True
+save_images_to_new_focus_dir = False  # take care to not overwrite something!!!
 # Location of new dir
-focus_new_root = "/data/vilab06/focus"
+focus_new_root = "/data/vilab06/focus_new"
 # focus_new_root = r"D:\Studium\TUDarmstadt\WiSe23_24\DLCV\datasets\focus_split\focus_new"
 
 # Locations of annotations DB
