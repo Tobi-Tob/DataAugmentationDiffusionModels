@@ -201,10 +201,6 @@ def write_prompts_to_csv(all_prompts: Dict):
     # all_prompts contains a key for each class and the value are a list containing all prompts
     rows = []
     for class_name, class_prompts in all_prompts.items():
-        if class_name == "computer_mouse":
-            class_name = "mouse"
-            if class_name == "tv_remote":
-                class_name = "remote"
         for prompt_idx, single_prompt in enumerate(class_prompts, start=1):
             row = {'class_name': class_name, 'class_idx': prompt_idx, 'prompt': single_prompt}
             rows.append(row)
