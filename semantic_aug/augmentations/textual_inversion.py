@@ -121,7 +121,7 @@ class TextualInversion(GenerativeAugmentation):
         canvas = image.resize((512, 512), Image.BILINEAR)
         name = self.format_name(metadata.get("name", ""))
         prompt = self.prompt.format(name=name)
-        # print(f"give this prompt to aug: {[prompt]}")
+        print(f"give this prompt to aug: {[prompt]}")
 
         if self.mask: assert "mask" in metadata, \
             "mask=True but no mask present in metadata"
