@@ -42,10 +42,10 @@ except:
 
 DEFAULT_MODEL_PATH = "CompVis/stable-diffusion-v1-4"
 
-DEFAULT_SYNTHETIC_DIR = "/data/dlcv2023_groupA/augmentations/{dataset}-{aug}-{seed}-{examples_per_class}"
-#  TL: Permission denied when using DEFAULT_SYNTHETIC_DIR - Only the creator of the folder dlcv2023_groupA has access
+DEFAULT_DIR = "RESULTS/{dataset}_{examples_per_class}epc/{method}"
 
-DEFAULT_EMBED_PATH = "{dataset}-tokens/{dataset}-{seed}-{examples_per_class}.pt"
+DEFAULT_EMBED_PATH = "tokens/{dataset}-tokens/{dataset}-{seed}-{examples_per_class}.pt"
+DEFAULT_NOISE_EMBED_PATH = "tokens/{dataset}-tokens/noise/{dataset}-{seed}-{examples_per_class}.pt"
 
 DATASETS = {
     "spurge": SpurgeDataset,
@@ -86,7 +86,7 @@ def run_experiment(examples_per_class: int = 0,
                    probs: List[float] = None,
                    compose: str = "parallel",
                    synthetic_probability: float = 0.5,
-                   synthetic_dir: str = DEFAULT_SYNTHETIC_DIR,
+                   synthetic_dir: str = "synthetics",
                    embed_path: str = DEFAULT_EMBED_PATH,
                    model_path: str = DEFAULT_MODEL_PATH,
                    prompt: str = DEFAULT_PROMPT,
@@ -103,7 +103,8 @@ def run_experiment(examples_per_class: int = 0,
                    save_model: bool = True,
                    eval_on_test_set: List[str] = [],
                    logdir: str = "logs",
-                   use_embedding_noise: bool = False):
+                   use_embedding_noise: bool = False,
+                   method: str = None):
     torch.manual_seed(seed)
     np.random.seed(seed)
     random.seed(seed)
@@ -369,7 +370,9 @@ def run_experiment(examples_per_class: int = 0,
                 split="Validation"
             ))
     if save_model:
-        model_path = f"models/classifier_{dataset}_{seed}_{examples_per_class}"
+        modeldir = os.path.join(os.path.dirname(logdir), "models")
+        os.makedirs(modeldir, exist_ok=True)
+        model_path = os.path.join(modeldir, f"classifier_{dataset}_{seed}_{examples_per_class}")
         if num_synthetic > 0:
             model_path = model_path + f"_{strength}_{guidance_scale}"
         if use_synthetic_filter:
@@ -418,7 +421,10 @@ def run_experiment(examples_per_class: int = 0,
             for i, name in enumerate(test_dataset.class_names):
                 testset_record.append(dict(value=test_loss[i], metric=f"Loss {name.title()}"))
                 testset_record.append(dict(value=test_accuracy[i], metric=f"Accuracy {name.title()}"))
-            test_path = os.path.join(logdir, f"{test_set}_results_{dataset}_{seed}_{examples_per_class}.csv")
+
+            testdir = os.path.join(os.path.dirname(logdir), "test")
+            os.makedirs(testdir, exist_ok=True)
+            test_path = os.path.join(testdir, f"{test_set}_results_{dataset}_{seed}_{examples_per_class}.csv")
             pd.DataFrame.from_records(testset_record).to_csv(test_path)
             print(f"{test_set} record saved to: {test_path}")
 
@@ -502,7 +508,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser("Few-Shot Baseline")
 
-    parser.add_argument("--logdir", type=str, default="logs")
+    parser.add_argument("--logdir", type=str, default=os.path.join(DEFAULT_DIR, "logs"))
     # Directory used for logging and results
     parser.add_argument("--model-path", type=str, default="CompVis/stable-diffusion-v1-4")
     # Path to the Diffusion Model
@@ -521,7 +527,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--synthetic-probability", type=float, default=0.7)
     # Probability to pick an image from the synthetic dataset while training the downstream model
-    parser.add_argument("--synthetic-dir", type=str, default=DEFAULT_SYNTHETIC_DIR)
+    parser.add_argument("--synthetic-dir", type=str, default=os.path.join(DEFAULT_DIR, "synthetics_seed_{seed}"))
     # Directory to save the generated synthetic images
 
     parser.add_argument("--image-size", type=int, default=256)
@@ -545,7 +551,7 @@ if __name__ == "__main__":
     # Replaced --num-trials with --seeds. To enable custom seed setting
     # parser.add_argument("--num-trials", type=int, default=8)
 
-    parser.add_argument("--examples-per-class", nargs='+', type=int, default=[1, 2, 4, 8, 16])
+    parser.add_argument("--examples-per-class", nargs='+', type=int, default=[2, 4, 8])
     # Define how many different images per class from the train data are used as guiding image
     # in the image generating process
     # Total number of synthetic images: num-synthetic * examples-per-class * 80
@@ -558,7 +564,7 @@ if __name__ == "__main__":
                                  "coco_extension"])
     # Select which dataset to use (we only use coco)
 
-    parser.add_argument("--aug", nargs="+", type=str, default="textual-inversion",
+    parser.add_argument("--aug", nargs="+", type=str, default=["textual-inversion"],
                         choices=["real-guidance", "textual-inversion",
                                  "multi-token-inversion"])
     # Select which augmentation strategy to use (we only use textual-inversion or multi-token-inversion?)
@@ -620,6 +626,8 @@ if __name__ == "__main__":
     # Whether to save the best classifier model or not
     parser.add_argument("--eval_on_test_set", nargs="+", type=str, default=[])
     # On which datasets the best classifier model should be evaluated
+    parser.add_argument("--method", type=str, default="baseline")
+    # String containing information about the used method, used as directory name
 
     args = parser.parse_args()
 
@@ -636,15 +644,13 @@ if __name__ == "__main__":
     torch.cuda.set_device(device_id)
 
     print(f'Initialized process {rank} / {world_size} on current device(gpu) {torch.cuda.current_device()}')
-    os.makedirs(args.logdir, exist_ok=True)
-
-    all_trials = []
 
     options = product(args.seeds, args.examples_per_class)
     options = np.array(list(options))
     options = np.array_split(options, world_size)[rank]
 
     for seed, examples_per_class in options.tolist():
+        all_trials = []
         hyperparameters = dict(
             examples_per_class=examples_per_class,
             seed=seed,
@@ -675,18 +681,25 @@ if __name__ == "__main__":
             prompt_path=args.prompt_path,
             save_model=args.save_model,
             eval_on_test_set=args.eval_on_test_set,
-            logdir=args.logdir,
-            use_embedding_noise=args.use_embedding_noise)
+            use_embedding_noise=args.use_embedding_noise,
+            method=args.method)
 
+        log_dir = args.logdir.format(**hyperparameters)
+        os.makedirs(log_dir, exist_ok=True)
         synthetic_dir = args.synthetic_dir.format(**hyperparameters)
-        embed_path = args.embed_path.format(**hyperparameters)
+        embed_path = args.embed_path
+        if embed_path == DEFAULT_EMBED_PATH and args.use_embedding_noise:
+            embed_path = DEFAULT_NOISE_EMBED_PATH
+        embed_path = embed_path.format(**hyperparameters)
 
         all_trials.extend(run_experiment(
             synthetic_dir=synthetic_dir,
-            embed_path=embed_path, **hyperparameters))
+            embed_path=embed_path,
+            logdir=log_dir,
+            **hyperparameters))
 
         path = f"results_{args.dataset}_{seed}_{examples_per_class}.csv"
-        path = os.path.join(args.logdir, path)
+        path = os.path.join(log_dir, path)
 
         pd.DataFrame.from_records(all_trials).to_csv(path)
         print(f"[rank {rank}] n={examples_per_class} saved to: {path}")

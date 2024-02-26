@@ -45,10 +45,13 @@ if __name__ == "__main__":
 
     parser.add_argument("--guidance-scale", type=float, default=7.5)
     parser.add_argument("--erasure-ckpt-name", type=str, default=None)  # TL: changed to default=None
+    parser.add_argument("--device", type=int, default=0)
 
     args = parser.parse_args()
 
     os.makedirs(args.out, exist_ok=True)
+
+    torch.cuda.set_device(args.device)
 
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
