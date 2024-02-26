@@ -32,7 +32,6 @@ class RoadSignDataset(FewShotDataset):
                    "parking_sign",
                    "pedestrian_zone_sign",
                    "priority_road_sign",
-                   "slippery_road_sign",
                    "speed_limit_30_sign",
                    "speed_limit_80_sign",
                    "speed_limit_100_sign",
