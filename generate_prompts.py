@@ -153,7 +153,7 @@ def clean_response_gpt(res: str, num_prompts: int, class_name: str):
     for p in prompts:
         c_name_no_under_score = class_name.replace("_", " ")
         if c_name_no_under_score in p:
-            final_class_prompts.append(p.replace(c_name_no_under_score, f"<name>"))
+            final_class_prompts.append(p.replace(c_name_no_under_score, "{name}"))
         else:
             print(f"No string '{class_name}' in prompt: {p}")
     if len(final_class_prompts) > num_prompts:
@@ -316,7 +316,8 @@ def process_llama_api(model_path: str, content: str):
 
 
 def init_gpt_api():
-    api_key = "<YOUR API KEY>"
+    # api_key = "<YOUR-API-KEY>"
+    api_key = "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"
     return OpenAI(api_key=api_key)
 
 
