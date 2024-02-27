@@ -691,6 +691,7 @@ if __name__ == "__main__":
         if embed_path == DEFAULT_EMBED_PATH and args.use_embedding_noise:
             embed_path = DEFAULT_NOISE_EMBED_PATH
         embed_path = embed_path.format(**hyperparameters)
+        print("Use embedings at:", embed_path)
 
         all_trials.extend(run_experiment(
             synthetic_dir=synthetic_dir,
