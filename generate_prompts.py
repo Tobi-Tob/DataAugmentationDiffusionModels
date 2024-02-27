@@ -316,8 +316,7 @@ def process_llama_api(model_path: str, content: str):
 
 
 def init_gpt_api():
-    # api_key = "<YOUR-API-KEY>"
-    api_key = "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"
+    api_key = "<YOUR-API-KEY>"
     return OpenAI(api_key=api_key)
 
 
