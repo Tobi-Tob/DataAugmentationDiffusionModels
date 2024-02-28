@@ -7,3 +7,8 @@ python train_classifier.py --dataset "coco_extension" --examples-per-class 2 4 8
 
 coco_extension LLM 27.02.24:
 python train_classifier.py --dataset "coco_extension" --examples-per-class 2 4 8 --seeds 0 1 2 --strength 0.7 --guidance-scale 15 --synthetic-probability 0.7 --use-embedding-noise 0 --use-generated-prompts 1 --prompt-path "prompts/coco_extension/prompts_gpt4.csv" --method "llm" --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 1
+
+------------- All train_classifier Runs for final Submission
+
+-> 26.02.2024 - coco_extension/_llm/2epc/seed_0_1_2
+python train_classifier.py --dataset "coco_extension" --synthetic-dir "intermediates/coco_extension/_llm/2epc/synthetics" --logdir "intermediates/coco_extension/_llm/2epc/logs" --aug "textual-inversion" --iterations-per-epoch 200 --num-epochs 50 --batch-size 16 --num-synthetic 10 --seed 0 1 2 --examples-per-class 2 --strength 0.7 --guidance-scale 15 --use-generated-prompts 1 --prompt-path "prompts/coco_extension/prompts_gpt4.csv" --synthetic-probability 0.7 --device 3
