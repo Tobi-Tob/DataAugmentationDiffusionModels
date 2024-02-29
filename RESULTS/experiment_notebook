@@ -16,3 +16,10 @@ python train_classifier.py --dataset "coco_extension" --examples-per-class 2 4 8
 
 coco_extension Noise LLM 28.02.24:
 python train_classifier.py --dataset "coco_extension" --examples-per-class 2 4 8 --seeds 0 1 2 --strength 0.7 --guidance-scale 15 --synthetic-probability 0.7 --use-embedding-noise 1 --use-generated-prompts 1 --prompt-path "prompts/coco_extension/prompts_gpt4.csv" --method "noise_llm" --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 0
+
+coco_extension LLM 2.0 29.02.24 (Run stopped for seed2 , 4 + 8 epc because of reboot):
+python train_classifier.py --dataset "coco_extension" --examples-per-class 4 8 --seeds 2 --strength 0.7 --guidance-scale 15 --synthetic-probability 0.7 --use-embedding-noise 0 --use-generated-prompts 1 --prompt-path "prompts/coco_extension/prompts_gpt4.csv" --method "llm" --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 1
+
+focus LLM 29.02.24:
+python train_classifier.py --dataset "focus" --examples-per-class 2 4 8 --seeds 0 1 2 --strength 0.7 --guidance-scale 15 --synthetic-probability 0.7 --use-embedding-noise 0 --use-generated-prompts 1 --prompt-path "prompts/focus/prompts_gpt4.csv" --method "llm" --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 0
+
