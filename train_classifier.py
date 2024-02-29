@@ -561,7 +561,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--dataset", type=str, default="coco_extension",
                         choices=["spurge", "imagenet", "coco", "pascal", "flowers", "caltech", "road_sign",
-                                 "coco_extension"])
+                                 "coco_extension", "focus"])
     # Select which dataset to use (we only use coco)
 
     parser.add_argument("--aug", nargs="+", type=str, default=["textual-inversion"],
