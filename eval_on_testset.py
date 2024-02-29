@@ -46,7 +46,7 @@ if __name__ == "__main__":
     dataset = args.dataset
     split = args.split
     epc = args.epc
-    seed = args.epc
+    seed = args.seed
     image_size = 256
     # Log dir
     logdir = args.logdir
