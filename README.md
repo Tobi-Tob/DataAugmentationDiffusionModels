@@ -1,12 +1,9 @@
-# Effective Data Augmentation With Diffusion Models
+# Improving Image Augmentation with Generative Models
 
-![DA-Fusion](images/main-diagram.png)
+Simple data augmentation techniques, such as rotations and flips, are widely used to enhance the generalization power of deep learning models. However, these methods often fail to introduce meaningful semantic diversity, such as variations in a dog's breed. Addressing this limitation, and building on a recently proposed method called [DA-Fusion](https://arxiv.org/abs/2302.07944), we explore how to use the general knowledge of generative models to increase semantic diversity in few-shot data. Our approach complements existing data augmentations by synthetically controlling image semantics particularly through prompts. Experimental results demonstrate that our method improves diversity and enhances classifier performance in downstream applications.
 
-Existing data augmentations like rotations and re-colorizations provide diversity but preserve semantics. We explore how prompt-based generative models complement existing data augmentations by controlling image semantics via prompts. Our generative data augmentations build on Stable Diffusion and improve visual few-shot learning.
 
-[Preprint](https://arxiv.org/abs/2302.07944)
-
-## Installation
+## Installation (DA-Fusion)
 
 To install the package, first create a `conda` environment.
 
