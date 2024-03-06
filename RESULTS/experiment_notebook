@@ -42,4 +42,4 @@ focus NO-DA 06.03.24:
 python train_classifier.py --dataset "focus" --examples-per-class 2 4 8 --seeds 0 1 2 --strength 0 --guidance-scale 0 --synthetic-probability 0 --method "no-da" --eval_on_test_set "test" --num-synthetic 0 --num-epochs 50 --iterations-per-epoch 200 --device 2
 
 focus Paper 06.03.24:
-python train_classifier.py --dataset "focus" --examples-per-class 2 4 8 --seeds 0 --strength 0.5 --guidance-scale 7.5 --synthetic-probability 0.5 --method "paper" --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 3
+python train_classifier.py --dataset "focus" --examples-per-class 2 4 8 --seeds 0 1 2 --strength 0.5 --guidance-scale 7.5 --synthetic-probability 0.5 --method "paper" --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 3
