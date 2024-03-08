@@ -33,7 +33,7 @@ coco_extension Paper 02.03.24 restliche seeds
 python train_classifier.py --dataset "coco_extension" --examples-per-class 2 4 8 --seeds 1 2 --strength 0.5 --guidance-scale 7.5 --synthetic-probability 0.5 --method "paper" --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 0
 
 focus LLM 05.03.24:
-python train_classifier.py --dataset "focus" --examples-per-class 2 4 8 --seeds 0 1 2 --strength 0.7 --guidance-scale 15 --synthetic-probability 0.7 --use-embedding-noise 1 --use-generated-prompts 1 --prompt-path "prompts/focus/prompts_gpt4.csv" --method "llm" --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 0
+python train_classifier.py --dataset "focus" --examples-per-class 2 4 8 --seeds 0 1 2 --strength 0.7 --guidance-scale 15 --synthetic-probability 0.7 --use-embedding-noise 1 --use-generated-prompts 1 --prompt-path "prompts/focus/prompts_gpt4.csv" --method "llm_noise" --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 0
 
 focus Noise 06.03.24:
 python train_classifier.py --dataset "focus" --examples-per-class 2 4 8 --seeds 0 1 2 --strength 0.7 --guidance-scale 15 --synthetic-probability 0.7 --use-embedding-noise 1 --method "noise" --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 1
@@ -43,3 +43,9 @@ python train_classifier.py --dataset "focus" --examples-per-class 2 4 8 --seeds 
 
 focus Paper 06.03.24:
 python train_classifier.py --dataset "focus" --examples-per-class 2 4 8 --seeds 0 1 2 --strength 0.5 --guidance-scale 7.5 --synthetic-probability 0.5 --method "paper" --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 3
+
+road_sign LLM 08.03.24:
+python train_classifier.py --dataset "road_sign" --examples-per-class 2 4 8 --seeds 0 1 2 --strength 0.7 --guidance-scale 15 --synthetic-probability 0.7 --use-embedding-noise 0 --use-generated-prompts 1 --prompt-path "prompts/road_sign/prompts_gpt4.csv" --method "llm" --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 0
+
+road_sign Paper 08.03.24:
+python train_classifier.py --dataset "road_sign" --examples-per-class 2 4 8 --seeds 0 1 2 --strength 0.5 --guidance-scale 7.5 --synthetic-probability 0.5 --method "paper" --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 1
