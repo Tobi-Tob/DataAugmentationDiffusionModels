@@ -19,7 +19,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser("Plot Accuracy")
 
     parser.add_argument("--dirs", nargs="+", type=str,
-                        default=["RESULTS/coco_extension_2epc", "RESULTS/coco_extension_4epc", "RESULTS/coco_extension_8epc"])
+                        default=["RESULTS/focus_2epc", "RESULTS/focus_4epc", "RESULTS/focus_8epc"])
 
     args = parser.parse_args()
 
