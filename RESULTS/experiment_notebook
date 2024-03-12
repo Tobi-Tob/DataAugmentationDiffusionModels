@@ -58,3 +58,33 @@ python train_classifier.py --dataset "road_sign" --examples-per-class 2 4 8 --se
 
 road_sign Baseline 08.03.24:
 python train_classifier.py --dataset "road_sign" --examples-per-class 2 4 8 --seeds 0 1 2 --strength 0.7 --guidance-scale 15 --synthetic-probability 0.7 --use-embedding-noise 0 --method "baseline" --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 3
+
+
+TESTS:
+road_sign s0.6 g15 12.03.24
+python train_classifier.py --dataset "road_sign" --examples-per-class 2 4 --seeds 0 1 2 --strength 0.6 --guidance-scale 15 --synthetic-probability 0.7 --use-embedding-noise 0 --use-generated-prompts 1 --prompt-path "prompts/road_sign/prompts_gpt4.csv" --method "llm_06_15" --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 0
+
+road_sign s0.6 g8 12.03.24
+python train_classifier.py --dataset "road_sign" --examples-per-class 2 4 --seeds 0 1 2 --strength 0.6 --guidance-scale 8 --synthetic-probability 0.7 --use-embedding-noise 0 --use-generated-prompts 1 --prompt-path "prompts/road_sign/prompts_gpt4.csv" --method "llm_06_8" --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 2
+
+road_sign s0.65 g8 12.03.24
+python train_classifier.py --dataset "road_sign" --examples-per-class 2 4 --seeds 0 1 2 --strength 0.65 --guidance-scale 8 --synthetic-probability 0.7 --use-embedding-noise 0 --use-generated-prompts 1 --prompt-path "prompts/road_sign/prompts_gpt4.csv" --method "llm_065_8" --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
