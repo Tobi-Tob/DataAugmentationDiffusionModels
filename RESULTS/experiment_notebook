@@ -26,13 +26,13 @@ python train_classifier.py --dataset "coco_extension" --examples-per-class 4 8 -
 focus LLM 29.02.24:
 python train_classifier.py --dataset "focus" --examples-per-class 2 4 8 --seeds 0 1 2 --strength 0.7 --guidance-scale 15 --synthetic-probability 0.7 --use-embedding-noise 0 --use-generated-prompts 1 --prompt-path "prompts/focus/prompts_gpt4.csv" --method "llm" --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 0
 
-focus LLM 02.03.24:
+focus baseline 02.03.24:
 python train_classifier.py --dataset "focus" --examples-per-class 2 4 8 --seeds 0 1 2 --strength 0.7 --guidance-scale 15 --synthetic-probability 0.7 --method "baseline" --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 0
 
 coco_extension Paper 02.03.24 restliche seeds
 python train_classifier.py --dataset "coco_extension" --examples-per-class 2 4 8 --seeds 1 2 --strength 0.5 --guidance-scale 7.5 --synthetic-probability 0.5 --method "paper" --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 0
 
-focus LLM 05.03.24:
+focus LLM Noise 05.03.24:
 python train_classifier.py --dataset "focus" --examples-per-class 2 4 8 --seeds 0 1 2 --strength 0.7 --guidance-scale 15 --synthetic-probability 0.7 --use-embedding-noise 1 --use-generated-prompts 1 --prompt-path "prompts/focus/prompts_gpt4.csv" --method "llm_noise" --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 0
 
 focus Noise 06.03.24:
@@ -84,6 +84,11 @@ road_sign s0.55 g8 p0.9 13.03.24
 python train_classifier.py --dataset "road_sign" --examples-per-class 2 4 --seeds 0 1 2 --strength 0.55 --guidance-scale 8 --synthetic-probability 0.9 --use-embedding-noise 0 --use-generated-prompts 1 --prompt-path "prompts/road_sign/prompts_gpt4.csv" --method "llm_055_8_p9" --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 0
 
 
+focus LLM p0.5 15.03.24:
+python train_classifier.py --dataset "focus" --examples-per-class 2 4 8 --seeds 0 1 2 --strength 0.7 --guidance-scale 15 --synthetic-probability 0.5 --use-embedding-noise 0 --use-generated-prompts 1 --prompt-path "prompts/focus/prompts_gpt4.csv" --method "llm_p5" --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 0
+
+coco_extension LLM p0.5 15.03.24:
+python train_classifier.py --dataset "coco_extension" --examples-per-class 2 4 8 --seeds 0 1 2 --strength 0.7 --guidance-scale 15 --synthetic-probability 0.5 --use-embedding-noise 0 --use-generated-prompts 1 --prompt-path "prompts/coco_extension/prompts_gpt4.csv" --method "llm_p5" --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 0
 
 
 
