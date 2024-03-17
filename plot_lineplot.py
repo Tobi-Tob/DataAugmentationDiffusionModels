@@ -10,6 +10,21 @@ import numpy as np
 examples_per_class = np.array([2, 4, 8])
 methods = ["no-da", "paper", "llm"]
 
+font_title = {'family': 'Times New Roman',
+              'weight': 'bold',
+              'size': 28,
+              }
+
+font_axis = {'family': 'Times New Roman',
+              'weight': 'bold',
+              'size': 24,
+              }
+
+font_legend = {'family': 'Times New Roman',
+              'weight': 'bold',
+              'size': 22,
+              }
+
 
 def get_mean_result(dataset_name: str):
     mean_values = {}
@@ -53,8 +68,7 @@ llm = value_dict["llm"]
 # filter = np.array([0.870, 0.902, 0.908])
 # best_values = np.array([0.859, 0.908, 0.913])  # llm, llm_noise_uncommon, llm_noise_uncommon
 # best_values = np.array([0.860, 0.890, 0.902])  # llm, noise, noise
-plt.title('COCO Extension', fontsize=22)
-
+plt.title('COCO Extension', fontdict=font_title)
 
 """
 # RS General Plot
@@ -70,36 +84,40 @@ best_values = np.array([0.464, 0.601, 0.685])  # llm, llm, noise
 plt.title('Road Sign', fontsize=22)
 """
 
-
 # COCO Uncommon Plot
-#dataset = "coco_ext_uncommon"
-#standard_aug = np.array([0.475, 0.536, 0.550])
-#baseline = np.array([0.495, 0.561, 0.532])
-#best_values = np.array([0.564, 0.604, 0.606])  # llm_noise_uncommon, llm_noise_uncommon, llm_noise_uncommon
+# dataset = "coco_ext_uncommon"
+# standard_aug = np.array([0.475, 0.536, 0.550])
+# baseline = np.array([0.495, 0.561, 0.532])
+# best_values = np.array([0.564, 0.604, 0.606])  # llm_noise_uncommon, llm_noise_uncommon, llm_noise_uncommon
 # llm_filer_common = np.array([0.531, ?, ?])
 # all_3_common = np.array([?, 0.606, 0.597])
 # filter = np.array([?, ?, 0.554])
-#plt.title('COCO Extension Uncommon', fontsize=22)
+# plt.title('COCO Extension Uncommon', fontsize=22)
 
 
 # COCO & RS General Plot
-plt.plot(examples_per_class, standard_aug, label='Standard Augmentation', color='blue', linewidth=4, linestyle=':')
-plt.plot(examples_per_class, paper, label='DA-Fusion (Paper params)', color='orange', linewidth=4, linestyle='--')
-# plt.plot(examples_per_class, baseline, label='DA-Fusion (Our params)', color='green', linewidth=4, linestyle='-')
-plt.plot(examples_per_class, llm, label='Our Best (LLM)', color='purple', linewidth=4, linestyle='-')
+plt.plot(examples_per_class, standard_aug, label='Standard Augmentation', color='blue', linewidth=6, linestyle=':')
+plt.plot(examples_per_class, paper, label='DA-Fusion (Paper params)', color='orange', linewidth=6, linestyle='--')
+# plt.plot(examples_per_class, baseline, label='DA-Fusion (Our params)', color='green', linewidth=6, linestyle='-')
+plt.plot(examples_per_class, llm, label='Our Best (LLM)', color='purple', linewidth=6, linestyle='-')
 
 # Adding labels
-plt.xlabel('Examples Per Class (Size of Dataset)', fontsize=18)
-plt.ylabel('Accuracy (Test)', fontsize=18)
+plt.xlabel('Examples Per Class (Size of Dataset)', fontdict=font_axis)
+plt.ylabel('Accuracy (Test)', fontdict=font_axis)
 
 # Setting the x-axis to be logarithmic
 # plt.xscale('log', base=2)
 plt.xticks(examples_per_class, examples_per_class)
-plt.tick_params(labelsize=14)
+# Setting the font for the tick labels
+# plt.tick_params(labelsize=14)
+for label in (plt.gca().get_xticklabels() + plt.gca().get_yticklabels()):
+    label.set_fontname('Times New Roman')
+    label.set_weight('bold')
+    label.set_size(20)
 
 # Adding grid, legend and tweaking the axes for better appearance
 plt.grid(True, which="both", ls=":", linewidth=3)
-plt.legend(fontsize=18)
+plt.legend(prop=font_legend)
 plt.tight_layout()
 
 # Save the plot as a file
