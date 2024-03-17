@@ -51,6 +51,8 @@ def get_mean_result(dataset_name: str):
 # Plotting the data
 plt.figure(figsize=(8, 6))
 
+
+"""
 # COCO General Plot
 dataset = "coco_extension"
 value_dict = get_mean_result(dataset)
@@ -69,10 +71,37 @@ llm = value_dict["llm"]
 # best_values = np.array([0.859, 0.908, 0.913])  # llm, llm_noise_uncommon, llm_noise_uncommon
 # best_values = np.array([0.860, 0.890, 0.902])  # llm, noise, noise
 plt.title('COCO Extension', fontdict=font_title)
+"""
+
+
+# FOCUS General Plot
+dataset = "focus"
+value_dict = get_mean_result(dataset)
+standard_aug = value_dict["no-da"]
+paper = value_dict["paper"]
+llm = value_dict["llm"]
+
+# standard_aug = np.array([0.842, 0.870, 0.908])
+# paper = np.array([0.837, 0.897, 0.908])
+# baseline = np.array([0.859, 0.891, 0.908])
+# all_3 = np.array([0.859, 0.880, 0.913])
+# llm_noise_uncommon = np.array([0.848, 0.908, 0.913])
+# llm = np.array([0.859, 0.864, 0.902])
+# noise = np.array([0.853, 0.891, 0.902])
+# filter = np.array([0.870, 0.902, 0.908])
+# best_values = np.array([0.859, 0.908, 0.913])  # llm, llm_noise_uncommon, llm_noise_uncommon
+# best_values = np.array([0.860, 0.890, 0.902])  # llm, noise, noise
+plt.title('FOCUS', fontdict=font_title)
+
 
 """
 # RS General Plot
 dataset = "road_sign"
+value_dict = get_mean_result(dataset)
+standard_aug = value_dict["no-da"]
+paper = value_dict["paper"]
+llm = value_dict["llm"]
+
 standard_aug = np.array([0.440, 0.518, 0.625])
 paper = np.array([0.417, 0.530, 0.667])
 baseline = np.array([0.405, 0.554, 0.649])
@@ -81,7 +110,7 @@ baseline = np.array([0.405, 0.554, 0.649])
 # noise = np.array([0.429, 0.571, 0.685])
 # filter = np.array([0.399, 0.542, 0.667])
 best_values = np.array([0.464, 0.601, 0.685])  # llm, llm, noise
-plt.title('Road Sign', fontsize=22)
+plt.title('Road Sign', fontdict=font_title)
 """
 
 # COCO Uncommon Plot
