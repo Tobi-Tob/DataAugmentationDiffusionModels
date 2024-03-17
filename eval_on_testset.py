@@ -90,6 +90,8 @@ if __name__ == "__main__":
         testset_record.append(dict(value=test_loss[i], metric=f"Loss {name.title()}"))
         testset_record.append(dict(value=test_accuracy[i], metric=f"Accuracy {name.title()}"))
     test_path = os.path.join(logdir, f"evaluation_on_{dataset}_{split}_{seed}_{epc}.csv")
+    if not os.path.exists(logdir):
+        os.mkdir(logdir)
     pd.DataFrame.from_records(testset_record).to_csv(test_path)
     print(f"Evaluation saved to: {test_path}")
 
