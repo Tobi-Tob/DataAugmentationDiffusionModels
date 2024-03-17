@@ -1,3 +1,5 @@
+import os.path
+import csv
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -6,25 +8,53 @@ import numpy as np
 
 # Generate some example data
 examples_per_class = np.array([2, 4, 8])
+methods = ["no-da", "paper", "llm"]
+
+
+def get_mean_result(dataset_name: str):
+    mean_values = {}
+    for method in methods:
+        method_mean = []
+        for epc in examples_per_class:
+            test_dir = os.path.join("RESULTS", f"{dataset}_{epc}epc", f"{method}", "test")
+            sum_of_epc = 0
+            for file in os.listdir(test_dir):
+                file_path = os.path.join(test_dir, file)
+                if file.endswith(".csv"):
+                    with open(file_path, newline='') as csvfile:
+                        reader = csv.DictReader(csvfile)
+                        for row in reader:
+                            if row['metric'] == 'Mean Accuracy':
+                                sum_of_epc += float(row['value'])
+                                break
+            mean_of_epc = sum_of_epc / len(os.listdir(test_dir))
+            method_mean.append(mean_of_epc)
+        mean_values[method] = method_mean
+    return mean_values
+
 
 # Plotting the data
 plt.figure(figsize=(8, 6))
 
-"""
 # COCO General Plot
-dataset = "coco_ext"
-standard_aug = np.array([0.842, 0.870, 0.908])
-paper = np.array([0.837, 0.897, 0.908])
-baseline = np.array([0.859, 0.891, 0.908])
+dataset = "coco_extension"
+value_dict = get_mean_result(dataset)
+standard_aug = value_dict["no-da"]
+paper = value_dict["paper"]
+llm = value_dict["llm"]
+
+# standard_aug = np.array([0.842, 0.870, 0.908])
+# paper = np.array([0.837, 0.897, 0.908])
+# baseline = np.array([0.859, 0.891, 0.908])
 # all_3 = np.array([0.859, 0.880, 0.913])
 # llm_noise_uncommon = np.array([0.848, 0.908, 0.913])
 # llm = np.array([0.859, 0.864, 0.902])
 # noise = np.array([0.853, 0.891, 0.902])
 # filter = np.array([0.870, 0.902, 0.908])
 # best_values = np.array([0.859, 0.908, 0.913])  # llm, llm_noise_uncommon, llm_noise_uncommon
-best_values = np.array([0.860, 0.890, 0.902])  # llm, noise, noise
+# best_values = np.array([0.860, 0.890, 0.902])  # llm, noise, noise
 plt.title('COCO Extension', fontsize=22)
-"""
+
 
 """
 # RS General Plot
@@ -42,21 +72,21 @@ plt.title('Road Sign', fontsize=22)
 
 
 # COCO Uncommon Plot
-dataset = "coco_ext_uncommon"
-standard_aug = np.array([0.475, 0.536, 0.550])
-baseline = np.array([0.495, 0.561, 0.532])
-best_values = np.array([0.564, 0.604, 0.606])  # llm_noise_uncommon, llm_noise_uncommon, llm_noise_uncommon
+#dataset = "coco_ext_uncommon"
+#standard_aug = np.array([0.475, 0.536, 0.550])
+#baseline = np.array([0.495, 0.561, 0.532])
+#best_values = np.array([0.564, 0.604, 0.606])  # llm_noise_uncommon, llm_noise_uncommon, llm_noise_uncommon
 # llm_filer_common = np.array([0.531, ?, ?])
 # all_3_common = np.array([?, 0.606, 0.597])
 # filter = np.array([?, ?, 0.554])
-plt.title('COCO Extension Uncommon', fontsize=22)
+#plt.title('COCO Extension Uncommon', fontsize=22)
 
 
 # COCO & RS General Plot
-plt.plot(examples_per_class, standard_aug, label='Standard Augmentation', color='blue', linewidth=4)
-plt.plot(examples_per_class, paper, label='DA-Fusion (Paper params)', color='orange', linewidth=4)
-plt.plot(examples_per_class, baseline, label='DA-Fusion (Our params)', color='green', linewidth=4)
-plt.plot(examples_per_class, best_values, label='Our Best (LLM + Noise)', color='red', linewidth=4)
+plt.plot(examples_per_class, standard_aug, label='Standard Augmentation', color='blue', linewidth=4, linestyle=':')
+plt.plot(examples_per_class, paper, label='DA-Fusion (Paper params)', color='orange', linewidth=4, linestyle='--')
+# plt.plot(examples_per_class, baseline, label='DA-Fusion (Our params)', color='green', linewidth=4, linestyle='-')
+plt.plot(examples_per_class, llm, label='Our Best (LLM)', color='purple', linewidth=4, linestyle='-')
 
 # Adding labels
 plt.xlabel('Examples Per Class (Size of Dataset)', fontsize=18)
@@ -73,7 +103,7 @@ plt.legend(fontsize=18)
 plt.tight_layout()
 
 # Save the plot as a file
-plt.savefig(f'plots/test_lineplot_{dataset}_best_values.pdf', format='pdf')
+plt.savefig(f'plots_paper/test_lineplot_{dataset}.pdf', format='pdf')
 
 # Show the plot
 plt.show()
