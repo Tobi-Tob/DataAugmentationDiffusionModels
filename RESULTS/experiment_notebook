@@ -91,7 +91,12 @@ coco_extension LLM p0.5 15.03.24:
 python train_classifier.py --dataset "coco_extension" --examples-per-class 2 4 8 --seeds 0 1 2 --strength 0.7 --guidance-scale 15 --synthetic-probability 0.5 --use-embedding-noise 0 --use-generated-prompts 1 --prompt-path "prompts/coco_extension/prompts_gpt4.csv" --method "llm_p5" --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 0
 
 
+UNCOMMON 21.03.24:
+coco_extension LLM uncommon presentation:
+python train_classifier.py --dataset "coco_extension" --examples-per-class 2 4 8 --seeds 0 1 2 --strength 0.7 --guidance-scale 15 --synthetic-probability 0.7 --use-embedding-noise 0 --use-generated-prompts 1 --prompt-path "prompts/coco_extension/prompts_gpt_uncommon_setting_presentation.csv" --method "llm_uc_presentation" --eval_on_test_set "test" "test_uncommon" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 1
 
+coco_extension LLM uncommon edge cases:
+python train_classifier.py --dataset "coco_extension" --examples-per-class 2 4 8 --seeds 0 1 2 --strength 0.7 --guidance-scale 15 --synthetic-probability 0.7 --use-embedding-noise 0 --use-generated-prompts 1 --prompt-path "prompts/coco_extension/prompts_gpt4_edge_cases.csv" --method "llm_uc_edge_cases" --eval_on_test_set "test" "test_uncommon" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 5
 
 
 
