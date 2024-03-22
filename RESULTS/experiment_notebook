@@ -99,7 +99,21 @@ coco_extension LLM uncommon edge cases:
 python train_classifier.py --dataset "coco_extension" --examples-per-class 2 4 8 --seeds 0 1 2 --strength 0.7 --guidance-scale 15 --synthetic-probability 0.7 --use-embedding-noise 0 --use-generated-prompts 1 --prompt-path "prompts/coco_extension/prompts_gpt4_edge_cases.csv" --method "llm_uc_edge_cases" --eval_on_test_set "test" "test_uncommon" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 5
 
 
+NOISE TEST:
+Noise_fine = (0, 0.005, 0.008, 0.01, 0.012, 0.015, 0.018, 0.2, 0.22, 0.25)
 
+coco_extension Noise_fine 22.03.24:
+python train_classifier.py --dataset "coco_extension" --examples-per-class 2 4 --seeds 0 1 2 --strength 0.7 --guidance-scale 15 --synthetic-probability 0.7 --use-embedding-noise 1 --method "noise_fine" --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 0
+focus Noise_fine 22.03.24:
+python train_classifier.py --dataset "focus" --examples-per-class 2 4 --seeds 0 1 2 --strength 0.7 --guidance-scale 15 --synthetic-probability 0.7 --use-embedding-noise 1 --method "noise_fine" --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 1
+
+NOISE TEST:
+Noise_low = (0, 0.005, 0.006, 0.007, 0.008, 0.009, 0.010, 0.011, 0.012, 0.013)
+
+coco_extension Noise_low 22.03.24:
+python train_classifier.py --dataset "coco_extension" --examples-per-class 2 4 --seeds 0 1 2 --strength 0.7 --guidance-scale 15 --synthetic-probability 0.7 --use-embedding-noise 1 --method "noise_low" --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 2
+focus Noise_low 22.03.24:
+python train_classifier.py --dataset "focus" --examples-per-class 2 4 --seeds 0 1 2 --strength 0.7 --guidance-scale 15 --synthetic-probability 0.7 --use-embedding-noise 1 --method "noise_low" --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 3
 
 
 
