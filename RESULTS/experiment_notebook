@@ -116,6 +116,13 @@ focus Noise_low 22.03.24:
 python train_classifier.py --dataset "focus" --examples-per-class 2 4 --seeds 0 1 2 --strength 0.7 --guidance-scale 15 --synthetic-probability 0.7 --use-embedding-noise 1 --method "noise_low" --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 3
 
 
+Filter coco_extension 24-03.24
+python train_classifier.py --dataset "coco_extension" --examples-per-class 2 4 8 --seeds 0 1 2 --strength 0.7 --guidance-scale 15 --synthetic-probability 0.7 --use-embedding-noise 1 --use-generated-prompts 1 --prompt-path "prompts/coco_extension/prompts_gpt4.csv" --synthetic_filter "train" --method "noise_llm_filter" --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 2
+
+Filter focus 24-03.24
+python train_classifier.py --dataset "focus" --examples-per-class 2 4 8 --seeds 0 1 2 --strength 0.7 --guidance-scale 15 --synthetic-probability 0.7 --use-embedding-noise 1 --use-generated-prompts 1 --prompt-path "prompts/coco_extension/prompts_gpt4.csv" --synthetic_filter "train" --method "noise_llm_filter" --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 3
+
+
 
 
 
