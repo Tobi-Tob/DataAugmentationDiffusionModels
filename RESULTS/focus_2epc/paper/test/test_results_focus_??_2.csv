@@ -1,0 +1,23 @@
+,value,metric
+0,0.7341165,Mean Loss
+1,0.788043,Mean Accuracy
+2,0.82040167,Loss Bird
+3,0.7939189,Accuracy Bird
+4,1.2142662,Loss Car
+5,0.5037864,Accuracy Car
+6,0.6207424,Loss Cat
+7,0.8136464,Accuracy Cat
+8,0.5382914,Loss Deer
+9,0.85394657,Accuracy Deer
+10,1.6742234,Loss Dog
+11,0.48705557,Accuracy Dog
+12,0.10505526,Loss Frog
+13,0.982209,Accuracy Frog
+14,0.60637826,Loss Horse
+15,0.7950372,Accuracy Horse
+16,0.4976068,Loss Plane
+17,0.8580878,Accuracy Plane
+18,0.4458113,Loss Ship
+19,0.88098085,Accuracy Ship
+20,0.81838864,Loss Truck
+21,0.7252544,Accuracy Truck
