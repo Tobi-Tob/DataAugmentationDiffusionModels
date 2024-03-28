@@ -43,6 +43,7 @@ PROMPT_TEMPLATE = f"""<s>[INST] <<SYS>>
 # End of Llama part
 
 # Start of GPT part
+# TODO: use --content_gpt to choose between prompts
 user_content_temp = "Create prompts for me that have the following structure:\n" \
                     "a photo of a [adjective] <classname> [location and/or weather preposition] [weather] [location] [time of day with preposition]\n\n" \
                     "The <classname> is replaced with the actual classname, e.g. 'car'\n" \
@@ -57,6 +58,16 @@ user_content_temp = "Create prompts for me that have the following structure:\n"
                     "If you use adjectives, they should be visual. So don't use something like 'interesting'.\n" \
                     "Also vary the number of optionals that you use.\n\n" \
                     "Can you give me {num_prompts} prompts of this structure for class {name} please"
+
+user_content_temp = "Create prompts for me that have the following structure:\n" \
+                    "a photo of a <classname> [uncommon location]\n\n" \
+                    "The <classname> is replaced with the actual classname, e.g. 'car'\n" \
+                    "You have to replace the [] with an uncommon location. This means example prompts for car could be:\n" \
+                    "'a photo of a car underwater'\n" \
+                    "'a photo of a car in snow'\n" \
+                    "'a photo of a car in a desert'\n\n" \
+                    "In my application I need prompts that cover edge cases.\n" \
+                    "Can you give me {num_prompts} prompts of this structure for class {name} please."
 
 GPT_PROMP_TEMPLATE = [{"role": "user", "content": user_content_temp}]
 # End of GPT part
@@ -220,7 +231,7 @@ def write_prompts_to_csv(all_prompts: Dict):
         writer.writerows(rows)
 
 
-def process_gpt_api(client, model: str, c_names: list, num_prompts: int):
+def process_gpt_api(client, model: str, c_names: list, num_prompts: int, content: str):
     prompt_dict = {}
     for c_name in c_names:
         # Create the input prompt for GPT
@@ -317,6 +328,7 @@ def process_llama_api(model_path: str, content: str):
 
 def init_gpt_api():
     api_key = "<YOUR-API-KEY>"
+    api_key = "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"
     return OpenAI(api_key=api_key)
 
 
@@ -336,6 +348,8 @@ if __name__ == '__main__':
     parser.add_argument("--dataset", type=str, default="coco", choices=["coco", "coco_extension", "road_sign", "focus"])
     # --content is only active for llama models
     parser.add_argument("--content", type=str, default="setting_adjective", choices=["setting", "adjective", "setting_adjective", "uncommonSetting"])
+    # --content is only active for gpt models
+    parser.add_argument("--content_gpt", type=str, default="normal", choices=["normal", "edge_cases"])
 
     args = parser.parse_args()
 
@@ -348,7 +362,7 @@ if __name__ == '__main__':
 
     if "gpt" in args.model:
         client_ = init_gpt_api()
-        class_prompts = process_gpt_api(client_, args.model, class_names, args.prompts_per_class)
+        class_prompts = process_gpt_api(client_, args.model, class_names, args.prompts_per_class, args.content_gpt)
 
     elif "llama" in args.model:
         class_prompts = process_llama_api(args.model, args.content)
