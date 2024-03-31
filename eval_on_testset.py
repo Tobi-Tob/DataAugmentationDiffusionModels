@@ -35,7 +35,7 @@ if __name__ == "__main__":
 
     """
     MR:
-    python eval_on_testset.py --dataset "coco_extension" --split "test_uncommon" --model "RESULTS/coco_extension_2epc/paper/models/classifier_coco_extension_0_2_[0.5]_[7.5].pth" --seed 0 --epc 2 --logdir "RESULTS/coco_extension_2epc/paper/uncommon_test/"
+    python eval_on_testset.py --dataset "coco_extension" --split "test_uncommon" --model "RESULTS/coco_extension_2epc/paper/models/classifier_coco_extension_0_2_[0.5]_[7.5].pth" --seed 0 --epc 2 --logdir "RESULTS/coco_extension_2epc/paper/test_uncommon/"
     
     python eval_on_testset.py --dataset "coco_extension" --split "test_uncommon" --model "models/classifier_coco_extension_0_8_[0.7]_[15.0].pth" --seed 0 --epc 8 --logdir "logs"
     
