@@ -34,7 +34,7 @@ def get_mean(dataset_name: str, method_name: str, epc: int, split: str):
     """
     if split not in ['test', 'test_uncommon']:
         raise ValueError("The split parameter can only handle 'test' and 'test_uncommon'")
-    test_dir = os.path.join("RESULTS", f"{dataset_name}_{epc}epc", f"{method_name}", f"{split}")
+    test_dir = os.path.join("../../RESULTS", f"{dataset_name}_{epc}epc", f"{method_name}", f"{split}")
     sum_of_epc = 0
     for file in os.listdir(test_dir):
         file_path = os.path.join(test_dir, file)

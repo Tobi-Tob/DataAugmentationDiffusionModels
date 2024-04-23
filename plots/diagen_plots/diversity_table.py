@@ -2,6 +2,11 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 
+"""
+This script generates a table to compare the values for precision and recall of two methods (DAIGen and DA-Fusion).
+It was not used in the final paper.
+"""
+
 
 def generate_table(ax, df_path):
     df = pd.read_csv(df_path, header=[0], sep=';')
