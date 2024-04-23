@@ -38,7 +38,7 @@ if __name__ == "__main__":
             method_path = os.path.join(directory, method_name)  # path to csv file
             if not os.path.isdir(method_path):  # skip if not directory
                 continue
-            log_path = os.path.join(method_path, "logs")
+            log_path = os.path.join(method_path, "../../logs")
             if not os.path.exists(log_path):  # skip if log directory does not exist
                 continue
 

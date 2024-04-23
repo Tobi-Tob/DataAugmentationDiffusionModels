@@ -2,6 +2,9 @@ from PIL import Image
 import os
 import argparse
 
+"""
+This script can be used to resize images in a dataset to make the training process shorter.
+"""
 
 if __name__ == '__main__':
 

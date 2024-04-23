@@ -6,6 +6,10 @@ from PIL import Image
 import numpy as np
 from diversity_table import generate_table
 
+"""
+This script creates a subfigure which visually compares the synthetic images of DIAGen and DA-Fusion.
+"""
+
 if __name__ == "__main__":
     # TODO: enable argparse
     category1 = "DA-Fusion"

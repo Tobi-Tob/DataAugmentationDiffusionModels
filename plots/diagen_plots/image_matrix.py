@@ -3,6 +3,10 @@ from PIL import Image
 import numpy as np
 import os
 
+"""
+Legacy script! Better functionality in plots/diagen_plots/plot_diversity_analysis.py
+"""
+
 # Define your directory path
 run = "llm"  # "baseline", "llm"
 class_name = "300m"
