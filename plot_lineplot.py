@@ -8,8 +8,8 @@ import numpy as np
 
 # Generate some example data
 examples_per_class = np.array([2, 4, 8])
-methods = ["no-da", "paper", "llm"]  #"noise_llm_filter"
-split_dir = "uncommon_test"  # "test" or "uncommon_test"
+methods = ["no-da", "paper", "noise_llm_filter"]  #"noise_llm_filter"
+split_dir = "test_uncommon"  # "test" or "test_uncommon"
 
 font_title = {'family': 'Times New Roman',
               'weight': 'bold',
@@ -32,8 +32,8 @@ def get_mean(dataset_name: str, method_name: str, epc: int, split: str):
     This function returns the mean result of all evaluated seeds of a method w.r.t. the given dataset.
     The path of the results are searched at "RESULTS/{dataset}_{epc}epc/{method}/{split}"
     """
-    if split not in ['test', 'uncommon_test']:
-        raise ValueError("The split parameter can only handle 'test' and 'uncommon_test'")
+    if split not in ['test', 'test_uncommon']:
+        raise ValueError("The split parameter can only handle 'test' and 'test_uncommon'")
     test_dir = os.path.join("RESULTS", f"{dataset_name}_{epc}epc", f"{method_name}", f"{split}")
     sum_of_epc = 0
     for file in os.listdir(test_dir):

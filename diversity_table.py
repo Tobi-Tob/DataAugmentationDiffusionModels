@@ -88,7 +88,7 @@ def generate_table(ax, df_path):
 
                     # Write content
                     ha = 'center'
-                    content = f'{mean_val:,.2f}'
+                    content = f'{mean_val:,.4f}'
                     ax.annotate(
                         xy=(positions[col_idx + 1], row_idx + .5),
                         text=content,
