@@ -132,6 +132,11 @@ Filter focus 28-03.24
 python train_classifier.py --dataset "focus" --examples-per-class 2 4 8 --seeds 2 --strength 0.7 --guidance-scale 15 --synthetic probability 0.7 --use-generated-prompts 1 --prompt-path "prompts/focus/prompts_gpt4.csv" --synthetic_filter "train" --method "llm_filter" --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 1
 
 
+Real_Guidance COCO Extension 04.05.24
+python train_classifier.py --dataset "coco_extension" --examples-per-class 2 4 8 --seeds 0 1 2 --strength 0.5 --guidance-scale 7.5 --synthetic-probability 0.5 --method "real_guidance" --aug real-guidance --eval_on_test_set "test" "test_uncommon" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 0
+
+Real_Guidance Focus 04.05.24
+python train_classifier.py --dataset "focus" --examples-per-class 2 4 8 --seeds 0 1 2 --strength 0.5 --guidance-scale 7.5 --synthetic-probability 0.5 --method "real_guidance" --aug real-guidance --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 1
 
 
 
