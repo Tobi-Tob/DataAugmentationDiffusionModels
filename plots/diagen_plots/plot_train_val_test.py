@@ -7,6 +7,15 @@ import os
 import glob
 import argparse
 
+def find_results_dir():
+    current_dir = os.path.abspath('.')  # Get the absolute path of the current directory
+    for _ in range(3):  # Check up to 2 levels above
+        results_dir = os.path.join(current_dir, 'RESULTS')
+        if os.path.exists(results_dir) and os.path.isdir(results_dir):
+            return results_dir
+        current_dir = os.path.abspath(os.path.join(current_dir, '..'))  # Move one level up
+    return None  # If RESULTS directory is not found up to 2 levels
+
 if __name__ == "__main__":
 
     """
@@ -19,11 +28,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser("Plot Accuracy")
 
     parser.add_argument("--dirs", nargs="+", type=str,
-                        default=["RESULTS/focus_2epc", "RESULTS/focus_4epc", "RESULTS/focus_8epc"])
+                        default=["coco_extension_2epc", "coco_extension_4epc", "coco_extension_8epc"])
 
     args = parser.parse_args()
+    absolut_result_dir = find_results_dir() # Looking for directory named RESULTS
 
-    for directory in args.dirs:
+    for data_dir in args.dirs:
         dataframe_val_accuracy = []
         dataframe_train_accuracy = []
         dataframe_val_loss = []
@@ -32,13 +42,14 @@ if __name__ == "__main__":
         dataframe_test_accuracy = []
         test_data_found = False
 
+        directory = os.path.join(absolut_result_dir, data_dir)
         print(f"Collecting data in {directory}...")
         for method_name in os.listdir(directory):
 
             method_path = os.path.join(directory, method_name)  # path to csv file
             if not os.path.isdir(method_path):  # skip if not directory
                 continue
-            log_path = os.path.join(method_path, "../../logs")
+            log_path = os.path.join(method_path, "logs")
             if not os.path.exists(log_path):  # skip if log directory does not exist
                 continue
 
