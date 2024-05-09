@@ -17,9 +17,11 @@ import re
 from openai import OpenAI
 from dotenv import load_dotenv
 
+# TODO: make script more immune against bad responses
+
 DEFAULT_PROMPT = "a photo of a {name}"
 
-# classes = ["mouse", "remote"]  # this can be used to create prompts for manual classes
+# classes = ["mouse", "remote"]  # this can be used to create prompts for manual classes  # TODO -> add to args
 
 # Start of Llama part
 DEFAULT_PROMPT_W_SETTING = "a photo of a {name} in a {setting}"
