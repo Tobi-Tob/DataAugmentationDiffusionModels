@@ -45,8 +45,9 @@ class People(FewShotDataset):
             self.image_paths[class_name].extend(class_image_paths)
             print(f"Found {len(self.image_paths[class_name])} images for {class_name}.")
 
-        # Create the final list of images and labels for the chosen split
-        self.all_images = self.image_paths
+        # Create the final list of images and labels for the chosen split (just put all images there for now)
+        self.all_images = [self.image_paths[class_name][idx] for class_name in self.class_names
+                           for idx in self.image_paths[class_name]]
         self.all_labels = [self.class_names.index(class_name) for class_name in self.class_names
                            for _ in self.image_paths]
         print(f"all image paths:\n{self.all_images}")
