@@ -22,6 +22,7 @@ from semantic_aug.datasets.pascal import PASCALDataset
 from semantic_aug.datasets.road_sign import RoadSignDataset
 from semantic_aug.datasets.coco_extension import COCOExtension
 from semantic_aug.datasets.focus import FOCUS
+from semantic_aug.datasets.people import People
 
 import datasets
 import diffusers
@@ -51,6 +52,7 @@ DATASETS = {
     "road_sign": RoadSignDataset,
     "coco_extension": COCOExtension,
     "focus": FOCUS,
+    "people": People
 }
 
 if version.parse(version.parse(PIL.__version__).base_version) >= version.parse("9.1.0"):
@@ -266,7 +268,7 @@ def parse_args():
     parser.add_argument("--examples-per-class", nargs='+', type=int, default=[1, 2, 4, 8, 16])
 
     parser.add_argument("--dataset", type=str, default="coco",
-                        choices=["spurge", "imagenet", "coco", "pascal", "road_sign", "coco_extension", "focus"])
+                        choices=["spurge", "imagenet", "coco", "pascal", "road_sign", "coco_extension", "focus", "people"])
 
     parser.add_argument("--unet-ckpt", type=str, default=None)
 
