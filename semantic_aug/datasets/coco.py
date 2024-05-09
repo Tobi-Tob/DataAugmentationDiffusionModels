@@ -7,13 +7,15 @@ import torchvision.transforms as transforms
 import torch
 import os
 import csv
+import matplotlib.pyplot as plt
 
 from pycocotools.coco import COCO
 from PIL import Image
 from collections import defaultdict
 from .image_dictionary import manually_selected_imgs
 
-COCO_DIR = r"/data/dlcv2023_groupA/coco2017"  # put ur own path here
+# COCO_DIR = r"/data/dlcv2023_groupA/coco2017"  # put ur own path here
+COCO_DIR = r"/data/vilab06/coco2017"
 
 TRAIN_IMAGE_DIR = os.path.join(COCO_DIR, "train2017")
 VAL_IMAGE_DIR = os.path.join(COCO_DIR, "val2017")
@@ -162,6 +164,7 @@ class COCODataset(FewShotDataset):
 
             maximal_ann = max(annotations, key=lambda x: x["area"])
             class_name = self.cocoapi.cats[maximal_ann["category_id"]]["name"]
+            ''' Code from us to avoid images where the class covers a small area
             if maximal_ann["area"] <= filter_mask_area:
                 threshold = filter_mask_area
                 exception_list = ["skis", "sports ball", "baseball bat", "fork", "knife", "spoon", "hair drier",
@@ -170,14 +173,17 @@ class COCODataset(FewShotDataset):
                     threshold = threshold / 4
                 if maximal_ann["area"] <= threshold:
                     continue
+            '''
 
             class_to_images[class_name].append(
                 os.path.join(image_dir, x["file_name"]))
             class_to_annotations[class_name].append(maximal_ann)
 
+        '''
         if use_manual_list:
             for category, img_list in manually_selected_imgs.items():
                 class_to_images[category] = [os.path.join(image_dir, img) for img in img_list]
+        '''
 
         rng = np.random.default_rng(seed)
         class_to_ids = {key: rng.permutation(
@@ -190,32 +196,6 @@ class COCODataset(FewShotDataset):
         self.class_to_images = {
             key: [class_to_images[key][i] for i in ids]
             for key, ids in class_to_ids.items()}
-
-        # Writing image paths of training data to CSV
-        # TODO: enable this for all datasets and create parameter to activate and deactivate this
-        out_dir = "source_images/coco"
-        if not os.path.exists(out_dir):
-            os.makedirs(out_dir)
-
-        out_path = os.path.join(out_dir, f"img_paths.csv")
-
-        # Finding the maximum number of paths
-        max_paths = max(len(paths) for paths in self.class_to_images.values())
-
-        # Creating the CSV file
-        with open(out_path, 'w', newline='') as file:
-            writer = csv.writer(file)
-
-            # Writing the header
-            header = ['class'] + [f'path{i}' for i in range(1, max_paths + 1)]
-            writer.writerow(header)
-
-            # Writing the data
-            for class_name, paths in self.class_to_images.items():
-                row = [class_name] + paths + [''] * (max_paths - len(paths))
-                writer.writerow(row)
-
-        print(f"Wrote images paths of training data to csv: {out_path}")
 
         self.class_to_annotations = {
             key: [class_to_annotations[key][i] for i in ids]
@@ -234,6 +214,27 @@ class COCODataset(FewShotDataset):
 
         # Enumeration of the occurrences of each class in the data set
         self.class_counts = np.bincount(self.all_labels)
+
+        # Writing image paths of training data to CSV
+        out_dir_1 = "source_images"
+        out_dir = "source_images/coco"
+        if not os.path.exists(out_dir_1):
+            os.makedirs(out_dir_1)
+            if not os.path.exists(out_dir):
+                os.makedirs(out_dir)
+        elif not os.path.exists(out_dir):
+            os.makedirs(out_dir)
+
+        out_path = os.path.join(out_dir, f"img_paths_{seed}_{examples_per_class}_{split}.csv")
+
+        # Creating the CSV file and writing the paths to it
+        with open(out_path, 'w', newline='') as file:
+            writer = csv.writer(file)
+            for paths in self.all_images:
+                row = [paths]
+                writer.writerow(row)
+
+        print(f"Wrote images paths of coco {split}-split to csv: {out_path}")
 
         if use_randaugment:
             train_transform = transforms.Compose([
@@ -267,7 +268,9 @@ class COCODataset(FewShotDataset):
                                  std=[0.5, 0.5, 0.5])
         ])
 
-        self.transform = {"train": train_transform, "val": val_transform}[split]
+        self.transform = \
+            {"train": train_transform, "val": val_transform, "test": val_transform, "test_uncommon": val_transform}[
+                split]
 
     def __len__(self):
 
@@ -288,3 +291,16 @@ class COCODataset(FewShotDataset):
         return dict(name=self.class_names[self.all_labels[idx]],
                     mask=self.cocoapi.annToMask(annotation),
                     **annotation)
+
+    def visualize_by_idx(self, idx: int):
+        # Visualize the image specified by index from the dataset
+        image_tensor, image_label = self.__getitem__(idx)
+
+        # Ensure that the tensor is in the range [0, 1] for proper visualization
+        image_tensor = (image_tensor + 1) / 2
+
+        # Display the image using matplotlib
+        plt.imshow(image_tensor.numpy().transpose(1, 2, 0))  # Transpose the dimensions for proper display
+        plt.axis('off')
+        plt.title(f'Label {image_label}, {self.class_names[image_label]}')
+        plt.show()
