@@ -2,14 +2,18 @@ import os.path
 import csv
 import matplotlib.pyplot as plt
 import numpy as np
+import random
+import argparse
 
 # Assuming the data follows a similar trend as seen in the image, we can generate a similar plot.
 # The x-axis seems to be a logarithmic scale of examples per class, and the y-axis is accuracy.
 
 # Generate some example data
-examples_per_class = np.array([2, 4, 8])
-methods = ["no-da", "paper", "noise_llm_filter"]  #"noise_llm_filter"
-split_dir = "test_uncommon"  # "test" or "test_uncommon"
+# ds_size = np.array([2, 4, 8])
+all_methods = ["no-da", "paper", "noise_llm_filter", "real_guidance"]
+all_splits = ["test", "test_uncommon"]
+all_datasets = ["coco", "coco_extension", "road_sign", "focus"]
+DEFAULT_OUT_DIR = r'plot/ablation_study'
 
 font_title = {'family': 'Times New Roman',
               'weight': 'bold',
@@ -25,6 +29,35 @@ font_legend = {'family': 'Times New Roman',
               'weight': 'bold',
               'size': 22,
               }
+
+
+def get_method_name(name: str):
+    if name == "no-da":
+        return "Standard Augmentations"
+    elif name == "paper":
+        return "DA-Fusion"
+    elif name == "noise_llm_filter":
+        return "DIAGen"
+    elif name == "real_guidance":
+        return "Real Guidance"
+    else:
+        raise ValueError(f"method must be within {all_methods}, but was {name}!")
+
+
+def get_plot_title(name: str, split: str):
+    if split == "test_uncommon" and name == "coco_extension":
+        return 'Uncommon Scenarios'
+    elif split == "test" and name == "coco_extension":
+        return 'COCO Extension'
+    elif name == "focus":
+        return 'FOCUS'
+    elif name == "road_sign":
+        return 'Road Sign'
+    elif name == "coco":
+        return 'MS COCO'
+    else:
+        raise ValueError(f"dataset name must be within {all_datasets} and split within {all_splits}, but were"
+                         f"{name} (dataset) and {split} (split)!")
 
 
 def get_mean(dataset_name: str, method_name: str, epc: int, split: str):
@@ -48,15 +81,15 @@ def get_mean(dataset_name: str, method_name: str, epc: int, split: str):
     return sum_of_epc / len(os.listdir(test_dir))
 
 
-def get_means_for_method(dataset_name: str, method: str, split):
+def get_means_for_method(dataset_name: str, method: str, split, ds_size):
     method_means = []
-    for epc in examples_per_class:
+    for epc in ds_size:
         mean_of_epc = get_mean(dataset_name, method, epc, split)
         method_means.append(mean_of_epc)
     return method_means
 
 
-def get_mean_results(dataset_name: str):
+def get_mean_results(dataset_name: str, methods, split: str, ds_size):
     """
     This function returns a dictionary containing:
     -> keys: methods that are defined above
@@ -65,67 +98,52 @@ def get_mean_results(dataset_name: str):
     """
     mean_values = {}
     for method in methods:
-        method_means = get_means_for_method(dataset_name, method, split_dir)
+        method_means = get_means_for_method(dataset_name, method, split, ds_size)
         mean_values[method] = method_means
     return mean_values
 
 
+def random_color():
+    # Generate a random number between 0 and 0xFFFFFF and convert it to hexadecimal
+    random_number = random.randint(0, 0xFFFFFF)
+    # Format the number as a hexadecimal string, padded with zeros if necessary, prefixed with '#'
+    color_code = f'#{random_number:06X}'
+    return color_code
+
+
 if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser("Plot Lineplot")
+
+    parser.add_argument("--dataset", type=str, default="coco_extension", choices=all_datasets)
+    parser.add_argument("--methods", type=str, nargs="+", default=all_methods, choices=all_methods)
+    parser.add_argument("--split", type=str, default="test", choices=all_splits)
+    parser.add_argument("--ds_sizes", type=int, nargs="+", default=[2, 4, 8]
+                        , help="Dataset Sizes - results must be present for all of them!")
+    parser.add_argument("--out-dir", type=str, default=DEFAULT_OUT_DIR)
+
+    args = parser.parse_args()
+
     # Plotting the data
     plt.figure(figsize=(8, 6))
 
-
-    # COCO General Plot
-    dataset = "coco_extension"
-    value_dict = get_mean_results(dataset)
-    standard_aug = value_dict["no-da"]
-    paper = value_dict["paper"]
-    # llm = value_dict["llm"]
-    our = value_dict[methods[2]]
-    # noise_llm = value_dict["noise_llm"]
-    # baseline = value_dict["baseline"]
-    # noise = value_dict["noise"]
-    # plt.title('COCO Extension', fontdict=font_title)
-    plt.title('Uncommon Scenarios', fontdict=font_title)
-
-    """
-    # FOCUS General Plot
-    dataset = "focus"
-    value_dict = get_mean_results(dataset)
-    standard_aug = value_dict["no-da"]
-    paper = value_dict["paper"]
-    # llm = value_dict["llm"]
-    our = value_dict[methods[2]]
-    plt.title('FOCUS', fontdict=font_title)
-    """
-
-    """
-    # RS General Plot
-    dataset = "road_sign"
-    value_dict = get_mean_results(dataset)
-    standard_aug = value_dict["no-da"]
-    paper = value_dict["paper"]
-    llm = value_dict["llm"]
-    plt.title('Road Sign', fontdict=font_title)
-    """
-
-    # COCO & RS General Plot
-    colors = ["#235789", "#F86624", "#7E007B"]
-    plt.plot(examples_per_class, our, label='DIAGen', color=colors[2], linewidth=6, linestyle='-')
-    plt.plot(examples_per_class, paper, label='DA-Fusion', color=colors[1], linewidth=6, linestyle='--')
-    plt.plot(examples_per_class, standard_aug, label='Standard Augmentation', color=colors[0], linewidth=6, linestyle=':')
-    # plt.plot(examples_per_class, baseline, label='DA-Fusion (Our params)', color='green', linewidth=6, linestyle='-')
-    # plt.plot(examples_per_class, noise, label='Noise', color='red', linewidth=6, linestyle='-.')
-    # plt.plot(examples_per_class, noise_llm, label='Noise_LLM', color='yellow', linewidth=6, linestyle=':')
+    colors = ["#235789", "#F86624", "#7E007B", "grey"]
+    linestyles = ['-', '--', ':', '-.']
+    value_dict = get_mean_results(args.dataset, args.methods, args.split, args.ds_sizes)
+    for i, m in enumerate(args.methods):
+        c = colors[i] if i < len(colors) else random_color()
+        ls = linestyles[i % (len(linestyles))]
+        plt.plot(args.ds_sizes, value_dict[m], label=get_method_name(m), color=c, linewidth=6, linestyle=ls)
 
     # Adding labels
     plt.xlabel('Examples Per Class (Size of Dataset)', fontdict=font_axis)
-    plt.ylabel('Accuracy (Test)', fontdict=font_axis)
+    plt.ylabel('Accuracy (Val)' if args.dataset == 'coco' else 'Accuracy (Test)', fontdict=font_axis)
+    plt.title(get_plot_title(args.dataset, args.split), fontdict=font_title)
 
     # Set the limits for the y-axis
     #plt.ylim([0.738, 0.882])
 
-    plt.xticks(examples_per_class, examples_per_class)
+    plt.xticks(args.ds_sizes, args.ds_sizes)
     # Setting the font for the tick labels
     for label in (plt.gca().get_xticklabels() + plt.gca().get_yticklabels()):
         label.set_fontname('Times New Roman')
@@ -138,7 +156,9 @@ if __name__ == "__main__":
     plt.tight_layout()
 
     # Save the plot as a file
-    plt.savefig(f'plots_paper/lineplot_{dataset}_{split_dir}.pdf', format='pdf')
+    if not os.path.exists(args.out_dir):
+        os.makedirs(args.out_dir)
+    plt.savefig(os.path.join(args.out_dir, f"lineplot_{args.dataset}_{args.split}.pdf"), format='pdf')
 
     # Show the plot
     plt.show()
