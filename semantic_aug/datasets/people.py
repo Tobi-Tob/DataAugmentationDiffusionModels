@@ -49,7 +49,7 @@ class People(FewShotDataset):
         self.all_images = [self.image_paths[class_name][idx] for class_name in self.class_names
                            for idx in range(len(self.image_paths[class_name]))]
         self.all_labels = [self.class_names.index(class_name) for class_name in self.class_names
-                           for _ in self.image_paths]
+                           for _ in range(len(self.image_paths[class_name]))]
         print(f"all image paths:\n{self.all_images}")
         print(f"all image labels:\n{self.all_labels}")
 
