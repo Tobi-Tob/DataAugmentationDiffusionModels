@@ -15,6 +15,7 @@ import os
 import csv
 import re
 from openai import OpenAI
+from dotenv import load_dotenv
 
 DEFAULT_PROMPT = "a photo of a {name}"
 
@@ -237,13 +238,13 @@ def process_gpt_api(client, model: str, c_names: list, num_prompts: int, content
         # Create the input prompt for GPT
         c_name_no_under_score = c_name.replace("_", " ")
         user_content = user_content_temp.replace("{name}", c_name_no_under_score)
-        num_margin = 5  # margin if prompt is bad
+        num_margin = 5  # additional prompts if some prompts are bad
         user_content = user_content.replace("{num_prompts}", str(num_prompts + num_margin))
         input_prompt = GPT_PROMP_TEMPLATE
         input_prompt[0]['content'] = user_content
 
         # Call GPT and clean the response -> try multiple times if no prompt was found in the response
-        output = call_gpt_api(input_prompt, client_, model)
+        output = call_gpt_api(input_prompt, client, model)
         prompt_list = []
         for i in range(5):
             prompt_list = clean_response_gpt(output, num_prompts, c_name)
@@ -327,8 +328,11 @@ def process_llama_api(model_path: str, content: str):
 
 
 def init_gpt_api():
-    api_key = "<YOUR-API-KEY>"
-    return OpenAI(api_key=api_key)
+    return OpenAI(api_key=os.getenv('api_key'))
+
+
+def configure():
+    load_dotenv()
 
 
 if __name__ == '__main__':
@@ -337,12 +341,15 @@ if __name__ == '__main__':
     python generate_prompts.py --dataset "coco_extension" --outdir "prompts/coco_extension" --out-filename "prompts_setting_adjective_1.csv" --prompts-per-class 5 --content "setting_adjective"
     '''
 
+    # Load .env
+    configure()
+
     parser = argparse.ArgumentParser("LLM Prompt Generation")
 
     parser.add_argument("--outdir", type=str, default="prompts")
     parser.add_argument("--out-filename", type=str, default="prompts.csv")
-    parser.add_argument("--model", type=str, default="gpt-4-turbo-preview",
-                        choices=["meta-llama/Llama-2-7b-chat-hf", "meta-llama/Llama-2-13b-chat-hf", "gpt-3.5-turbo", "gpt-4-turbo-preview"])
+    parser.add_argument("--model", type=str, default="gpt-4-turbo",
+                        choices=["meta-llama/Llama-2-7b-chat-hf", "meta-llama/Llama-2-13b-chat-hf", "gpt-3.5-turbo", "gpt-4-turbo"])
     parser.add_argument("--prompts-per-class", type=int, default=10)
     parser.add_argument("--dataset", type=str, default="coco", choices=["coco", "coco_extension", "road_sign", "focus"])
     # --content is only active for llama models
