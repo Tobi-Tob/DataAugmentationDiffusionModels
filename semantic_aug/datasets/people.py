@@ -21,11 +21,14 @@ class People(FewShotDataset):
     num_classes: int = len(class_names)
 
     def __init__(self, *args, data_dir: str = PEOPLE_DIR,
+                 split: str = "train", seed: int = 0,
                  examples_per_class: int = None,
                  generative_aug: GenerativeAugmentation = None,
                  synthetic_probability: float = 0.5,
                  use_randaugment: bool = False,
                  image_size: Tuple[int] = (256, 256),
+                 filter_mask_area: int = 0,  # Not used, but needs to change call of COCODataset to be removed
+                 use_manual_list: bool = False,  # Not used
                  **kwargs):
 
         super(People, self).__init__(
