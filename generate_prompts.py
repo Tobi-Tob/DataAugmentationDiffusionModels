@@ -33,7 +33,7 @@ Wrap those words as strings in a python list."
 USER_PROMPTS = {
     "setting": "In which different settings can a {name} occur?",
     "adjective": "What are different visual and descriptive adjectives for {name}?",
-    }
+}
 
 PROMPT_TEMPLATE = f"""<s>[INST] <<SYS>>
 {SYS_PROMPT}
@@ -44,31 +44,35 @@ PROMPT_TEMPLATE = f"""<s>[INST] <<SYS>>
 # End of Llama part
 
 # Start of GPT part
-# TODO: use --content_gpt to choose between prompts
-user_content_temp = "Create prompts for me that have the following structure:\n" \
-                    "a photo of a [adjective] <classname> [location and/or weather preposition] [weather] [location] [time of day with preposition]\n\n" \
-                    "The <classname> is replaced with the actual classname, e.g. 'car'\n" \
-                    "All the attributes in [] are optionals. This means example prompts for car could be:\n" \
-                    "'a photo of a red car' (adjective optional)\n" \
-                    "'a photo of a car on a road' (location optional)\n" \
-                    "'a photo of a car in snow' (weather optional)\n" \
-                    "'a photo of a car at night' (time of day optional)\n" \
-                    "'a photo of a huge car in a tunnel' (adjective and location optionals)\n" \
-                    "'a photo of a green car on a foggy bridge at daytime' (all optionals)\n" \
-                    "'a photo of a car' (no optional)\n\n" \
-                    "If you use adjectives, they should be visual. So don't use something like 'interesting'.\n" \
-                    "Also vary the number of optionals that you use.\n\n" \
-                    "Can you give me {num_prompts} prompts of this structure for class {name} please"
+user_content_normal = "Create prompts for me that have the following structure:\n" \
+                      "a photo of a [adjective] <classname> [location and/or weather preposition] [weather] [location] [time of day with preposition]\n\n" \
+                      "The <classname> is replaced with the actual classname, e.g. 'car'\n" \
+                      "All the attributes in [] are optionals. This means example prompts for car could be:\n" \
+                      "'a photo of a red car' (adjective optional)\n" \
+                      "'a photo of a car on a road' (location optional)\n" \
+                      "'a photo of a car in snow' (weather optional)\n" \
+                      "'a photo of a car at night' (time of day optional)\n" \
+                      "'a photo of a huge car in a tunnel' (adjective and location optionals)\n" \
+                      "'a photo of a green car on a foggy bridge at daytime' (all optionals)\n" \
+                      "'a photo of a car' (no optional)\n\n" \
+                      "If you use adjectives, they should be visual. So don't use something like 'interesting'.\n" \
+                      "Also vary the number of optionals that you use.\n\n" \
+                      "Can you give me {num_prompts} prompts of this structure for class {name} please"
 
-user_content_temp = "Create prompts for me that have the following structure:\n" \
-                    "a photo of a <classname> [uncommon location]\n\n" \
-                    "The <classname> is replaced with the actual classname, e.g. 'car'\n" \
-                    "You have to replace the [] with an uncommon location. This means example prompts for car could be:\n" \
-                    "'a photo of a car underwater'\n" \
-                    "'a photo of a car in snow'\n" \
-                    "'a photo of a car in a desert'\n\n" \
-                    "In my application I need prompts that cover edge cases.\n" \
-                    "Can you give me {num_prompts} prompts of this structure for class {name} please."
+user_content_edge_cases = "Create prompts for me that have the following structure:\n" \
+                          "a photo of a <classname> [uncommon location]\n\n" \
+                          "The <classname> is replaced with the actual classname, e.g. 'car'\n" \
+                          "You have to replace the [] with an uncommon location. This means example prompts for car could be:\n" \
+                          "'a photo of a car underwater'\n" \
+                          "'a photo of a car in snow'\n" \
+                          "'a photo of a car in a desert'\n\n" \
+                          "In my application I need prompts that cover edge cases.\n" \
+                          "Can you give me {num_prompts} prompts of this structure for class {name} please."
+
+user_content_temp = {
+    "normal": user_content_normal,
+    "edge_cases": user_content_edge_cases
+}
 
 GPT_PROMP_TEMPLATE = [{"role": "user", "content": user_content_temp}]
 # End of GPT part
@@ -164,15 +168,19 @@ def clean_response_gpt(res: str, num_prompts: int, class_name: str):
     final_class_prompts = []
     for p in prompts:
         c_name_no_under_score = class_name.replace("_", " ")
-        if c_name_no_under_score in p:
-            final_class_prompts.append(p.replace(c_name_no_under_score, "{name}"))
+        if c_name_no_under_score in p.lower():  # use .lower() to find "tv" in "a photo of a TV" etc.
+            # final_class_prompts.append(p.replace(c_name_no_under_score, "{name}"))
+            prompt_with_keyword = re.sub(r'\b{}\b'.format(c_name_no_under_score), "{name}", p, flags=re.IGNORECASE)
+            final_class_prompts.append(prompt_with_keyword)
         else:
             print(f"No string '{class_name}' in prompt: {p}")
     if len(final_class_prompts) > num_prompts:
         random.shuffle(final_class_prompts)
         final_class_prompts = final_class_prompts[:num_prompts]
     if len(final_class_prompts) < num_prompts:
-        warnings.warn(f"{num_prompts} prompts requested for class {class_name} but only found {len(final_class_prompts)}", UserWarning)
+        warnings.warn(
+            f"{num_prompts} prompts requested for class {class_name} but only found {len(final_class_prompts)}",
+            UserWarning)
     return final_class_prompts
 
 
@@ -237,7 +245,7 @@ def process_gpt_api(client, model: str, c_names: list, num_prompts: int, content
     for c_name in c_names:
         # Create the input prompt for GPT
         c_name_no_under_score = c_name.replace("_", " ")
-        user_content = user_content_temp.replace("{name}", c_name_no_under_score)
+        user_content = user_content_temp[content].replace("{name}", c_name_no_under_score)
         num_margin = 5  # additional prompts if some prompts are bad
         user_content = user_content.replace("{num_prompts}", str(num_prompts + num_margin))
         input_prompt = GPT_PROMP_TEMPLATE
@@ -308,7 +316,8 @@ def process_llama_api(model_path: str, content: str):
 
                 print(f"\n{name} , try: {trys_prompt} -----> LLM response:\n{response[0]['generated_text']}")
                 try:
-                    prompt_words[name] = clean_response_llama(response[0]['generated_text'], args.prompts_per_class, name)
+                    prompt_words[name] = clean_response_llama(response[0]['generated_text'], args.prompts_per_class,
+                                                              name)
                     prompt_okay = True
                 except Exception as e:
                     if trys_prompt >= max_trys_prompt - 1:
@@ -349,13 +358,15 @@ if __name__ == '__main__':
     parser.add_argument("--outdir", type=str, default="prompts")
     parser.add_argument("--out-filename", type=str, default="prompts.csv")
     parser.add_argument("--model", type=str, default="gpt-4-turbo",
-                        choices=["meta-llama/Llama-2-7b-chat-hf", "meta-llama/Llama-2-13b-chat-hf", "gpt-3.5-turbo", "gpt-4-turbo"])
+                        choices=["meta-llama/Llama-2-7b-chat-hf", "meta-llama/Llama-2-13b-chat-hf", "gpt-3.5-turbo",
+                                 "gpt-4-turbo"])
     parser.add_argument("--prompts-per-class", type=int, default=10)
     parser.add_argument("--dataset", type=str, default="coco", choices=["coco", "coco_extension", "road_sign", "focus"])
     # --content is only active for llama models
-    parser.add_argument("--content", type=str, default="setting_adjective", choices=["setting", "adjective", "setting_adjective", "uncommonSetting"])
+    parser.add_argument("--content", type=str, default="setting_adjective",
+                        choices=["setting", "adjective", "setting_adjective", "uncommonSetting"])
     # --content is only active for gpt models
-    parser.add_argument("--content_gpt", type=str, default="normal", choices=["normal", "edge_cases"])
+    parser.add_argument("--content-gpt", type=str, default="normal", choices=["normal", "edge_cases"])
 
     args = parser.parse_args()
 
