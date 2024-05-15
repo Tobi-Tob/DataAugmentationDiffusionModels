@@ -1,0 +1,231 @@
+class_name;class_idx;prompt
+bench;1;A photo of a sturdy {name} on a frosty lakeshore at twilight.
+bench;2;A photo of a colorful {name} under a tree in the morning.
+bench;3;A photo of an elegant {name} on a sunny rooftop garden in the late afternoon.
+bench;4;A photo of a moss-covered {name} in a misty forest at dawn.
+bench;5;A photo of an old {name} by the river at dawn.
+bench;6;A photo of a modern {name} near the beach at sunrise.
+bench;7;A photo of a wooden {name} in a park during sunset.
+bench;8;A photo of a rustic {name} in a garden at noon.
+bench;9;A photo of a metal {name} on a rainy street at night.
+bench;10;A photo of a cozy {name} on a cloudy hillside in the afternoon.
+bicycle;1;A photo of a vintage {name} on a snowy trail in the forest at dusk.
+bicycle;2;A photo of a commuter {name} near a bustling market on a rainy day.
+bicycle;3;A photo of a children's {name} in a school yard under overcast skies at midday.
+bicycle;4;A photo of a shiny {name} under stormy clouds in the countryside at sunset.
+bicycle;5;A photo of a rusty {name} under a clear blue sky in a park at sunrise.
+bicycle;6;A photo of a mountain {name} in a lush green valley during late afternoon.
+bicycle;7;A photo of an electric {name} against a backdrop of urban skyscrapers in the evening.
+bicycle;8;A photo of a foldable {name} in a quaint village square during late morning.
+bicycle;9;A photo of a sleek {name} beside a misty lake during early morning.
+bicycle;10;A photo of a cargo {name} on a foggy dock at twilight.
+book;1;A photo of a tattered {name} buried in sand on a windy day at the beach at sunrise.
+book;2;A photo of a colorful {name} by the window on a rainy day in a quiet room in the morning.
+book;3;A photo of a thick {name} stacked on a table in a modern apartment at night.
+book;4;A photo of a red {name} covered in mist on a foggy morning bridge.
+book;5;A photo of a dusty {name} on a shelf in a cozy library at sunset.
+book;6;A photo of a glossy {name} lying on the beach under the noon sun.
+book;7;A photo of a shiny {name} on a sunny windowsill in a quiet corner at noon.
+book;8;A photo of a heavy {name} on the desk in a bustling library at midday.
+book;9;A photo of a colorful picture {name} with a view of the mountains in the background during twilight.
+book;10;A photo of a handwritten {name} lying on the grass in a garden at dusk.
+bottle;1;a photo of a rustic {name} near a firepit in the backyard at early evening
+bottle;2;a photo of a transparent {name} on a rooftop terrace during a starry night
+bottle;3;a photo of a colorful {name} on a park bench under overcast weather at twilight
+bottle;4;a photo of a green {name} under clear skies on the beach at sunrise
+bottle;5;a photo of a stylish {name} among wildflowers in a field at sunset
+bottle;6;a photo of a sleek {name} on a marble countertop in a bright kitchen at midday
+bottle;7;a photo of a plastic {name} by a hiking trail with a clear afternoon sky
+bottle;8;a photo of an empty {name} on a sandy shore on a sunny afternoon
+bottle;9;a photo of a frosted {name} near a mountain under snowfall at dawn
+bottle;10;a photo of a ceramic {name} in an urban alleyway during a rainy evening
+bowl;1;A photo of a vintage {name} against a rainy window in the afternoon.
+bowl;2;A photo of a colorful {name} on a table in the evening.
+bowl;3;A photo of a painted {name} on the balcony under a starry sky.
+bowl;4;A photo of a small {name} near the window on a foggy morning.
+bowl;5;A photo of an elegant {name} in the park on a clear day at noon.
+bowl;6;A photo of a ceramic {name} on a sunny day on the patio.
+bowl;7;A photo of an ornate {name} beside books in the study at noon.
+bowl;8;A photo of a modern {name} in the living room at twilight.
+bowl;9;A photo of a cracked {name} under a cloudy sky in the garden in the morning.
+bowl;10;A photo of a large {name} on a shelf in the kitchen at night.
+car;1;A photo of a sleek {name} in front of a modern building at dawn.
+car;2;A photo of a dilapidated {name} in an abandoned lot at midnight.
+car;3;A photo of a muddy {name} in a rainy forest in the afternoon.
+car;4;A photo of a rugged {name} on a dirt trail in the woods in the afternoon.
+car;5;A photo of a luxurious {name} on a snowy mountain road in the evening.
+car;6;A photo of a rustic {name} under a cloudy sky in the desert at noon.
+car;7;A photo of a shiny {name} at a beach during sunset.
+car;8;A photo of a futuristic {name} on a foggy highway at night.
+car;9;A photo of a compact {name} on a sunny day in a suburban area at noon.
+car;10;A photo of an elegant {name} in an urban setting at twilight.
+cell_phone;1;a photo of a stylish {name} on a kitchen countertop on a sunny day at lunchtime
+cell_phone;2;a photo of a fancy {name} under a clear sky on a park bench at noon
+cell_phone;3;a photo of a vintage {name} on a shelf in a dimly lit room at night
+cell_phone;4;a photo of a modern {name} inside a cafe during a snowy day in the morning
+cell_phone;5;a photo of a premium {name} on a train table during a snowstorm in the evening
+cell_phone;6;a photo of a slim {name} on a windowsill in a bright room at dawn
+cell_phone;7;a photo of a colorful {name} under a rainbow in a park after a rain shower in the early evening
+cell_phone;8;a photo of a minimalist {name} on a bedside table in a cozy bedroom at dusk
+cell_phone;9;a photo of a sleek {name} on a table in a cozy room at sunset
+cell_phone;10;a photo of a shiny {name} in a bustling street under bright sunlight at midday
+chair;1;A photo of a vintage {name} by the beach on a sunny afternoon.
+chair;2;A photo of a metal {name} in a snowy park at dawn.
+chair;3;A photo of a red {name} in the park during sunrise.
+chair;4;A photo of a minimalist {name} under a tree on a windy day.
+chair;5;A photo of a wooden {name} beside a fireplace on a cold evening.
+chair;6;A photo of an antique {name} in a garden during the afternoon.
+chair;7;A photo of a luxurious {name} near a swimming pool on a hot day.
+chair;8;A photo of a plastic {name} on a sandy beach at sunset.
+chair;9;A photo of a broken {name} in an abandoned building at dusk.
+chair;10;A photo of a rocking {name} on a porch in the foggy morning.
+clock;1;a photo of a whimsical {name} against a cloudy sky in the city square at sunset
+clock;2;a photo of an old-fashioned {name} on a breezy porch at midday
+clock;3;a photo of an industrial {name} within a steamy kitchen during the afternoon
+clock;4;a photo of an antique {name} under clear skies in a garden at dawn
+clock;5;a photo of a simple {name} beside a foggy mountain trail at midnight
+clock;6;a photo of a vintage {name} next to a sunny window in the afternoon
+clock;7;a photo of a rustic {name} near a foggy beach at sunrise
+clock;8;a photo of a digital {name} on a snowy night in the living room
+clock;9;a photo of an ornate {name} inside a cozy café at noon
+clock;10;a photo of a decorative {name} amidst autumn leaves in the park in the morning
+computer_mouse;1;A photo of a vintage {name} in a sunny office in the afternoon.
+computer_mouse;2;A photo of an ergonomic {name} with a snowy window next to it in the morning.
+computer_mouse;3;A photo of a new {name} within a flooded basement at dusk.
+computer_mouse;4;A photo of a shiny {name} in a bright library throughout the day.
+computer_mouse;5;A photo of a sleek {name} on a rainy desk at night.
+computer_mouse;6;A photo of a wireless {name} under a cloudy sky in a park at dawn.
+computer_mouse;7;A photo of a futuristic {name} aside a cluttered bedroom early in the morning.
+computer_mouse;8;A photo of a gaming {name} within a quiet cabin in the winter afternoon.
+computer_mouse;9;A photo of a stylish {name} beneath an overgrown garden during midday.
+computer_mouse;10;A photo of an old-school {name} amidst a foggy studio at twilight.
+cup;1;A photo of a vintage {name} in a coffee shop at night.
+cup;2;A photo of a broken {name} on a sandy beach at sunset.
+cup;3;A photo of a modern {name} on an office desk in the evening.
+cup;4;A photo of a decorated {name} on a windowsill with snowfall outside.
+cup;5;A photo of a small {name} on a picnic table on a sunny afternoon.
+cup;6;A photo of a colorful {name} under a tree during springtime.
+cup;7;A photo of a large {name} on a kitchen counter in the morning.
+cup;8;A photo of a chipped {name} on the forest floor in the morning.
+cup;9;A photo of a steamy {name} near a window on a rainy day.
+cup;10;A photo of a floral {name} by the lakeside at dawn.
+fork;1;a photo of a modern {name} against a marble countertop in the kitchen at midday
+fork;2;a photo of a plastic {name} in the sand on an overcast beach in the early afternoon
+fork;3;a photo of a shiny {name} on a table in the kitchen in the morning
+fork;4;a photo of a disposable {name} on a picnic table in the backyard during a cloudy evening
+fork;5;a photo of a dirty {name} among fallen leaves in the park during autumn in the late afternoon
+fork;6;a photo of a large {name} next to a salad bowl in the garden at dusk
+fork;7;a photo of a colorful {name} under an umbrella at a sidewalk cafe during a sunny morning
+fork;8;a photo of a {name} with a broken tine on a workbench in a garage during a stormy night
+fork;9;a photo of a golden {name} beside the plate in the dining room at sunset
+fork;10;a photo of a wooden {name} lying on a serving tray at a cafe during morning rush
+keyboard;1;A photo of a vintage {name} at a studio during dawn.
+keyboard;2;A photo of a fancy {name} in a bedroom during sunset.
+keyboard;3;A photo of a DIY {name} in a workshop during dusk.
+keyboard;4;A photo of a backlit {name} in an attic under a full moon.
+keyboard;5;A photo of a clean {name} near a bookshelf with afternoon shadows.
+keyboard;6;A photo of an old {name} in an office under rainy weather.
+keyboard;7;A photo of a wireless {name} in a living room with a storm brewing outside.
+keyboard;8;A photo of a colorful {name} outside in a garden during sunset.
+keyboard;9;A photo of a sleek {name} on a desk with morning sunlight.
+keyboard;10;A photo of a compact {name} on a beach during a sunny afternoon.
+knife;1;A photo of a sleek {name} on a picnic blanket near a lake at sunrise.
+knife;2;A photo of an old {name} inside a kitchen cupboard in the evening.
+knife;3;A photo of an ancient {name} amidst tall grass in a meadow at twilight.
+knife;4;A photo of a modern {name} beside a fireplace in the morning.
+knife;5;A photo of a pristine {name} on a balcony at a restaurant in bright daylight.
+knife;6;A photo of a sharp {name} under the sun on a beach.
+knife;7;A photo of a heavy {name} within a blacksmith's workshop at dusk.
+knife;8;A photo of a bloodstained {name} lying on the street at midnight.
+knife;9;A photo of a shiny {name} on a table in the afternoon.
+knife;10;A photo of a small {name} atop a wooden log in the forest at sunset.
+laptop;1;A photo of a damaged {name} amidst heavy snowfall in the mountains at dawn
+laptop;2;A photo of a sleek {name} on a sunny day in the park at noon
+laptop;3;A photo of a minimalist {name} near a bustling street during a rainy night
+laptop;4;A photo of a vintage {name} at the beach on a windy afternoon
+laptop;5;A photo of a stylish {name} on a clear night near the city skyline
+laptop;6;A photo of a colorfully decorated {name} on a sandy beach at sunset
+laptop;7;A photo of a high-end {name} on a rooftop terrace at twilight
+laptop;8;A photo of a gaming {name} in a dimly lit room on a stormy night
+laptop;9;A photo of a lightweight {name} inside a bustling café during a thunderstorm
+laptop;10;A photo of a modern {name} in a cozy room in rainy weather during the evening
+motorcycle;1;A photo of a sleek {name} beside a beach in the morning.
+motorcycle;2;A photo of a racing {name} next to a lake during sunrise.
+motorcycle;3;A photo of a classic {name} near a forest during a foggy day.
+motorcycle;4;A photo of a powerful {name} in a desert under clear skies during midday.
+motorcycle;5;A photo of a modern {name} on a snowy road at dawn.
+motorcycle;6;A photo of a vintage {name} on a rainy street at dusk.
+motorcycle;7;A photo of a custom {name} in a bustling city during twilight.
+motorcycle;8;A photo of an old {name} alongside a river on a sunny day in the afternoon.
+motorcycle;9;A photo of a retro {name} in a grassy field under a cloudy sky in the morning.
+motorcycle;10;A photo of a rugged {name} outside a barn on an autumn afternoon.
+potted_plant;1;a photo of a tiny {name} under the sun in a living room midday
+potted_plant;2;a photo of a blooming {name} in a garden morning
+potted_plant;3;a photo of a blooming {name} in the corner of the room on a cloudy day
+potted_plant;4;a photo of a lush {name} outside in the yard on a foggy morning
+potted_plant;5;a photo of a tiny {name} on the windowsill early morning
+potted_plant;6;a photo of a flowering {name} on the patio in the afternoon
+potted_plant;7;a photo of a large {name} next to a window on a rainy afternoon
+potted_plant;8;a photo of a green {name} amidst other plants in the garden on a sunny morning
+potted_plant;9;a photo of a colorful {name} by the balcony at sunset
+potted_plant;10;a photo of a leafy {name} by the pool at twilight
+spoon;1;a photo of a rusty {name} under the sunlight in a kitchen during the morning
+spoon;2;a photo of a bent {name} on a bathroom sink in the middle of the night
+spoon;3;a photo of an old {name} next to a cookbook on a kitchen counter before sunrise
+spoon;4;a photo of a tarnished {name} under the moonlight in a camping site in the woods
+spoon;5;a photo of an engraved {name} in a display case at a museum during the afternoon
+spoon;6;a photo of a wooden {name} in front of a stove at night
+spoon;7;a photo of a new {name} inside a drawer in a modern kitchen during the evening
+spoon;8;a photo of a plastic {name} under a cloudy sky in a park at dusk
+spoon;9;a photo of a broken {name} on the grass on a windy day
+spoon;10;a photo of a shiny {name} in the rain on a table during the afternoon
+sports_ball;1;A photo of an old {name} in the middle of an empty stadium.
+sports_ball;2;A photo of a heavy {name} on the basketball court in the evening.
+sports_ball;3;A photo of a shiny {name} in a garden.
+sports_ball;4;A photo of a dusty {name} under a tree in the afternoon.
+sports_ball;5;A photo of a worn-out {name} covered in snow.
+sports_ball;6;A photo of a tiny {name} near the river at dawn.
+sports_ball;7;A photo of a small {name} near the beach during sunset.
+sports_ball;8;A photo of a colorful {name} under the autumn leaves in the morning.
+sports_ball;9;A photo of a brand-new {name} on a wet football pitch.
+sports_ball;10;A photo of a colorful {name} at the top of a hill.
+tie;1;A photo of a geometric-patterned {name} in a crowded subway station in the evening
+tie;2;A photo of a sleek {name} next to a window during a rainy evening
+tie;3;A photo of a striped {name} in a dimly lit office at night
+tie;4;A photo of a polka-dotted {name} inside a vibrant nightclub at midnight
+tie;5;A photo of a casual {name} at a backyard barbecue during dusk
+tie;6;A photo of a colorful {name} on a sunny day in a park in the morning
+tie;7;A photo of a stylish {name} in a quiet library on a summer afternoon
+tie;8;A photo of a hand-knit {name} on a misty morning near a lake
+tie;9;A photo of a formal {name} in a boardroom under fluorescent lights
+tie;10;A photo of a bold {name} in a cozy coffee shop on a foggy morning
+traffic_light;1;a photo of a red {name} in the rain on a city street at night
+traffic_light;2;a photo of a sleek {name} during snowfall in a small town at dusk
+traffic_light;3;a photo of a tilted {name} in the snow in a suburban area in the afternoon
+traffic_light;4;a photo of a blinking {name} near a rural intersection at sunset
+traffic_light;5;a photo of an aged {name} with leaves fluttering by in a park at midday
+traffic_light;6;a photo of a double-sided {name} on a foggy street corner just before noon
+traffic_light;7;a photo of a bright {name} against a background of a dark stormy sky in the evening
+traffic_light;8;a photo of a high-tech {name} under clear skies at an urban crosswalk at dawn
+traffic_light;9;a photo of a yellow {name} reflecting in puddles on a busy avenue in the late afternoon
+traffic_light;10;a photo of a malfunctioning {name} beside a busy road at noon
+tv_remote;1;A photo of an antique {name} in an artist's studio at sunset
+tv_remote;2;A photo of a shiny {name} on a bed in the morning
+tv_remote;3;A photo of a broken {name} under a sofa in dim lighting
+tv_remote;4;A photo of a colorful {name} on a kitchen counter in the afternoon
+tv_remote;5;A photo of a waterproof {name} by a pool at twilight
+tv_remote;6;A photo of a dusty {name} on a wooden table in the evening
+tv_remote;7;A photo of a large {name} on a car dashboard in misty weather at dawn
+tv_remote;8;A photo of an old-fashioned {name} in a cluttered living room at night
+tv_remote;9;A photo of a modern {name} in a sunny garden at noon
+tv_remote;10;A photo of a small {name} under harsh fluorescent lights in the evening
+wine_glass;1;A photo of a glamorous {name} by the poolside at a resort under a cloudy sky during the afternoon.
+wine_glass;2;A photo of a rustic {name} on an outdoor bench in a vineyard in the late afternoon.
+wine_glass;3;A photo of an artisanal {name} on a shelf in a quaint cottage during spring.
+wine_glass;4;A photo of a minimalist {name} on a terrace in a mountain resort at sunrise.
+wine_glass;5;A photo of a clear {name} on a marble countertop in a modern kitchen at twilight.
+wine_glass;6;A photo of a delicate {name} by the fireplace in a cabin during winter.
+wine_glass;7;A photo of a sparkling {name} near the beach at sunset.
+wine_glass;8;A photo of a classic {name} on a table set for a festive dinner in a dining room in the evening.
+wine_glass;9;A photo of a modern {name} in a chic city restaurant at night.
+wine_glass;10;A photo of a sleek {name} on a balcony with a cityscape in the background at dusk.
