@@ -59,7 +59,20 @@ user_content_normal = "Create prompts for me that have the following structure:\
                       "'a photo of a car' (no optional)\n\n" \
                       "If you use adjectives, they should be visual. So don't use something like 'interesting'.\n" \
                       "Also vary the number of optionals that you use.\n\n" \
-                      "Can you give me {num_prompts} prompts of this structure for class {name} please"
+                      "Can you give me {num_prompts} prompts of this structure for class {name} please."
+
+user_content_reduced = "Create prompts for me that have the following structure:\n" \
+                      "a photo of a [adjective] <classname> [location and/or weather preposition] [weather] [location] [time of day with preposition]\n\n" \
+                      "The <classname> is replaced with the actual classname, e.g. 'car'\n" \
+                      "All the attributes in [] are optionals.\n" \
+                      "Also vary the number of optionals that you use.\n\n" \
+                      "Can you give me {num_prompts} prompts of this structure for class {name} please."
+
+user_content_long_1 = "Create prompts for me that have the following structure:\n" \
+                      "a photo of a [adjective] <classname> [location and/or weather preposition] [weather] [location] [time of day with preposition]\n\n" \
+                      "The <classname> is replaced with the actual classname, e.g. 'car'\n" \
+                      "All the attributes in [] are optionals.\n" \
+                      "Can you give me {num_prompts} prompts of this structure for class {name} please."
 
 user_content_edge_cases = "Create prompts for me that have the following structure:\n" \
                           "a photo of a <classname> [uncommon location]\n\n" \
@@ -72,7 +85,8 @@ user_content_edge_cases = "Create prompts for me that have the following structu
                           "Can you give me {num_prompts} prompts of this structure for class {name} please."
 
 user_content_temp = {
-    "normal": user_content_normal,
+    # "normal": user_content_normal,
+    "normal": user_content_reduced,
     "edge_cases": user_content_edge_cases
 }
 
@@ -359,9 +373,9 @@ if __name__ == '__main__':
 
     parser.add_argument("--outdir", type=str, default="prompts")
     parser.add_argument("--out-filename", type=str, default="prompts.csv")
-    parser.add_argument("--model", type=str, default="gpt-4-turbo",
+    parser.add_argument("--model", type=str, default="gpt-4o",
                         choices=["meta-llama/Llama-2-7b-chat-hf", "meta-llama/Llama-2-13b-chat-hf", "gpt-3.5-turbo",
-                                 "gpt-4-turbo"])
+                                 "gpt-4-turbo", "gpt-4o"])
     parser.add_argument("--prompts-per-class", type=int, default=10)
     parser.add_argument("--dataset", type=str, default="coco", choices=["coco", "coco_extension", "road_sign", "focus"])
     # --content is only active for llama models
