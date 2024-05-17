@@ -85,8 +85,7 @@ user_content_edge_cases = "Create prompts for me that have the following structu
                           "Can you give me {num_prompts} prompts of this structure for class {name} please."
 
 user_content_temp = {
-    # "normal": user_content_normal,
-    "normal": user_content_reduced,
+    "normal": user_content_normal,
     "edge_cases": user_content_edge_cases
 }
 

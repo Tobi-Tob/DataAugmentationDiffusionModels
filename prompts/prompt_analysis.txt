@@ -1,0 +1,35 @@
+Long prompts:
+
+file: coco_extension/prompts_gpt4_long_1.csv
+Found 23 classes, 230 prompts and 3165 words.
+
+file: coco_extension/prompts_gpt4_long_2.csv
+Found 23 classes, 230 prompts and 3130 words.
+
+file: coco_extension/prompts_gpt4_long_3.csv
+Found 23 classes, 230 prompts and 2966 words.
+
+
+--------------------------------------
+Mean word count: 3087.0
+Standard Deviation is: 86.74483654181768
+
+==================================================
+Varying number of optinals:
+
+file: coco_extension/prompts_gpt4.csv
+Found 23 classes, 230 prompts and 2281 words.
+
+file: coco_extension/prompts_gpt4_2.csv
+Found 23 classes, 230 prompts and 2202 words.
+
+file: coco_extension/prompts_gpt4_3.csv
+Found 23 classes, 230 prompts and 2157 words.
+
+
+--------------------------------------
+Mean word count: 2213.3333333333335
+Standard Deviation is: 51.253184182925544
+
+>>>>>>>>>
+Long prompts have 3087 (83,7) / 2213 (51,3) = 1,4 times as many words as prompts with varying number of optionals.
