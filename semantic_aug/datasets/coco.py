@@ -126,6 +126,8 @@ class COCODataset(FewShotDataset):
                    'toaster', 'sink', 'refrigerator', 'book', 'clock', 'vase',
                    'scissors', 'teddy bear', 'hair drier', 'toothbrush']
 
+    class_names = ['bench', 'traffic light']
+
     num_classes: int = len(class_names)
 
     def __init__(self, *args, split: str = "train", seed: int = 0,

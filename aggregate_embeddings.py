@@ -51,8 +51,10 @@ if __name__ == "__main__":
                 std_dev_tensors = [tensor * std_dev for tensor, std_dev in zip(noise_tensors, args.std_deviation)]
                 augmented_tensors = [original_tensor + std_dev_tensor for std_dev_tensor in std_dev_tensors]
                 base_key = key[key.find("<") + 1:key.find(">")]
+                print("base key:", base_key)
                 merged_dict_2.update(
                     {f"<{base_key}_{aug}>": tensor for aug, tensor in zip(args.std_deviation, augmented_tensors)})
+                print("merged_dict_2.keys():", merged_dict_2.keys())
             merged_dict = merged_dict_2
 
         target_path = args.embed_path.format(dataset=args.dataset, seed=seed, examples_per_class=examples_per_class)
