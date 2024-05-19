@@ -19,6 +19,7 @@ if __name__ == "__main__":
     python aggregate_embeddings.py --num-trials 1 --examples-per-class 2 --dataset "coco_extension" --input-path "./fine-tuned"
     python aggregate_embeddings.py --num-trials 1 --examples-per-class 2 --dataset "focus" --input-path "./fine-tuned"
     python aggregate_embeddings.py --seeds 1 2 --examples-per-class 2 4 8 --dataset "coco_extension" --input-path "./fine-tuned"
+    python aggregate_embeddings.py --seeds 0 --examples-per-class 8 --dataset "coco" --augment-embeddings True --input-path "./fine-tuned_PRESENTATION" --embed-path "tokens/{dataset}-tokens/noise/{dataset}-{seed}-{examples_per_class}.pt"
     '''
 
     parser = argparse.ArgumentParser("Merge token files")
