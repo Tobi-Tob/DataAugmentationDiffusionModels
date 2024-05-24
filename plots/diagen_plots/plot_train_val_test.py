@@ -28,7 +28,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser("Plot Accuracy")
 
     parser.add_argument("--dirs", nargs="+", type=str,
-                        default=["coco_extension_2epc", "coco_extension_4epc", "coco_extension_8epc"])
+                        default=["coco_2epc", "coco_4epc", "coco_8epc"])
 
     args = parser.parse_args()
     absolut_result_dir = find_results_dir() # Looking for directory named RESULTS
