@@ -36,7 +36,7 @@ def copy_image(src_path, dst_path):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser("Few-Shot Baseline")
+    parser = argparse.ArgumentParser("COCO dataset images sorter")
 
     parser.add_argument("--coco-dir", type=str, default=r"/data/vilab06/coco2017")
     parser.add_argument("--save-dir", type=str, default=r"/data/vilab06/coco_sorted")
