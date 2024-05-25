@@ -79,7 +79,7 @@ if __name__ == '__main__':
 
         # Copy every image to the new path until --limit is reached (if limit given)
         for j, img in tqdm(enumerate(class_to_images[class_name]), desc=f"Copying {class_name}"):
-            if j < args.limit:
+            if args.limit is None or j < args.limit:
                 # Always include leading zeros so that the name contains 12 digits
                 img_save_path = os.path.join(save_class_dir, f"{j:012}.png")
                 copy_image(img, img_save_path)
