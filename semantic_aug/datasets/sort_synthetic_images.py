@@ -76,7 +76,7 @@ if __name__ == '__main__':
             if re.match(r'label_.*-.*-.*\.png', file):
                 class_idx = int(file.split('_')[1].split('-')[0])
                 if args.numeric_dirs:
-                    class_dir = class_idx
+                    class_dir = str(class_idx)
                 else:
                     class_dir = class_names[class_idx]
 
