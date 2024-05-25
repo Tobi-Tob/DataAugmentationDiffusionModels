@@ -84,6 +84,6 @@ if __name__ == '__main__':
                 os.makedirs(class_dir_full, exist_ok=True)
                 # Move or copy image to new destination
                 if args.move_images:
-                    move_image(file, os.path.join(class_dir_full, file))
+                    move_image(os.path.join(source_dir, file), os.path.join(class_dir_full, file))
                 else:
-                    copy_image(file, os.path.join(class_dir_full, file))
+                    copy_image(os.path.join(source_dir, file), os.path.join(class_dir_full, file))
