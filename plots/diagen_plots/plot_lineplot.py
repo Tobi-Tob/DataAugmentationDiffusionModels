@@ -11,29 +11,30 @@ import argparse
 # Generate some example data
 # ds_size = np.array([2, 4, 8])
 all_methods = ["no-da", "paper", "noise_llm_filter", "real_guidance"]
-all_splits = ["test", "test_uncommon"]
+all_splits = ["test", "test_uncommon", "val"]
 all_datasets = ["coco", "coco_extension", "road_sign", "focus"]
 DEFAULT_OUT_DIR = r'plot/ablation_study'
 
 font_title = {'family': 'Times New Roman',
               'weight': 'bold',
-              'size': 28,
+              'size': 34,  # 28
               }
 
 font_axis = {'family': 'Times New Roman',
               'weight': 'bold',
-              'size': 24,
+              'size': 30,  # 24
               }
 
 font_legend = {'family': 'Times New Roman',
               'weight': 'bold',
-              'size': 22,
+              'size': 28,  # 22
               }
 
 
 def get_method_name(name: str):
     if name == "no-da":
-        return "Standard Augmentations"
+        # return "Standard Augmentations"
+        return "Std. Aug."
     elif name == "paper":
         return "DA-Fusion"
     elif name == "noise_llm_filter":
@@ -60,6 +61,32 @@ def get_plot_title(name: str, split: str):
                          f"{name} (dataset) and {split} (split)!")
 
 
+def get_mean_coco(method_name: str, epc: int):
+    """
+    This function returns the mean result of all evaluated seeds of a method w.r.t. of MSCOCO dataset.
+    """
+    best_acc = 0
+    if method_name == 'paper':  # we manually extracted the values from da fusion paper
+        test_dir = os.path.join("../../RESULTS", f"coco_{epc}epc", f"{method_name}", "logs")
+        file_path = os.path.join(test_dir, f"results_coco_from_dafusion_paper_{epc}epc.csv")
+        with open(file_path, newline='') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                if row['metric'] == 'Mean Accuracy':
+                    best_acc = float(row['value'])
+    else:
+        test_dir = os.path.join("../../RESULTS", f"coco_{epc}epc", f"{method_name}", "logs")
+        for file in os.listdir(test_dir):
+            file_path = os.path.join(test_dir, file)
+            if file.endswith(".csv"):
+                with open(file_path, newline='') as csvfile:
+                    reader = csv.DictReader(csvfile)
+                    for row in reader:
+                        if row['metric'] == 'Accuracy' and row['split'] == 'Validation' and float(row['value']) > best_acc:
+                            best_acc = float(row['value'])
+    return best_acc
+
+
 def get_mean(dataset_name: str, method_name: str, epc: int, split: str):
     """
     This function returns the mean result of all evaluated seeds of a method w.r.t. the given dataset.
@@ -84,7 +111,10 @@ def get_mean(dataset_name: str, method_name: str, epc: int, split: str):
 def get_means_for_method(dataset_name: str, method: str, split, ds_size):
     method_means = []
     for epc in ds_size:
-        mean_of_epc = get_mean(dataset_name, method, epc, split)
+        if dataset_name == "coco":
+            mean_of_epc = get_mean_coco(method, epc)
+        else:
+            mean_of_epc = get_mean(dataset_name, method, epc, split)
         method_means.append(mean_of_epc)
     return method_means
 
@@ -128,7 +158,7 @@ if __name__ == "__main__":
     plt.figure(figsize=(8, 6))
 
     colors = ["#235789", "#F86624", "#7E007B", "grey"]
-    linestyles = ['-', '--', ':', '-.']
+    linestyles = [':', '--', '-', '-.']
     value_dict = get_mean_results(args.dataset, args.methods, args.split, args.ds_sizes)
     for i, m in enumerate(args.methods):
         c = colors[i] if i < len(colors) else random_color()
@@ -148,7 +178,7 @@ if __name__ == "__main__":
     for label in (plt.gca().get_xticklabels() + plt.gca().get_yticklabels()):
         label.set_fontname('Times New Roman')
         label.set_weight('bold')
-        label.set_size(20)
+        label.set_size(26)  # 20
 
     # Adding grid, legend and tweaking the axes for better appearance
     plt.grid(True, which="both", ls=":", linewidth=3)
@@ -158,7 +188,7 @@ if __name__ == "__main__":
     # Save the plot as a file
     if not os.path.exists(args.out_dir):
         os.makedirs(args.out_dir)
-    plt.savefig(os.path.join(args.out_dir, f"lineplot_{args.dataset}_{args.split}.pdf"), format='pdf')
+    plt.savefig(os.path.join(args.out_dir, f"lineplot_{args.dataset}_{args.split}_bigger.pdf"), format='pdf')
 
     # Show the plot
     plt.show()

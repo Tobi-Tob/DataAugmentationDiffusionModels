@@ -14,7 +14,7 @@ if __name__ == "__main__":
     # TODO: enable argparse
     category1 = "DA-Fusion"
     category2 = "DIAGen"
-    classes = ["car", "bottle", "bicycle", "bench"]  # len(classes) = num_img_per_col
+    classes = ["car", "bottle", "bicycle"]  # , "bench"]  # len(classes) = num_img_per_col
     num_img_per_row = 3
     dir1 = "da-fusion"
     dir2 = "diagen"
@@ -81,5 +81,5 @@ if __name__ == "__main__":
     plt.subplots_adjust(left=0, right=1, bottom=0, top=1)
 
     # Save the figure
-    plt.savefig(f'{save_path}/diversity_plot.pdf')
+    plt.savefig(f'{save_path}/diversity_plot_{len(classes)}.pdf')
     plt.show()
