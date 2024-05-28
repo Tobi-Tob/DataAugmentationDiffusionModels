@@ -1,0 +1,2 @@
+,seed,examples_per_class,epoch,value,metric,split
+0,0-7,2,0,0.528,Mean Accuracy,Validation

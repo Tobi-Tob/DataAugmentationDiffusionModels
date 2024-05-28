@@ -31,14 +31,18 @@ font_legend = {'family': 'Times New Roman',
               }
 
 
-def get_method_name(name: str):
-    if name == "no-da":
+def get_method_name(name: str, dataset: str):
+    if name == "no-da" and dataset == "coco":
+        return "Std. Aug.$*$"  # $^*$
+    elif name == "paper" and dataset == "coco":
+        return "DA-Fusion$*$"
+    elif name == "no-da":
         # return "Standard Augmentations"
         return "Std. Aug."
     elif name == "paper":
         return "DA-Fusion"
     elif name == "noise_llm_filter":
-        return "DIAGen"
+        return "DIAGen (ours)"
     elif name == "real_guidance":
         return "Real Guidance"
     else:
@@ -47,7 +51,7 @@ def get_method_name(name: str):
 
 def get_plot_title(name: str, split: str):
     if split == "test_uncommon" and name == "coco_extension":
-        return 'Uncommon Scenarios'
+        return 'Uncommon Settings'
     elif split == "test" and name == "coco_extension":
         return 'COCO Extension'
     elif name == "focus":
@@ -66,7 +70,7 @@ def get_mean_coco(method_name: str, epc: int):
     This function returns the mean result of all evaluated seeds of a method w.r.t. of MSCOCO dataset.
     """
     best_acc = 0
-    if method_name == 'paper':  # we manually extracted the values from da fusion paper
+    if method_name in ['paper', 'no-da']:  # we manually extracted the values from da fusion paper
         test_dir = os.path.join("../../RESULTS", f"coco_{epc}epc", f"{method_name}", "logs")
         file_path = os.path.join(test_dir, f"results_coco_from_dafusion_paper_{epc}epc.csv")
         with open(file_path, newline='') as csvfile:
@@ -163,7 +167,7 @@ if __name__ == "__main__":
     for i, m in enumerate(args.methods):
         c = colors[i] if i < len(colors) else random_color()
         ls = linestyles[i % (len(linestyles))]
-        plt.plot(args.ds_sizes, value_dict[m], label=get_method_name(m), color=c, linewidth=6, linestyle=ls)
+        plt.plot(args.ds_sizes, value_dict[m], label=get_method_name(m, args.dataset), color=c, linewidth=6, linestyle=ls)
 
     # Adding labels
     plt.xlabel('Examples Per Class (Size of Dataset)', fontdict=font_axis)
