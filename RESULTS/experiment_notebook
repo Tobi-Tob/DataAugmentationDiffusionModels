@@ -150,3 +150,26 @@ python train_classifier.py --dataset "coco" --examples-per-class 8 --seeds 0 --s
 DIAGen COCO 19.05.24
 python train_classifier.py --dataset "coco" --examples-per-class 8 --seeds 0 --strength 0.7 --guidance-scale 15 --synthetic-probability 0.7 --use-embedding-noise 1 --use-generated-prompts 1 --prompt-path "prompts/coco/prompts_gpt4.csv" --synthetic_filter "use" --method "DIAGen" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 1
 
+
+Synthetic prob ablation:
+DIAGen focus 21-07.24
+python train_classifier.py --dataset "focus" --examples-per-class 2 4 8 --seeds 0 --strength 0.7 --guidance-scale 15 --synthetic-probability 0.5 --use-embedding-noise 1 --use-generated-prompts 1 --prompt-path "prompts/focus/prompts_gpt4.csv" --synthetic_filter "use" --method "DIAGen_a05" --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 0
+
+DIAGen focus 21-07.24
+python train_classifier.py --dataset "focus" --examples-per-class 2 4 8 --seeds 0 --strength 0.7 --guidance-scale 15 --synthetic-probability 0.9 --use-embedding-noise 1 --use-generated-prompts 1 --prompt-path "prompts/focus/prompts_gpt4.csv" --synthetic_filter "use" --method "DIAGen_a09" --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 1
+
+DIAGen coco_extension 21-07.24
+python train_classifier.py --dataset "coco_extension" --examples-per-class 2 4 8 --seeds 0 --strength 0.7 --guidance-scale 15 --synthetic-probability 0.5 --use-embedding-noise 1 --use-generated-prompts 1 --prompt-path "prompts/coco_extension/prompts_gpt4.csv" --synthetic_filter "use" --method "DIAGen_a05" --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 2
+
+DIAGen coco_extension 21-07.24
+python train_classifier.py --dataset "coco_extension" --examples-per-class 2 4 8 --seeds 0 --strength 0.7 --guidance-scale 15 --synthetic-probability 0.9 --use-embedding-noise 1 --use-generated-prompts 1 --prompt-path "prompts/coco_extension/prompts_gpt4.csv" --synthetic_filter "use" --method "DIAGen_a09" --eval_on_test_set "test" --num-synthetic 10 --num-epochs 50 --iterations-per-epoch 200 --device 3
+
+
+
+
+
+
+
+
+
+
