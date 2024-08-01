@@ -1,7 +1,6 @@
 import os.path
 import csv
 import matplotlib.pyplot as plt
-import numpy as np
 import random
 import argparse
 
@@ -10,7 +9,8 @@ import argparse
 
 # Generate some example data
 # ds_size = np.array([2, 4, 8])
-all_methods = ["no-da", "paper", "noise_llm_filter", "real_guidance"]
+all_methods = ["no-da", "paper", "noise_llm_filter", "real_guidance", "baseline",
+               "DIAGen_a05",  "DIAGen_a07", "DIAGen_a09", "DIAGen_s05",  "DIAGen_s07", "DIAGen_s09"]
 all_splits = ["test", "test_uncommon", "val"]
 all_datasets = ["coco", "coco_extension", "road_sign", "focus"]
 DEFAULT_OUT_DIR = r'plot/ablation_study'
@@ -41,8 +41,22 @@ def get_method_name(name: str, dataset: str):
         return "Std. Aug."
     elif name == "paper":
         return "DA-Fusion"
+    elif name == "baseline":
+        return "Paper w 0.7"
     elif name == "noise_llm_filter":
         return "DIAGen (ours)"
+    elif name == "DIAGen_a05":
+        return "DIAGen_a0.5"
+    elif name == "DIAGen_a07":
+        return "DIAGen_a0.7"
+    elif name == "DIAGen_a09":
+        return "DIAGen_a0.9"
+    elif name == "DIAGen_s05":
+        return "DIAGen_s0.5"
+    elif name == "DIAGen_s07":
+        return "DIAGen_s0.7"
+    elif name == "DIAGen_s09":
+        return "DIAGen_s0.9"
     elif name == "real_guidance":
         return "Real Guidance"
     else:
@@ -91,39 +105,46 @@ def get_mean_coco(method_name: str, epc: int):
     return best_acc
 
 
-def get_mean(dataset_name: str, method_name: str, epc: int, split: str):
+def get_mean(dataset_name: str, method_name: str, epc: int, split: str, seeds=None):
     """
-    This function returns the mean result of all evaluated seeds of a method w.r.t. the given dataset.
+    This function returns the mean result of the given seeds (or all if seed=None) of a method w.r.t. the given dataset.
     The path of the results are searched at "RESULTS/{dataset}_{epc}epc/{method}/{split}"
     """
     if split not in ['test', 'test_uncommon']:
         raise ValueError("The split parameter can only handle 'test' and 'test_uncommon'")
     test_dir = os.path.join("../../RESULTS", f"{dataset_name}_{epc}epc", f"{method_name}", f"{split}")
     sum_of_epc = 0
+    # only use the result files specified by seed parameter
+    use_files = []
     for file in os.listdir(test_dir):
-        file_path = os.path.join(test_dir, file)
-        if file.endswith(".csv"):
-            with open(file_path, newline='') as csvfile:
-                reader = csv.DictReader(csvfile)
-                for row in reader:
-                    if row['metric'] == 'Mean Accuracy':
-                        sum_of_epc += float(row['value'])
-                        break
-    return sum_of_epc / len(os.listdir(test_dir))
+        # file[-7] indicates the seed that was used in the run
+        if seeds is None or int(file[-7]) in seeds:
+            file_path = os.path.join(test_dir, file)
+            if file.endswith(".csv"):
+                use_files.append(file_path)
+    # read accuracy of specified files and average it at the end
+    for file_path in use_files:
+        with open(file_path, newline='') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                if row['metric'] == 'Mean Accuracy':
+                    sum_of_epc += float(row['value'])
+                    break  # stop reading the rows of the current file
+    return sum_of_epc / len(use_files)
 
 
-def get_means_for_method(dataset_name: str, method: str, split, ds_size):
+def get_means_for_method(dataset_name: str, method: str, split, ds_size, seeds):
     method_means = []
     for epc in ds_size:
         if dataset_name == "coco":
             mean_of_epc = get_mean_coco(method, epc)
         else:
-            mean_of_epc = get_mean(dataset_name, method, epc, split)
+            mean_of_epc = get_mean(dataset_name, method, epc, split, seeds)
         method_means.append(mean_of_epc)
     return method_means
 
 
-def get_mean_results(dataset_name: str, methods, split: str, ds_size):
+def get_mean_results(dataset_name: str, methods, split: str, ds_size, seeds):
     """
     This function returns a dictionary containing:
     -> keys: methods that are defined above
@@ -132,7 +153,7 @@ def get_mean_results(dataset_name: str, methods, split: str, ds_size):
     """
     mean_values = {}
     for method in methods:
-        method_means = get_means_for_method(dataset_name, method, split, ds_size)
+        method_means = get_means_for_method(dataset_name, method, split, ds_size, seeds)
         mean_values[method] = method_means
     return mean_values
 
@@ -154,6 +175,10 @@ if __name__ == "__main__":
     parser.add_argument("--split", type=str, default="test", choices=all_splits)
     parser.add_argument("--ds_sizes", type=int, nargs="+", default=[2, 4, 8]
                         , help="Dataset Sizes - results must be present for all of them!")
+    parser.add_argument("--seeds", type=int, nargs="+", default=None
+                        , help="Only plot average of the given seed accuracies "
+                               "- use None to include all available results"
+                               "- if MSCOCO dataset is used --seeds is set to None always!")
     parser.add_argument("--out-dir", type=str, default=DEFAULT_OUT_DIR)
 
     args = parser.parse_args()
@@ -163,7 +188,7 @@ if __name__ == "__main__":
 
     colors = ["#235789", "#F86624", "#7E007B", "grey"]
     linestyles = [':', '--', '-', '-.']
-    value_dict = get_mean_results(args.dataset, args.methods, args.split, args.ds_sizes)
+    value_dict = get_mean_results(args.dataset, args.methods, args.split, args.ds_sizes, args.seeds)
     for i, m in enumerate(args.methods):
         c = colors[i] if i < len(colors) else random_color()
         ls = linestyles[i % (len(linestyles))]
