@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from plot_lineplot import get_mean_results_for_methods, get_means_for_method, font_title, font_axis
 
-all_methods = ["no-da", "paper", "noise", "llm", "noise_llm", "noise_llm_filter"]
+all_methods = ["no-da", "paper", "baseline", "noise", "llm", "noise_llm", "noise_llm_filter",
+               "DIAGen_a05",  "DIAGen_a07", "DIAGen_a09", "DIAGen_s05",  "DIAGen_s07", "DIAGen_s09"]
 all_splits = ["test"]
 all_datasets = ["coco_extension", "road_sign", "focus"]
 DEFAULT_OUT_DIR = r'plot/ablation_study'
@@ -16,7 +17,22 @@ font_legend = {'family': 'Times New Roman',
 
 
 def get_method_name(name: str):
-    if name == "llm":
+    if name == "noise_llm_filter":
+        # return "DIAGen (ours)"
+        return r"DIAGen $t_0 =$0.7"
+    elif name == "DIAGen_a05":
+        return r"DIAGen $\alpha =$0.5"
+    elif name == "DIAGen_a07":
+        return r"DIAGen $\alpha =$0.7"
+    elif name == "DIAGen_a09":
+        return r"DIAGen $\alpha =$0.9"
+    elif name == "DIAGen_s05":
+        return r"DIAGen $t_0 =$0.5"
+    elif name == "DIAGen_s07":
+        return r"DIAGen $t_0 =$0.7"
+    elif name == "DIAGen_s09":
+        return r"DIAGen $t_0 =$0.9"
+    elif name == "llm":
         return "LLM Prompts"
     elif name == "noise":
         return "Embedding Noise"
@@ -25,11 +41,16 @@ def get_method_name(name: str):
     elif name == "filter":
         return "Our Best (LLM) with Filter"
     elif name == "noise_llm_filter":
-        return "Noise + LLM (+ Filter \u2191)"
+        #return "Noise + LLM (+ Filter \u2191)"
+        return "Noise + LLM + Filter"
+    elif name == "diagen":
+        return r"DIAGen $t_0=$0.7"
     elif name == "baseline":
-        return "Paper with .7"
+        return r"DA-Fusion $t_0=$0.7"
+    elif name == "paper":
+        return "DA-Fusion"
     else:
-        raise ValueError("method must be within 'llm', 'noise', 'noise_llm', 'filter'!")
+        raise ValueError(f"method must be within 'llm', 'noise', 'noise_llm', 'filter', but was {name}!")
 
 
 def get_dataset_name(name: str):
@@ -74,6 +95,7 @@ if __name__ == "__main__":
                         help="Set ylim manually to make the plots more comparable. Use None to set it automatically."
                              "Ensure to give a list of two floats for lower and upper limit")
     parser.add_argument("--out-dir", type=str, default=DEFAULT_OUT_DIR)
+    parser.add_argument("--title", type=str, default=None)
 
     args = parser.parse_args()
 
@@ -130,14 +152,17 @@ if __name__ == "__main__":
     # colors = ["orange", "blue", "purple", "green"]  # max four bars
     colors = ["#235789", "#F86624", "#7E007B"]
     arr = np.linspace(-0.5 * width + 0.5 * bar_width, 0.5 * width - 0.5 * bar_width, num=num_bars, endpoint=True)
-    if len(args.datasets) > 1:  # plot gains of one method for multiple datasets over the baseline results in this datas.
+    if len(args.datasets) > 1:  # plot gains of one method for multiple datasets over the baseline results in this dataset
         for offset, dataset, color in zip(arr, args.datasets, colors):
             bars.append(
                 ax.bar(x + offset, dataset_hist[dataset], bar_width, label=get_dataset_name(dataset), color=color))
     else:  # plot gains of multiple methods over baseline within one method
         for offset, method, color in zip(arr, args.methods, colors):
+            m_name = method
+            if m_name == "noise_llm_filter":
+                m_name = "diagen"
             bars.append(
-                ax.bar(x + offset, dataset_hist[method], bar_width, label=get_method_name(method), color=color))
+                ax.bar(x + offset, dataset_hist[method], bar_width, label=get_method_name(m_name), color=color))
 
     # Set the limits for the y-axis. If None, set it automatically
     if args.ylim is not None:
@@ -147,10 +172,13 @@ if __name__ == "__main__":
     plt.grid(True, axis="y", which="both", ls=":", linewidth=2)
     ax.set_xlabel('Examples per Class (Dataset)', fontdict=font_axis)
     ax.set_ylabel('Accuracy Gain (Test)', fontdict=font_axis)
-    if len(args.datasets) > 1:
-        ax.set_title(f'{get_method_name(args.methods[0])}', fontdict=font_title)
+    if args.title is None:
+        if len(args.datasets) > 1:
+            ax.set_title(f'{get_method_name(args.methods[0])}', fontdict=font_title)
+        else:
+            ax.set_title(f'{get_dataset_name(args.datasets[0])}', fontdict=font_title)
     else:
-        ax.set_title(f'{get_method_name(args.datasets[0])}', fontdict=font_title)
+        ax.set_title(args.title, fontdict=font_title)
     ax.set_xticks(x)
     ax.set_xticklabels(args.ds_sizes)
     # Setting the font for the tick labels
@@ -161,6 +189,8 @@ if __name__ == "__main__":
     plt.legend(prop=font_legend)  # , loc='lower right'
     plt.tight_layout()
 
+    if not os.path.exists(args.out_dir):
+        os.makedirs(args.out_dir)
     if len(args.datasets) > 1:
         plt.savefig(os.path.join(args.out_dir,
                                  f'ablation_{args.split}_{args.methods[0]}_gg_{args.baseline}.pdf'), format='pdf')
