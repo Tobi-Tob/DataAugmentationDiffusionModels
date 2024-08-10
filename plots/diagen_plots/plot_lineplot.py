@@ -3,6 +3,7 @@ import csv
 import matplotlib.pyplot as plt
 import random
 import argparse
+import numpy as np
 
 # Assuming the data follows a similar trend as seen in the image, we can generate a similar plot.
 # The x-axis seems to be a logarithmic scale of examples per class, and the y-axis is accuracy.
@@ -17,17 +18,17 @@ DEFAULT_OUT_DIR = r'plot/ablation_study'
 
 font_title = {'family': 'Times New Roman',
               'weight': 'bold',
-              'size': 34,  # 28
+              'size': 28,  # 34
               }
 
 font_axis = {'family': 'Times New Roman',
               'weight': 'bold',
-              'size': 30,  # 24
+              'size': 24,  # 30
               }
 
 font_legend = {'family': 'Times New Roman',
               'weight': 'bold',
-              'size': 28,  # 22
+              'size': 22,  # 28
               }
 
 
@@ -44,19 +45,21 @@ def get_method_name(name: str, dataset: str):
     elif name == "baseline":
         return "Paper w 0.7"
     elif name == "noise_llm_filter":
-        return "DIAGen (ours)"
+        # return "DIAGen (ours)"
+        # return r"DIAGen $t_0 =$0.7"
+        return r"DIAGen $\alpha =$0.7"
     elif name == "DIAGen_a05":
-        return "DIAGen_a0.5"
+        return r"DIAGen $\alpha =$0.5"
     elif name == "DIAGen_a07":
-        return "DIAGen_a0.7"
+        return r"DIAGen $\alpha =$0.7"
     elif name == "DIAGen_a09":
-        return "DIAGen_a0.9"
+        return r"DIAGen $\alpha =$0.9"
     elif name == "DIAGen_s05":
-        return "DIAGen_s0.5"
+        return r"DIAGen $t_0 =$0.5"
     elif name == "DIAGen_s07":
-        return "DIAGen_s0.7"
+        return r"DIAGen $t_0 =$0.7"
     elif name == "DIAGen_s09":
-        return "DIAGen_s0.9"
+        return r"DIAGen $t_0 =$0.9"
     elif name == "real_guidance":
         return "Real Guidance"
     else:
@@ -118,7 +121,8 @@ def get_mean(dataset_name: str, method_name: str, epc: int, split: str, seeds=No
     use_files = []
     for file in os.listdir(test_dir):
         # file[-7] indicates the seed that was used in the run
-        if seeds is None or int(file[-7]) in seeds:
+        # TODO: print warning if not all specified seeds are found
+        if seeds is None or file[-7].isdigit() and int(file[-7]) in seeds:
             file_path = os.path.join(test_dir, file)
             if file.endswith(".csv"):
                 use_files.append(file_path)
@@ -144,16 +148,16 @@ def get_means_for_method(dataset_name: str, method: str, split, ds_size, seeds):
     return method_means
 
 
-def get_mean_results(dataset_name: str, methods, split: str, ds_size, seeds):
+def get_mean_results_for_methods(dataset_name: str, methods, split: str, ds_size, seeds):
     """
     This function returns a dictionary containing:
     -> keys: methods that are defined above
-    -> values: list of mean values for each example per class results
+    -> values: list of mean values for the specified example per class results
     All values are for the given dataset
     """
     mean_values = {}
     for method in methods:
-        method_means = get_means_for_method(dataset_name, method, split, ds_size, seeds)
+        method_means = np.array(get_means_for_method(dataset_name, method, split, ds_size, seeds))
         mean_values[method] = method_means
     return mean_values
 
@@ -188,7 +192,7 @@ if __name__ == "__main__":
 
     colors = ["#235789", "#F86624", "#7E007B", "grey"]
     linestyles = [':', '--', '-', '-.']
-    value_dict = get_mean_results(args.dataset, args.methods, args.split, args.ds_sizes, args.seeds)
+    value_dict = get_mean_results_for_methods(args.dataset, args.methods, args.split, args.ds_sizes, args.seeds)
     for i, m in enumerate(args.methods):
         c = colors[i] if i < len(colors) else random_color()
         ls = linestyles[i % (len(linestyles))]
@@ -217,7 +221,7 @@ if __name__ == "__main__":
     # Save the plot as a file
     if not os.path.exists(args.out_dir):
         os.makedirs(args.out_dir)
-    plt.savefig(os.path.join(args.out_dir, f"lineplot_{args.dataset}_{args.split}_bigger.pdf"), format='pdf')
+    plt.savefig(os.path.join(args.out_dir, f"lineplot_{args.dataset}_{args.split}.pdf"), format='pdf')
 
     # Show the plot
     plt.show()
