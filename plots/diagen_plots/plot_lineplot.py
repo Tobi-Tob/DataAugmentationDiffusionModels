@@ -11,7 +11,8 @@ import numpy as np
 # Generate some example data
 # ds_size = np.array([2, 4, 8])
 all_methods = ["no-da", "paper", "noise_llm_filter", "real_guidance", "baseline",
-               "DIAGen_a05",  "DIAGen_a07", "DIAGen_a09", "DIAGen_s05",  "DIAGen_s07", "DIAGen_s09"]
+               "DIAGen_a05",  "DIAGen_a07", "DIAGen_a09", "DIAGen_s05", "DIAGen_s07", "DIAGen_s09",
+               "DIAGen_g75", "DIAGen_g225"]
 all_splits = ["test", "test_uncommon", "val"]
 all_datasets = ["coco", "coco_extension", "road_sign", "focus"]
 DEFAULT_OUT_DIR = r'plot/ablation_study'
@@ -44,10 +45,11 @@ def get_method_name(name: str, dataset: str):
         return "DA-Fusion"
     elif name == "baseline":
         return "Paper w 0.7"
-    elif name == "noise_llm_filter":
+    elif name == "noise_llm_filter":  # rename this to whatever needs to be in the legend
         # return "DIAGen (ours)"
         # return r"DIAGen $t_0 =$0.7"
-        return r"DIAGen $\alpha =$0.7"
+        # return r"DIAGen $\alpha =$0.7"
+        return r"DIAGen $gs =$15.0"
     elif name == "DIAGen_a05":
         return r"DIAGen $\alpha =$0.5"
     elif name == "DIAGen_a07":
@@ -60,6 +62,10 @@ def get_method_name(name: str, dataset: str):
         return r"DIAGen $t_0 =$0.7"
     elif name == "DIAGen_s09":
         return r"DIAGen $t_0 =$0.9"
+    elif name == "DIAGen_g75":
+        return r"DIAGen $gs =$7.5"
+    elif name == "DIAGen_g225":
+        return r"DIAGen $gs =$22.5"
     elif name == "real_guidance":
         return "Real Guidance"
     else:

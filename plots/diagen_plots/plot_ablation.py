@@ -5,7 +5,8 @@ import numpy as np
 from plot_lineplot import get_mean_results_for_methods, get_means_for_method, font_title, font_axis
 
 all_methods = ["no-da", "paper", "baseline", "noise", "llm", "noise_llm", "noise_llm_filter",
-               "DIAGen_a05",  "DIAGen_a07", "DIAGen_a09", "DIAGen_s05",  "DIAGen_s07", "DIAGen_s09"]
+               "DIAGen_a05",  "DIAGen_a07", "DIAGen_a09", "DIAGen_s05", "DIAGen_s07", "DIAGen_s09",
+               "DIAGen_g75", "DIAGen_g225"]
 all_splits = ["test"]
 all_datasets = ["coco_extension", "road_sign", "focus"]
 DEFAULT_OUT_DIR = r'plot/ablation_study'
@@ -32,6 +33,10 @@ def get_method_name(name: str):
         return r"DIAGen $t_0 =$0.7"
     elif name == "DIAGen_s09":
         return r"DIAGen $t_0 =$0.9"
+    elif name == "DIAGen_g75":
+        return r"DIAGen $gs =$7.5"
+    elif name == "DIAGen_g225":
+        return r"DIAGen $gs =$22.5"
     elif name == "llm":
         return "LLM Prompts"
     elif name == "noise":
