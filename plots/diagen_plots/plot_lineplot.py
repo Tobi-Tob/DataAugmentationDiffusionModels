@@ -76,7 +76,8 @@ def get_plot_title(name: str, split: str):
     if split == "test_uncommon" and name == "coco_extension":
         return 'Uncommon Settings'
     elif split == "test" and name == "coco_extension":
-        return 'COCO Extension'
+        # return 'COCO Extension'
+        return 'Custom COCO'
     elif name == "focus":
         return 'FOCUS'
     elif name == "road_sign":

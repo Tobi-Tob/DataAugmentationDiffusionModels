@@ -60,7 +60,8 @@ def get_method_name(name: str):
 
 def get_dataset_name(name: str):
     if name == "coco_extension":
-        return "COCO Extension"
+        # return "COCO Extension"
+        return "Custom COCO"
     elif name == "focus":
         return "FOCUS"
     elif name == "road_sign":
