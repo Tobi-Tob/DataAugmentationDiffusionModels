@@ -44,10 +44,11 @@ def get_method_name(name: str):
     elif name == "noise_llm":
         return "Emb.Noise + LLM Pr."
     elif name == "filter":
-        return "Our Best (LLM) with Filter"
+        return "Our Best (LLM) with Weighting"
     elif name == "noise_llm_filter":
         #return "Noise + LLM (+ Filter \u2191)"
-        return "Noise + LLM + Filter"
+        # return "Noise + LLM + Filter"
+        return "Noise + LLM + Weighting"
     elif name == "diagen":
         return r"DIAGen $t_0=$0.7"
     elif name == "baseline":
