@@ -10,16 +10,11 @@ DEFAULT_NOISE_EMBED_PATH = "{dataset}-tokens/noise/{dataset}-{seed}-{examples_pe
 
 if __name__ == "__main__":
     '''
-    TL: Step 2:
-    Combines all learned embeddings and writes them in directory coco-tokens
+    Step 2:
+    Combines all learned embeddings into tokens. Also adds tokens with noise if this is set in the params.
 
-    call from terminal:
-    python aggregate_embeddings.py --num-trials 1 --examples-per-class 2 --dataset coco
-    python aggregate_embeddings.py --num-trials 1 --examples-per-class 8 --dataset "road_sign"
-    python aggregate_embeddings.py --num-trials 1 --examples-per-class 2 --dataset "coco_extension" --input-path "./fine-tuned"
-    python aggregate_embeddings.py --num-trials 1 --examples-per-class 2 --dataset "focus" --input-path "./fine-tuned"
-    python aggregate_embeddings.py --seeds 1 2 --examples-per-class 2 4 8 --dataset "coco_extension" --input-path "./fine-tuned"
-    python aggregate_embeddings.py --seeds 0 --examples-per-class 8 --dataset "coco" --augment-embeddings True --input-path "./fine-tuned_PRESENTATION" --embed-path "tokens/{dataset}-tokens/noise/{dataset}-{seed}-{examples_per_class}.pt"
+    example call from terminal:
+    python aggregate_embeddings.py --seeds 0 --examples-per-class 8 --dataset "coco" --augment-embeddings True --input-path "./fine-tuned" --embed-path "tokens/{dataset}-tokens/noise/{dataset}-{seed}-{examples_per_class}.pt"
     '''
 
     parser = argparse.ArgumentParser("Merge token files")

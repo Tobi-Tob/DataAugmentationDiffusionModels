@@ -691,11 +691,11 @@ def main(args):
                 noisy_latents = noise_scheduler.add_noise(latents, noise, timesteps)
 
                 # Get the text embedding for conditioning
-                # TL:encoder_hidden_states = c_theta (containing infos about the new pseudo word?)
+                # encoder_hidden_states = c_theta (containing infos about the new pseudo word)
                 encoder_hidden_states = text_encoder(batch["input_ids"])[0].to(dtype=weight_dtype)
 
                 # Predict the noise residual
-                # TL: Predict the noise added to the batch of training images (in latent space)
+                # Predict the noise added to the batch of training images (in latent space)
                 # based on the noisy latents and the text encodings c_theta
                 model_pred = unet(noisy_latents, timesteps, encoder_hidden_states).sample
 
@@ -712,7 +712,7 @@ def main(args):
                 accelerator.backward(loss)
 
                 optimizer.step()
-                # TL: Update all values (that are not fixed) in the direction that minimizes the currently calculated loss of the batch
+                # Update all values (that are not fixed) in the direction that minimizes the currently calculated loss of the batch
 
                 lr_scheduler.step()
                 optimizer.zero_grad()
@@ -758,29 +758,23 @@ def main(args):
 
 if __name__ == "__main__":
     '''
-    TL: Step 1:
+    Step 1:
     Perform textual inversion to adapt Stable Diffusion to the classes present in our few-shot datasets.
     This implementation is adapted from
     (https://github.com/huggingface/diffusers/blob/main/examples/textual_inversion/textual_inversion.py)
     
-    call from terminal:
-    python fine_tune.py --dataset=coco --output_dir=./ --pretrained_model_name_or_path="CompVis/stable-diffusion-v1-4" --resolution=512 --train_batch_size=4 --lr_warmup_steps=0 --gradient_accumulation_steps=1 --max_train_steps=1000 --learning_rate=5.0e-04 --scale_lr --lr_scheduler="constant" --mixed_precision=fp16 --revision=fp16 --gradient_checkpointing --only_save_embeds --num-trials 8 --examples-per-class 2
-    python fine_tune.py --dataset="road_sign" --output_dir=./ --pretrained_model_name_or_path="CompVis/stable-diffusion-v1-4" --resolution=512 --flip_p=0 --train_batch_size=4 --lr_warmup_steps=0 --gradient_accumulation_steps=1 --max_train_steps=1000 --learning_rate=5.0e-04 --scale_lr --lr_scheduler="constant" --mixed_precision=fp16 --revision=fp16 --gradient_checkpointing --only_save_embeds --num-trials=1 --examples-per-class=8
-    python fine_tune.py --dataset="coco_extension" --output_dir=./ --pretrained_model_name_or_path="CompVis/stable-diffusion-v1-4" --resolution=512 --train_batch_size=4 --lr_warmup_steps=0 --gradient_accumulation_steps=1 --max_train_steps=1000 --learning_rate=5.0e-04 --scale_lr --lr_scheduler="constant" --mixed_precision=fp16 --revision=fp16 --gradient_checkpointing --only_save_embeds --num-trials 1 --examples-per-class 2
-    
-    python fine_tune.py --dataset="road_sign" --output_dir=./ --pretrained_model_name_or_path="CompVis/stable-diffusion-v1-4" --resolution=512 --train_batch_size=4 --lr_warmup_steps=0 --gradient_accumulation_steps=1 --max_train_steps=999 --learning_rate=5.0e-04 --scale_lr --lr_scheduler="constant" --mixed_precision=fp16 --revision=fp16 --gradient_checkpointing --only_save_embeds --flip_p 0 --seeds 0 1 2 --examples-per-class 2 4 8 --device 1
+    example call from terminal:
     python fine_tune.py --dataset="focus" --output_dir=./ --pretrained_model_name_or_path="CompVis/stable-diffusion-v1-4" --resolution=512 --train_batch_size=4 --lr_warmup_steps=0 --gradient_accumulation_steps=1 --max_train_steps=999 --learning_rate=5.0e-04 --scale_lr --lr_scheduler="constant" --mixed_precision=fp16 --revision=fp16 --gradient_checkpointing --only_save_embeds --flip_p 0.5 --seeds 0 1 2 --examples-per-class 2 4 8 --device 0       
     '''
 
     args = parse_args()
     output_dir = args.output_dir
 
-    # MR: rank is the current process ID and world size is the number of all active processes
+    # rank is the current process ID and world size is the number of all active processes
     rank = int(os.environ.pop("RANK", 0))
     world_size = int(os.environ.pop("WORLD_SIZE", 1))
 
-    # MR enabled custom divice_id
-    # device_id = rank % torch.cuda.device_count()  # TL: torch.cuda.device_count() is 0 on my lokal machine
+    # device_id = rank % torch.cuda.device_count()
     # torch.cuda.set_device(rank % torch.cuda.device_count())
     device_id = args.device
     torch.cuda.set_device(device_id)
