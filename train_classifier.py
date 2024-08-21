@@ -188,7 +188,7 @@ def run_experiment(examples_per_class: int = 0,
         image_size=(image_size, image_size),
         filter_mask_area=filter_mask_area)
 
-    # TL: RuntimeWarning divide by zero can happen, everything will work as it should,
+    # RuntimeWarning divide by zero can happen, everything will work as it should,
     # but this means that some classes are not present in the validation dataset.
     class_weights = np.where(test_dataset.class_counts == 0, 0, 1.0 / test_dataset.class_counts)
     weights = [class_weights[label] for label in test_dataset.all_labels]
@@ -483,26 +483,13 @@ class ClassificationModel(nn.Module):
 
 if __name__ == "__main__":
     '''
-    TL: This script executes step 3 and 4 of the pipeline (generating synthetic images and training the classifier).
-    To run this skript the fine-tuned embeddings are needed in directory coco-tokens (execute step 1 and 2).
+    This script executes the last steps of the pipeline (generating synthetic images and training the downstream classifier).
+    To run this skript the fine-tuned embeddings are needed (execute step 1 and 2 to get tokens).
+    Also a weighting network (filter) needs to be trained if one should be used and prompts must be generated before.
     The classifier will be a fine-tuned version of classifier-backbone (resnet50) trained on a combination of real
     and synthetic data.
 
-    Run in terminal:
-    (test)
-    python train_classifier.py --synthetic-dir "synthetics_test" --iterations-per-epoch 10 --num-epochs 2 --batch-size 32 --num-synthetic 2 --examples-per-class 1 --embed-path "coco-tokens/coco-0-2.pt" --aug "textual-inversion" --strength 0.8 --guidance-scale 7.5 --mask 0 --inverted 0
-    (values of paper)
-    python train_classifier.py --synthetic-dir "synthetics" --iterations-per-epoch 200 --num-epochs 50 --batch-size 32 --num-synthetic 10 --num-trials 2 --examples-per-class 8 --embed-path "coco-tokens/coco-0-8.pt" --aug "textual-inversion" --strength 0.5 --guidance-scale 7.5 --mask 0 --inverted 0
-
-    30.11 tried filter run:
-    python train_classifier.py --synthetic-dir "synthetics" --iterations-per-epoch 200 --num-epochs 50 --batch-size 32 --num-synthetic 10 --num-trials 2 --examples-per-class 8 --embed-path "coco-tokens/coco-0-8.pt" --aug "textual-inversion" --strength 0.6 --guidance-scale 10 --mask 0 --inverted 0 --synthetics-filter 0.2
-    06.12 filter run without bias:
-    python train_classifier.py --synthetic-dir "synthetics" --iterations-per-epoch 200 --num-epochs 50 --batch-size 32 --num-synthetic 10 --num-trials 2 --examples-per-class 8 --embed-path "coco-tokens/coco-0-8.pt" --aug "textual-inversion" --strength 0.6 --guidance-scale 10 --mask 0 --inverted 0 --synthetics-filter 0.25
-
-    04.01 first road_sign run:
-    python train_classifier.py --dataset "road_sign" --synthetic-dir "synthetics" --iterations-per-epoch 200 --num-epochs 50 --batch-size 32 --num-synthetic 10 --num-trials 1 --examples-per-class 8 --embed-path "road_sign-tokens/road_sign-0-8.pt" --aug "textual-inversion" --strength 0.5 --guidance-scale 7.5
-
-    MR: COCOExtension:
+    Example call in terminal:
     python train_classifier.py --dataset "coco_extension" --synthetic-dir "intermediates/coco_ext_test/synthetic_class_concepts" --logdir "intermediates/coco_ext_test/logs" --iterations-per-epoch 200 --num-epochs 50 --batch-size 32 --num-synthetic 5 --num-trials 1 --examples-per-class 8 --embed-path "intermediates/coco_ext_test/coco_extension-tokens/coco_extension-0-2.pt" --aug "textual-inversion" --strength 0.5 --guidance-scale 7.5 --mask 0 --inverted 0 --use-generated-prompts 0
     '''
 
@@ -513,7 +500,7 @@ if __name__ == "__main__":
     parser.add_argument("--model-path", type=str, default="CompVis/stable-diffusion-v1-4")
     # Path to the Diffusion Model
 
-    parser.add_argument("--prompt", type=str, default="a photo of a {name}")  # TL: Removed the list ["..."]
+    parser.add_argument("--prompt", type=str, default="a photo of a {name}")
     # A Textual Inversion parameter:
     # Augmentations are generated conditioned on the prompt ({name} is replaced with the particular class pseudo word)
 
@@ -637,8 +624,7 @@ if __name__ == "__main__":
     except KeyError:
         rank, world_size = 0, 1
 
-    # MR enabled custom divice_id
-    # device_id = rank % torch.cuda.device_count()  # TL: torch.cuda.device_count() is 0 on my lokal machine
+    # device_id = rank % torch.cuda.device_count()
     # torch.cuda.set_device(rank % torch.cuda.device_count())
     device_id = args.device
     torch.cuda.set_device(device_id)
