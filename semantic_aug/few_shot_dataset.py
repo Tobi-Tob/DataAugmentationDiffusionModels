@@ -24,7 +24,7 @@ DEFAULT_PROMPT = "a photo of a {name}"
 
 class FewShotDataset(Dataset):
     """
-    TL: This dataset simulates a few-shot use case. All inherited classes use examples_per_class
+    This dataset simulates a few-shot use case. All inherited classes use examples_per_class
     as an upper bound for the number of fixed examples they contain.
     """
 

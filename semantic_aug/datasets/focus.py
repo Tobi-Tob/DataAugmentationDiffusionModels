@@ -12,6 +12,10 @@ import warnings
 import matplotlib.pyplot as plt
 import csv
 
+"""
+The images need to be sorted before this dataset can be used. Apply focus_create_split.py for that!
+"""
+
 FOCUS_DIR = r"/data/vilab06/focus"
 # FOCUS_DIR = r"D:\Studium\TUDarmstadt\WiSe23_24\DLCV\datasets\focus\focus"
 

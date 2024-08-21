@@ -3,6 +3,11 @@ import sqlite3
 import shutil
 import random
 
+"""
+This script splits the focus images into separate directories containing only images of a single class.
+Only needs to be done once
+"""
+
 # Root of focus as it comes from the download
 focus_root = "/data/vilab06/focus_original"
 # focus_root = r"D:\Studium\TUDarmstadt\WiSe23_24\DLCV\datasets\focus\focus"
