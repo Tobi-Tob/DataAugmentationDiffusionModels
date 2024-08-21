@@ -17,11 +17,9 @@ import re
 from openai import OpenAI
 from dotenv import load_dotenv
 
-# TODO: make script more immune against bad responses
-
 DEFAULT_PROMPT = "a photo of a {name}"
 
-# classes = ["mouse", "remote"]  # this can be used to create prompts for manual classes  # TODO -> add to args
+# classes = ["mouse", "remote"]  # this can be used to create prompts for manual classes
 
 # Start of Llama part
 DEFAULT_PROMPT_W_SETTING = "a photo of a {name} in a {setting}"
@@ -362,7 +360,9 @@ def configure():
 if __name__ == '__main__':
 
     '''
-    python generate_prompts.py --dataset "coco_extension" --outdir "prompts/coco_extension" --out-filename "prompts_setting_adjective_1.csv" --prompts-per-class 5 --content "setting_adjective"
+    example call from terminal:
+    
+    python generate_prompts.py --dataset "coco" --prompts-per-class 5 --content "setting_adjective"
     '''
 
     # Load .env
