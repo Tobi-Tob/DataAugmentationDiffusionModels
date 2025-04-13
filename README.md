@@ -1,8 +1,7 @@
 # Diverse Image Augmentation with Generative Models
+*Update: This repo is now extended and visible [here](https://github.com/visinf/DIAGen.git). Our corresponding paper can be found [here](https://arxiv.org/abs/2408.14584).*
 
 Simple data augmentation techniques, such as rotations and flips, are widely used to enhance the generalization power of deep learning models. However, these methods often fail to introduce meaningful semantic diversity, such as variations in a dog's breed. Addressing this limitation, and building on a recently proposed method called [DA-Fusion](https://arxiv.org/abs/2302.07944), we explore how to use the general knowledge of generative models to increase semantic diversity in few-shot data. Our approach complements existing data augmentations by synthetically controlling image semantics particularly through prompts. Experimental results demonstrate that our method improves diversity and enhances classifier performance in downstream applications.
-
-Our code builds upon [DA-Fusion](https://github.com/brandontrabucco/da-fusion).
 
 ## Installation (DIAGen)
 
